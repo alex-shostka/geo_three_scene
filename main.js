@@ -185,12 +185,14 @@ canvas.addEventListener('mousemove', (e) => {
     hoveredMesh.material = MAT_ERROR_NORMAL;
     hoveredMesh = null;
     hoverEntity.show = false;
+    canvas.style.cursor = '';
   }
 
   // Подсвечиваем новый
   if (hit) {
     hoveredMesh = hit;
     hit.material = MAT_ERROR_HOVER;
+    canvas.style.cursor = 'pointer';
 
     const data = errorTileData.get(hit.userData.errorTileKey);
     if (data) {
@@ -202,13 +204,45 @@ canvas.addEventListener('mousemove', (e) => {
   }
 });
 
-// Убираем highlight когда мышь уходит с канваса
+// Клик по красному квадрату — подлетаем к тайлу на Cesium
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const px = new THREE.Vector2(
+    ((e.clientX - rect.left) / rect.width)  * 2 - 1,
+    -((e.clientY - rect.top)  / rect.height) * 2 + 1,
+  );
+
+  raycaster.setFromCamera(px, camera);
+
+  const meshes = [];
+  tileGroup.traverse((obj) => {
+    if (obj.isMesh && obj.userData.errorTileKey) meshes.push(obj);
+  });
+  const hits = raycaster.intersectObjects(meshes, false);
+  if (!hits.length) return;
+
+  const data = errorTileData.get(hits[0].object.userData.errorTileKey);
+  if (!data) return;
+
+  const centerLon = (data.west  + data.east)  / 2;
+  const centerLat = (data.south + data.north) / 2;
+  const spanDeg   = Math.max(data.east - data.west, data.north - data.south);
+  // высота ~= размер тайла в метрах * коэффициент (1° ≈ 111 км)
+  const height    = spanDeg * 111_000 * 1.7;
+
+  cesiumViewer.camera.flyTo({
+    destination: Cartesian3.fromDegrees(centerLon, centerLat, height),
+    duration: 1.5,
+  });
+});
+
 canvas.addEventListener('mouseleave', () => {
   if (hoveredMesh) {
     hoveredMesh.material = MAT_ERROR_NORMAL;
     hoveredMesh = null;
   }
   hoverEntity.show = false;
+  canvas.style.cursor = '';
 });
 
 // ─── Tile grid ────────────────────────────────────────────────────────────────
