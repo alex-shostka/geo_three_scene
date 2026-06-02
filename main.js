@@ -142,8 +142,12 @@ localTiles.errorEvent.addEventListener((err) => {
     new THREE.LineBasicMaterial({ color: 0xff0000 }),
   ));
 
+  const tileUrl = localTiles.url
+    .replace('{z}', err.level).replace('{x}', err.x).replace('{y}', err.y);
+  const errorMsg = err.error?.message ?? err.error ?? 'unknown';
+
   // Сохраняем данные для hover
-  errorTileData.set(key, { mesh, west, east, south, north });
+  errorTileData.set(key, { mesh, west, east, south, north, level: err.level, x: err.x, y: err.y, tileUrl, errorMsg });
 });
 
 // ─── Hover: raycasting + Cesium highlight ─────────────────────────────────────
@@ -200,6 +204,20 @@ canvas.addEventListener('mousemove', (e) => {
         data.west, data.south, data.east, data.north,
       );
       hoverEntity.show = true;
+
+      const widthKm  = (data.east  - data.west)  * 111 * Math.cos(((data.south + data.north) / 2) * Math.PI / 180);
+      const heightKm = (data.north - data.south) * 111;
+      console.log(
+        `[tile error]\n` +
+        `  path:   /${data.level}/${data.x}/${data.y}\n` +
+        `  url:    ${data.tileUrl}\n` +
+        `  error:  ${data.errorMsg}\n` +
+        `  lon:    ${data.west.toFixed(4)}° … ${data.east.toFixed(4)}° (center ${((data.west + data.east) / 2).toFixed(4)}°)\n` +
+        `  lat:    ${data.south.toFixed(4)}° … ${data.north.toFixed(4)}° (center ${((data.south + data.north) / 2).toFixed(4)}°)\n` +
+        `  size:   ${widthKm.toFixed(1)} × ${heightKm.toFixed(1)} km\n` +
+        `  zoom:   ${data.level}\n` +
+        `  total error tiles: ${errorTileData.size}`,
+      );
     }
   }
 });
