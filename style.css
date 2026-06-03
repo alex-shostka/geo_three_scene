@@ -28,3 +28,73 @@ body {
   right: 16px;
   z-index: 1000;
 }
+
+/* ── HUD counter ── */
+#tile-hud {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 15, 25, 0.82);
+  border: 1px solid rgba(255, 60, 60, 0.45);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  color: #ccc;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  transition: border-color 0.2s;
+}
+
+#tile-hud.has-errors {
+  border-color: rgba(255, 60, 60, 0.9);
+}
+
+#hud-icon {
+  font-size: 14px;
+  color: #ff4444;
+}
+
+#hud-count {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff6666;
+  min-width: 18px;
+  text-align: right;
+}
+
+#hud-label {
+  color: #888;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Tooltip ── */
+#tile-tooltip {
+  position: fixed;
+  z-index: 1002;
+  pointer-events: none;
+  background: rgba(10, 10, 20, 0.92);
+  border: 1px solid rgba(255, 136, 0, 0.6);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #ddd;
+  white-space: pre;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  display: none;
+}
+
+#tile-tooltip .tt-path  { color: #ff8800; font-weight: 700; font-size: 13px; }
+#tile-tooltip .tt-url   { color: #888; }
+#tile-tooltip .tt-error { color: #ff5555; }
+#tile-tooltip .tt-label { color: #666; }
+#tile-tooltip .tt-value { color: #eee; }

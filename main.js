@@ -148,7 +148,55 @@ localTiles.errorEvent.addEventListener((err) => {
 
   // Сохраняем данные для hover
   errorTileData.set(key, { mesh, west, east, south, north, level: err.level, x: err.x, y: err.y, tileUrl, errorMsg });
+  updateHud();
 });
+
+// ─── HUD + Tooltip ───────────────────────────────────────────────────────────
+
+const hudCount   = document.getElementById('hud-count');
+const hudEl      = document.getElementById('tile-hud');
+const tooltip    = document.getElementById('tile-tooltip');
+
+function updateHud() {
+  const n = errorTileData.size;
+  hudCount.textContent = n;
+  hudEl.classList.toggle('has-errors', n > 0);
+}
+
+function showTooltip(e, data) {
+  const widthKm  = (data.east  - data.west)  * 111 * Math.cos(((data.south + data.north) / 2) * Math.PI / 180);
+  const heightKm = (data.north - data.south) * 111;
+  const centerLon = ((data.west  + data.east)  / 2).toFixed(4);
+  const centerLat = ((data.south + data.north) / 2).toFixed(4);
+
+  tooltip.innerHTML =
+    `<span class="tt-path">/${data.level}/${data.x}/${data.y}</span>\n` +
+    `<span class="tt-label">url   </span><span class="tt-url">${data.tileUrl}</span>\n` +
+    `<span class="tt-label">error </span><span class="tt-error">${data.errorMsg}</span>\n` +
+    `<span class="tt-label">lon   </span><span class="tt-value">${data.west.toFixed(4)}° … ${data.east.toFixed(4)}°  (center ${centerLon}°)</span>\n` +
+    `<span class="tt-label">lat   </span><span class="tt-value">${data.south.toFixed(4)}° … ${data.north.toFixed(4)}°  (center ${centerLat}°)</span>\n` +
+    `<span class="tt-label">size  </span><span class="tt-value">${widthKm.toFixed(1)} × ${heightKm.toFixed(1)} km</span>\n` +
+    `<span class="tt-label">zoom  </span><span class="tt-value">${data.level}</span>`;
+
+  tooltip.style.display = 'block';
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const offset = 16;
+  const tw = tooltip.offsetWidth;
+  const th = tooltip.offsetHeight;
+  let x = e.clientX + offset;
+  let y = e.clientY + offset;
+  if (x + tw > window.innerWidth  - 8) x = e.clientX - tw - offset;
+  if (y + th > window.innerHeight - 8) y = e.clientY - th - offset;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+function hideTooltip() {
+  tooltip.style.display = 'none';
+}
 
 // ─── Hover: raycasting + Cesium highlight ─────────────────────────────────────
 
@@ -184,12 +232,15 @@ canvas.addEventListener('mousemove', (e) => {
   // Ничего не изменилось
   if (hit === hoveredMesh) return;
 
+  moveTooltip(e);
+
   // Снимаем подсветку с предыдущего
   if (hoveredMesh) {
     hoveredMesh.material = MAT_ERROR_NORMAL;
     hoveredMesh = null;
     hoverEntity.show = false;
     canvas.style.cursor = '';
+    hideTooltip();
   }
 
   // Подсвечиваем новый
@@ -204,23 +255,11 @@ canvas.addEventListener('mousemove', (e) => {
         data.west, data.south, data.east, data.north,
       );
       hoverEntity.show = true;
-
-      const widthKm  = (data.east  - data.west)  * 111 * Math.cos(((data.south + data.north) / 2) * Math.PI / 180);
-      const heightKm = (data.north - data.south) * 111;
-      console.log(
-        `[tile error]\n` +
-        `  path:   /${data.level}/${data.x}/${data.y}\n` +
-        `  url:    ${data.tileUrl}\n` +
-        `  error:  ${data.errorMsg}\n` +
-        `  lon:    ${data.west.toFixed(4)}° … ${data.east.toFixed(4)}° (center ${((data.west + data.east) / 2).toFixed(4)}°)\n` +
-        `  lat:    ${data.south.toFixed(4)}° … ${data.north.toFixed(4)}° (center ${((data.south + data.north) / 2).toFixed(4)}°)\n` +
-        `  size:   ${widthKm.toFixed(1)} × ${heightKm.toFixed(1)} km\n` +
-        `  zoom:   ${data.level}\n` +
-        `  total error tiles: ${errorTileData.size}`,
-      );
+      showTooltip(e, data);
     }
   }
 });
+
 
 // Клик по красному квадрату — подлетаем к тайлу на Cesium
 canvas.addEventListener('click', (e) => {
@@ -261,6 +300,7 @@ canvas.addEventListener('mouseleave', () => {
   }
   hoverEntity.show = false;
   canvas.style.cursor = '';
+  hideTooltip();
 });
 
 // ─── Tile grid ────────────────────────────────────────────────────────────────
