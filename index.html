@@ -11,6 +11,29 @@
   <div id="cesium-container"></div>
   <canvas id="three-canvas"></canvas>
 
+  <button id="menu-btn" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <aside id="side-panel">
+    <div id="side-panel-header">
+      <span id="side-panel-title">Menu</span>
+    </div>
+    <div id="side-panel-content">
+      <ul class="settings-list">
+
+        <li class="settings-item">
+          <label class="settings-label">
+            <span class="settings-text">Активные тайлы на сцене</span>
+            <input type="checkbox" id="toggle-active-tiles">
+            <span class="settings-toggle"></span>
+          </label>
+        </li>
+
+      </ul>
+    </div>
+  </aside>
+
   <div id="tile-hud">
     <span id="hud-icon">⚠</span>
     <span id="hud-count">0</span>

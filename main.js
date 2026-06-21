@@ -11,6 +11,30 @@ Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg4N
 
 const AMSTERDAM = { lon: 4.9041, lat: 52.3676 };
 
+// ─── Hamburger menu ──────────────────────────────────────────────────────────
+
+const menuBtn   = document.getElementById('menu-btn');
+const sidePanel = document.getElementById('side-panel');
+
+menuBtn.addEventListener('click', () => {
+  const isOpen = sidePanel.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded', isOpen);
+});
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+
+export const settings = {
+  activeTilesOnScene: false,
+};
+
+document.getElementById('toggle-active-tiles').addEventListener('change', (e) => {
+  settings.activeTilesOnScene = e.target.checked;
+  if (!e.target.checked && hoveredActiveTile) {
+    hoveredActiveTile.fillMesh.material.opacity = 0;
+    hoveredActiveTile = null;
+  }
+});
+
 // ─── Three.js setup ──────────────────────────────────────────────────────────
 
 const canvas = document.getElementById('three-canvas');
@@ -48,6 +72,12 @@ const seenTiles = new Set();
  */
 const errorTileData = new Map();
 
+/**
+ * Хранит данные об активных тайлах сцены для hover-логики.
+ * key = `level/x/y`, value = { hitMesh, fillMesh, lineMat, baseColor, west, east, south, north, level, x, y }
+ */
+const activeTileData = new Map();
+
 // ─── Cesium setup ─────────────────────────────────────────────────────────────
 
 const localTiles = new UrlTemplateImageryProvider({
@@ -75,7 +105,7 @@ const cesiumViewer = new Viewer('cesium-container', {
 window.geoThreeScene = { cesiumViewer };
 
 cesiumViewer.camera.setView({
-  destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, 5000000),
+  destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, 50000),
 });
 
 // ─── Cesium hover entity ──────────────────────────────────────────────────────
@@ -203,8 +233,11 @@ function hideTooltip() {
 const raycaster = new THREE.Raycaster();
 const pointer   = new THREE.Vector2();
 
-/** Mesh который сейчас под курсором (или null) */
+/** Mesh который сейчас под курсором (error tile, или null) */
 let hoveredMesh = null;
+
+/** Данные активного тайла под курсором (или null) */
+let hoveredActiveTile = null;
 
 const MAT_ERROR_NORMAL = new THREE.MeshBasicMaterial({
   color: 0xff2222, transparent: true, opacity: 0.55, depthWrite: false,
@@ -220,44 +253,70 @@ canvas.addEventListener('mousemove', (e) => {
 
   raycaster.setFromCamera(pointer, camera);
 
-  // Проверяем только Mesh объекты с маркером errorTileKey
-  const meshes = [];
+  // Один проход — собираем оба типа meshes
+  const errorMeshes  = [];
+  const activeMeshes = [];
   tileGroup.traverse((obj) => {
-    if (obj.isMesh && obj.userData.errorTileKey) meshes.push(obj);
+    if (!obj.isMesh) return;
+    if (obj.userData.errorTileKey)  errorMeshes.push(obj);
+    if (obj.userData.activeTileKey) activeMeshes.push(obj);
   });
-  const hits = raycaster.intersectObjects(meshes, false);
 
-  const hit = hits.length > 0 ? hits[0].object : null;
+  // Хиты error-тайлов
+  const errorHits  = raycaster.intersectObjects(errorMeshes, false);
+  const newErrorHit = errorHits.length > 0 ? errorHits[0].object : null;
 
-  // Ничего не изменилось
-  if (hit === hoveredMesh) return;
+  // Хиты активных тайлов (только если тоггл включён)
+  const newActiveData = settings.activeTilesOnScene && activeMeshes.length
+    ? activeTileData.get(raycaster.intersectObjects(activeMeshes, false)[0]?.object?.userData?.activeTileKey)
+    : null;
 
-  moveTooltip(e);
-
-  // Снимаем подсветку с предыдущего
-  if (hoveredMesh) {
-    hoveredMesh.material = MAT_ERROR_NORMAL;
-    hoveredMesh = null;
-    hoverEntity.show = false;
-    canvas.style.cursor = '';
-    hideTooltip();
+  // ── Error tile hover ──────────────────────────────────────────────────────
+  if (newErrorHit !== hoveredMesh) {
+    if (hoveredMesh) {
+      hoveredMesh.material = MAT_ERROR_NORMAL;
+      hoveredMesh = null;
+      hideTooltip();
+    }
+    if (newErrorHit) {
+      hoveredMesh = newErrorHit;
+      newErrorHit.material = MAT_ERROR_HOVER;
+      const data = errorTileData.get(newErrorHit.userData.errorTileKey);
+      if (data) showTooltip(e, data);
+    }
+  } else if (hoveredMesh) {
+    moveTooltip(e);
   }
 
-  // Подсвечиваем новый
-  if (hit) {
-    hoveredMesh = hit;
-    hit.material = MAT_ERROR_HOVER;
-    canvas.style.cursor = 'pointer';
-
-    const data = errorTileData.get(hit.userData.errorTileKey);
-    if (data) {
-      hoverEntity.rectangle.coordinates = Rectangle.fromDegrees(
-        data.west, data.south, data.east, data.north,
-      );
-      hoverEntity.show = true;
-      showTooltip(e, data);
+  // ── Active tile hover ─────────────────────────────────────────────────────
+  if (newActiveData !== hoveredActiveTile) {
+    if (hoveredActiveTile) {
+      hoveredActiveTile.fillMesh.material.opacity = 0;
+    }
+    hoveredActiveTile = newActiveData ?? null;
+    if (hoveredActiveTile) {
+      hoveredActiveTile.fillMesh.material.opacity = 0.15;
     }
   }
+
+  // ── Cesium highlight: error имеет приоритет над активным ─────────────────
+  if (hoveredMesh) {
+    const data = errorTileData.get(hoveredMesh.userData.errorTileKey);
+    if (data) {
+      hoverEntity.rectangle.coordinates = Rectangle.fromDegrees(data.west, data.south, data.east, data.north);
+      hoverEntity.show = true;
+    }
+  } else if (hoveredActiveTile) {
+    hoverEntity.rectangle.coordinates = Rectangle.fromDegrees(
+      hoveredActiveTile.west, hoveredActiveTile.south,
+      hoveredActiveTile.east, hoveredActiveTile.north,
+    );
+    hoverEntity.show = true;
+  } else {
+    hoverEntity.show = false;
+  }
+
+  canvas.style.cursor = (hoveredMesh || hoveredActiveTile) ? 'pointer' : '';
 });
 
 
@@ -297,6 +356,10 @@ canvas.addEventListener('mouseleave', () => {
   if (hoveredMesh) {
     hoveredMesh.material = MAT_ERROR_NORMAL;
     hoveredMesh = null;
+  }
+  if (hoveredActiveTile) {
+    hoveredActiveTile.fillMesh.material.opacity = 0;
+    hoveredActiveTile = null;
   }
   hoverEntity.show = false;
   canvas.style.cursor = '';
@@ -379,8 +442,10 @@ function buildTileGrid(tiles) {
     const east  = r.east  * 180 / Math.PI;
     const south = r.south * 180 / Math.PI;
     const north = r.north * 180 / Math.PI;
+    const z     = -tile.level * LEVEL_DEPTH;
 
-    const color = LEVEL_COLORS[tile.level % LEVEL_COLORS.length];
+    const baseColor = LEVEL_COLORS[tile.level % LEVEL_COLORS.length];
+
     const pts = [
       geoToScene(west, south, tile.level),
       geoToScene(east, south, tile.level),
@@ -390,8 +455,39 @@ function buildTileGrid(tiles) {
     ];
     tileGroup.add(new THREE.Line(
       new THREE.BufferGeometry().setFromPoints(pts),
-      new THREE.LineBasicMaterial({ color }),
+      new THREE.LineBasicMaterial({ color: baseColor }),
     ));
+
+    const w = east - west;
+    const h = north - south;
+    const cx = (west + east) / 2;
+    const cy = (south + north) / 2;
+
+    // Полупрозрачная заливка — показывается при ховере
+    const fillMat = new THREE.MeshBasicMaterial({
+      color: baseColor,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    const fillMesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), fillMat);
+    fillMesh.position.set(cx, cy, z - 0.01);
+    tileGroup.add(fillMesh);
+
+    // Невидимый mesh для raycasting
+    const hitMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
+      new THREE.MeshBasicMaterial({ visible: false }),
+    );
+    hitMesh.position.set(cx, cy, z);
+    hitMesh.userData.activeTileKey = key;
+    tileGroup.add(hitMesh);
+
+    activeTileData.set(key, {
+      fillMesh, baseColor,
+      west, east, south, north,
+      level: tile.level, x: tile.x, y: tile.y,
+    });
   });
 }
 
