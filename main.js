@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
   Viewer, Ion, Cartesian3,
-  UrlTemplateImageryProvider, ImageryLayer,
+  UrlTemplateImageryProvider, TileCoordinatesImageryProvider, ImageryLayer,
   Rectangle, Color,
 } from 'cesium';
 
@@ -25,13 +25,44 @@ menuBtn.addEventListener('click', () => {
 
 export const settings = {
   activeTilesOnScene: false,
+  flyToTile: false,
 };
+
+const toggleFlyToTile = document.getElementById('toggle-fly-to-tile');
 
 document.getElementById('toggle-active-tiles').addEventListener('change', (e) => {
   settings.activeTilesOnScene = e.target.checked;
-  if (!e.target.checked && hoveredActiveTile) {
-    hoveredActiveTile.fillMesh.material.opacity = 0;
-    hoveredActiveTile = null;
+  if (!e.target.checked) {
+    if (hoveredActiveTile) {
+      hoveredActiveTile.fillMesh.material.opacity = 0;
+      hoveredActiveTile = null;
+    }
+    // сбрасываем подлёт если активные тайлы выключены
+    toggleFlyToTile.checked = false;
+    toggleFlyToTile.disabled = true;
+    settings.flyToTile = false;
+  } else {
+    toggleFlyToTile.disabled = false;
+  }
+});
+
+toggleFlyToTile.addEventListener('change', (e) => {
+  settings.flyToTile = e.target.checked;
+});
+
+// Слой сетки тайлов — создаётся один раз и показывается/скрывается тогглом
+let tileGridLayer = null;
+
+document.getElementById('toggle-tile-grid').addEventListener('change', (e) => {
+  if (e.target.checked) {
+    if (!tileGridLayer) {
+      tileGridLayer = cesiumViewer.imageryLayers.addImageryProvider(
+        new TileCoordinatesImageryProvider({ color: Color.WHITE }),
+      );
+    }
+    tileGridLayer.show = true;
+  } else if (tileGridLayer) {
+    tileGridLayer.show = false;
   }
 });
 
@@ -320,36 +351,49 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 
-// Клик по красному квадрату — подлетаем к тайлу на Cesium
+function flyToTileData(data) {
+  const centerLon = (data.west + data.east)  / 2;
+  const centerLat = (data.south + data.north) / 2;
+  // Сохраняем текущую высоту — не меняем zoom, чтобы сетка не перестроилась
+  const currentHeight = cesiumViewer.camera.positionCartographic.height;
+  cesiumViewer.camera.flyTo({
+    destination: Cartesian3.fromDegrees(centerLon, centerLat, currentHeight),
+    duration: 1.5,
+  });
+}
+
+// Клик по квадрату на сцене — подлёт включён тогглом
 canvas.addEventListener('click', (e) => {
+  if (!settings.flyToTile) return;
+
   const rect = canvas.getBoundingClientRect();
   const px = new THREE.Vector2(
     ((e.clientX - rect.left) / rect.width)  * 2 - 1,
     -((e.clientY - rect.top)  / rect.height) * 2 + 1,
   );
-
   raycaster.setFromCamera(px, camera);
 
-  const meshes = [];
+  const errorMeshes  = [];
+  const activeMeshes = [];
   tileGroup.traverse((obj) => {
-    if (obj.isMesh && obj.userData.errorTileKey) meshes.push(obj);
+    if (!obj.isMesh) return;
+    if (obj.userData.errorTileKey)  errorMeshes.push(obj);
+    if (obj.userData.activeTileKey) activeMeshes.push(obj);
   });
-  const hits = raycaster.intersectObjects(meshes, false);
-  if (!hits.length) return;
 
-  const data = errorTileData.get(hits[0].object.userData.errorTileKey);
-  if (!data) return;
+  // error-тайлы имеют приоритет
+  const errorHits = raycaster.intersectObjects(errorMeshes, false);
+  if (errorHits.length) {
+    const data = errorTileData.get(errorHits[0].object.userData.errorTileKey);
+    if (data) { flyToTileData(data); return; }
+  }
 
-  const centerLon = (data.west  + data.east)  / 2;
-  const centerLat = (data.south + data.north) / 2;
-  const spanDeg   = Math.max(data.east - data.west, data.north - data.south);
-  // высота ~= размер тайла в метрах * коэффициент (1° ≈ 111 км)
-  const height    = spanDeg * 111_000 * 1.7;
-
-  cesiumViewer.camera.flyTo({
-    destination: Cartesian3.fromDegrees(centerLon, centerLat, height),
-    duration: 1.5,
-  });
+  // active-тайлы
+  const activeHits = raycaster.intersectObjects(activeMeshes, false);
+  if (activeHits.length) {
+    const data = activeTileData.get(activeHits[0].object.userData.activeTileKey);
+    if (data) flyToTileData(data);
+  }
 });
 
 canvas.addEventListener('mouseleave', () => {

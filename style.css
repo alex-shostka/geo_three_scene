@@ -205,6 +205,19 @@ body {
   transform: translateX(16px);
 }
 
+.settings-label input:disabled ~ .settings-toggle {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.settings-label:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.settings-label:has(input:disabled) .settings-text {
+  opacity: 0.4;
+}
+
 /* ── HUD counter ── */
 #tile-hud {
   position: fixed;
