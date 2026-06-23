@@ -7,4 +7,6 @@ dist/
 .vscode/
 
 public/tiles/
+public/tiles_glb/
+public/tiles_glb_meta_ext/
 public/cesium/

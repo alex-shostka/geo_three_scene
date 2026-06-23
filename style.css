@@ -81,7 +81,7 @@ body {
 #side-panel {
   position: fixed;
   top: 12px;
-  left: 12px;
+  left: 68px;
   z-index: 1099;
   width: 500px;
   height: calc(100% - 24px);
@@ -108,7 +108,6 @@ body {
   display: flex;
   align-items: center;
   padding: 18px 20px;
-  padding-left: 72px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   flex-shrink: 0;
 }
@@ -287,3 +286,108 @@ body {
 #tile-tooltip .tt-error { color: #ff5555; }
 #tile-tooltip .tt-label { color: #666; }
 #tile-tooltip .tt-value { color: #eee; }
+
+/* ── Tile card ── */
+#tile-card {
+  position: fixed;
+  top: 12px;
+  left: 68px;
+  z-index: 1098;
+  width: 500px;
+  height: auto;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #f5f6f8 0%, #eceef2 100%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.8) inset,
+    0 12px 48px rgba(0, 0, 0, 0.18),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#tile-card.open {
+  display: flex;
+}
+
+#tile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  flex-shrink: 0;
+}
+
+#tile-card-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#tile-card-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+#tile-card-close:hover {
+  color: #1f2937;
+}
+
+#tile-card-body {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tc-mesh {
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+
+.tc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tc-table tr + tr td {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tc-key {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 16px;
+  color: #9ca3af;
+  padding: 7px 12px;
+  white-space: nowrap;
+  vertical-align: top;
+  width: 1%;
+}
+
+.tc-val {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 16px;
+  color: #1f2937;
+  padding: 7px 12px;
+  word-break: break-all;
+}
+
+.tc-empty {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 8px 4px;
+}

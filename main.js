@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {
-  Viewer, Ion, Cartesian3,
+  Viewer, Ion, Cartesian3, Cartesian2, Cartographic,
   UrlTemplateImageryProvider, TileCoordinatesImageryProvider, ImageryLayer,
   Rectangle, Color,
 } from 'cesium';
@@ -16,6 +17,22 @@ const AMSTERDAM = { lon: 4.9041, lat: 52.3676 };
 const menuBtn   = document.getElementById('menu-btn');
 const sidePanel = document.getElementById('side-panel');
 
+// ─── Tile card ───────────────────────────────────────────────────────────────
+
+const tileCard      = document.getElementById('tile-card');
+const tileCardTitle = document.getElementById('tile-card-title');
+const tileCardBody  = document.getElementById('tile-card-body');
+
+document.getElementById('tile-card-close').addEventListener('click', () => {
+  tileCard.classList.remove('open');
+});
+
+function openTileCard(title = 'Тайл', bodyHtml = '') {
+  tileCardTitle.textContent = title;
+  tileCardBody.innerHTML    = bodyHtml;
+  tileCard.classList.add('open');
+}
+
 menuBtn.addEventListener('click', () => {
   const isOpen = sidePanel.classList.toggle('open');
   menuBtn.setAttribute('aria-expanded', isOpen);
@@ -26,6 +43,8 @@ menuBtn.addEventListener('click', () => {
 export const settings = {
   activeTilesOnScene: false,
   flyToTile: false,
+  glbTiles: false,
+  glbMetadata: false,
 };
 
 const toggleFlyToTile = document.getElementById('toggle-fly-to-tile');
@@ -64,6 +83,115 @@ document.getElementById('toggle-tile-grid').addEventListener('change', (e) => {
   } else if (tileGridLayer) {
     tileGridLayer.show = false;
   }
+});
+
+// ─── GLB tiles ───────────────────────────────────────────────────────────────
+
+const glbLoader  = new GLTFLoader();
+// key `z/x/y` → { gltf, model, info, metadata } — data-only, nothing added to Three.js scene
+const loadedGlbs = new Map();
+
+// Reads property values from EXT_structural_metadata binary buffers via gltf.parser.
+async function parseStructuralMetadata(gltf) {
+  const ext = gltf.parser.json.extensions?.EXT_structural_metadata;
+  if (!ext?.propertyTables?.length) return null;
+
+  const table      = ext.propertyTables[0];
+  const classProps = ext.schema?.classes?.[table.class]?.properties;
+  if (!classProps) return null;
+
+  const result  = {};
+  const decoder = new TextDecoder();
+
+  for (const [propName, tableEntry] of Object.entries(table.properties)) {
+    const schemaProp = classProps[propName];
+    if (!schemaProp) continue;
+    try {
+      const valuesBV = await gltf.parser.getDependency('bufferView', tableEntry.values);
+      if (schemaProp.type === 'STRING') {
+        const offsetBV = await gltf.parser.getDependency('bufferView', tableEntry.stringOffsets);
+        const offsets  = new Uint32Array(offsetBV);
+        const bytes    = new Uint8Array(valuesBV);
+        const strings  = [];
+        for (let i = 0; i < table.count; i++) {
+          strings.push(decoder.decode(bytes.slice(offsets[i], offsets[i + 1])));
+        }
+        result[propName] = table.count === 1 ? strings[0] : strings;
+      } else if (schemaProp.componentType === 'FLOAT32') {
+        const floats = new Float32Array(valuesBV);
+        result[propName] = table.count === 1 ? floats[0] : Array.from(floats);
+      }
+    } catch { /* skip property on parse error */ }
+  }
+
+  return Object.keys(result).length ? result : null;
+}
+
+function loadGlbTile(z, x, y) {
+  const key = `${z}/${x}/${y}`;
+  if (loadedGlbs.has(key)) return;
+  loadedGlbs.set(key, null); // reserve slot to prevent duplicate fetches
+
+  const rect  = localTiles.tilingScheme.tileXYToRectangle(x, y, z);
+  const west  = rect.west  * 180 / Math.PI;
+  const east  = rect.east  * 180 / Math.PI;
+  const south = rect.south * 180 / Math.PI;
+  const north = rect.north * 180 / Math.PI;
+  const info  = { z, x, y, west, east, south, north, url: `/tiles_glb_meta_ext/${z}/${x}/${y}.glb` };
+
+  glbLoader.load(
+    info.url,
+    async (gltf) => {
+      gltf.scene.userData.glbTileInfo = info;
+      const metadata = await parseStructuralMetadata(gltf);
+      loadedGlbs.set(key, { gltf, model: gltf.scene, info, metadata });
+    },
+    undefined,
+    () => { loadedGlbs.delete(key); },
+  );
+}
+
+const GLB_LEVELS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+/**
+ * Loads GLB tiles for all GLB_LEVELS that cover the current camera viewport.
+ * Uses WebMercator tiling scheme (same as the imagery layer) so tile x/y match the GLB filenames.
+ * Skips any level where the viewport spans more than 200 tiles (too many to load at once).
+ */
+function loadGlbForViewport() {
+  const rect = cesiumViewer.camera.computeViewRectangle();
+  if (!rect) return;
+
+  const scheme = localTiles.tilingScheme;
+  GLB_LEVELS.forEach((level) => {
+    const nw = scheme.positionToTileXY(new Cartographic(rect.west, rect.north), level);
+    const se = scheme.positionToTileXY(new Cartographic(rect.east, rect.south), level);
+    if (!nw || !se) return;
+    if ((se.x - nw.x + 1) * (se.y - nw.y + 1) > 200) return;
+    for (let tx = nw.x; tx <= se.x; tx++) {
+      for (let ty = nw.y; ty <= se.y; ty++) {
+        loadGlbTile(level, tx, ty);
+      }
+    }
+  });
+}
+
+const toggleGlbMetadata = document.getElementById('toggle-glb-metadata');
+
+document.getElementById('toggle-glb-tiles').addEventListener('change', (e) => {
+  settings.glbTiles = e.target.checked;
+  if (e.target.checked) {
+    loadGlbForViewport();
+    toggleGlbMetadata.disabled = false;
+  } else {
+    toggleGlbMetadata.checked  = false;
+    toggleGlbMetadata.disabled = true;
+    settings.glbMetadata = false;
+  }
+});
+
+toggleGlbMetadata.addEventListener('change', (e) => {
+  settings.glbMetadata = e.target.checked;
 });
 
 // ─── Three.js setup ──────────────────────────────────────────────────────────
@@ -137,6 +265,204 @@ window.geoThreeScene = { cesiumViewer };
 
 cesiumViewer.camera.setView({
   destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, 50000),
+});
+
+// ─── Cesium tile hover (GLB metadata border) ─────────────────────────────────
+
+const glbHoverOutline = cesiumViewer.entities.add({
+  show: false,
+  polyline: {
+    positions: [],
+    width: 4,
+    material: Color.CYAN.withAlpha(0.9),
+    clampToGround: true,
+  },
+});
+
+let lastHoveredCesiumTileKey = null;
+
+cesiumViewer.canvas.addEventListener('mousemove', (e) => {
+  if (!settings.glbMetadata) {
+    if (glbHoverOutline.show) {
+      glbHoverOutline.show = false;
+      lastHoveredCesiumTileKey = null;
+    }
+    return;
+  }
+
+  const carto = cesiumViewer.camera.pickEllipsoid(
+    new Cartesian2(e.offsetX, e.offsetY),
+    cesiumViewer.scene.globe.ellipsoid,
+  );
+  if (!carto) {
+    glbHoverOutline.show = false;
+    lastHoveredCesiumTileKey = null;
+    return;
+  }
+
+  const cartographic = Cartographic.fromCartesian(carto);
+  const tiles = cesiumViewer.scene.globe._surface._tilesToRender ?? [];
+  const hit = tiles.find((t) => {
+    const r = t.rectangle;
+    return cartographic.longitude >= r.west  && cartographic.longitude <= r.east &&
+           cartographic.latitude  >= r.south && cartographic.latitude  <= r.north;
+  });
+
+  if (!hit) {
+    glbHoverOutline.show = false;
+    lastHoveredCesiumTileKey = null;
+    return;
+  }
+
+  const key = `${hit.level}/${hit.x}/${hit.y}`;
+  if (key === lastHoveredCesiumTileKey) return;
+  lastHoveredCesiumTileKey = key;
+
+  const r = hit.rectangle;
+  glbHoverOutline.polyline.positions = Cartesian3.fromRadiansArray([
+    r.west,  r.south,
+    r.east,  r.south,
+    r.east,  r.north,
+    r.west,  r.north,
+    r.west,  r.south,
+  ]);
+  glbHoverOutline.show = true;
+});
+
+cesiumViewer.canvas.addEventListener('mouseleave', () => {
+  glbHoverOutline.show = false;
+  lastHoveredCesiumTileKey = null;
+});
+
+// ─── Cesium tile click ────────────────────────────────────────────────────────
+
+cesiumViewer.canvas.addEventListener('click', (e) => {
+  const carto = cesiumViewer.camera.pickEllipsoid(
+    new Cartesian2(e.offsetX, e.offsetY),
+    cesiumViewer.scene.globe.ellipsoid,
+  );
+  if (!carto) return;
+
+  const cartographic = Cartographic.fromCartesian(carto);
+  const lon = cartographic.longitude * 180 / Math.PI;
+  const lat = cartographic.latitude  * 180 / Math.PI;
+
+  const tiles = cesiumViewer.scene.globe._surface._tilesToRender ?? [];
+  const hit = tiles.find((t) => {
+    const r = t.rectangle;
+    return cartographic.longitude >= r.west  && cartographic.longitude <= r.east &&
+           cartographic.latitude  >= r.south && cartographic.latitude  <= r.north;
+  });
+
+  if (!hit) {
+    console.log('[tile] no rendered tile at', lon.toFixed(5), lat.toFixed(5));
+    return;
+  }
+
+  const r = hit.rectangle;
+  console.group(`[cesium tile] ${hit.level}/${hit.x}/${hit.y} (GeographicScheme)`);
+  console.log('lon/lat clicked:', lon.toFixed(5), lat.toFixed(5));
+  console.log('bounds (deg):', {
+    west:  (r.west  * 180 / Math.PI).toFixed(5),
+    east:  (r.east  * 180 / Math.PI).toFixed(5),
+    south: (r.south * 180 / Math.PI).toFixed(5),
+    north: (r.north * 180 / Math.PI).toFixed(5),
+  });
+  console.log('cesium tile:', hit);
+
+  // Find all loaded GLBs whose geographic bounds contain the clicked point.
+  // GLBs use WebMercator coords — different scheme from Cesium globe tiles,
+  // so we match by position, not by key.
+  const matchingGlbs = [];
+  for (const entry of loadedGlbs.values()) {
+    if (!entry) continue;
+    const info = entry.model.userData.glbTileInfo;
+    if (lon >= info.west && lon <= info.east && lat >= info.south && lat <= info.north) {
+      matchingGlbs.push(entry);
+    }
+  }
+
+  console.log(`loadedGlbs total: ${loadedGlbs.size} | matching this point: ${matchingGlbs.length}`);
+
+  if (matchingGlbs.length && settings.glbMetadata) {
+    let bodyHtml = '';
+
+    // Pick the GLB whose zoom level is closest to the current camera level
+    const best = matchingGlbs.reduce((a, b) =>
+      Math.abs(a.info.z - hit.level) <= Math.abs(b.info.z - hit.level) ? a : b,
+    );
+
+    [best].forEach(({ gltf, model, info }) => {
+      bodyHtml += `<div class="tc-mesh"><table class="tc-table">`;
+      [['url', info.url], ['west', info.west], ['east', info.east], ['south', info.south], ['north', info.north]].forEach(([k, v]) => {
+        bodyHtml += `<tr><td class="tc-key">${k}</td><td class="tc-val">${v}</td></tr>`;
+      });
+      bodyHtml += `</table></div>`;
+      console.group(`glb ${info.z}/${info.x}/${info.y} (WebMercator)`);
+      console.log('tile info:', info);
+      console.log('gltf:', gltf);
+      console.log('animations:', gltf.animations);
+      console.log('asset:', gltf.asset);
+
+      const meshes = [];
+      model.traverse((obj) => { if (obj.isMesh) meshes.push(obj); });
+      console.log(`meshes (${meshes.length}):`, meshes);
+
+      meshes.forEach((m, i) => {
+        const geo = m.geometry;
+        console.group(`mesh[${i}] "${m.name}"`);
+        console.log('material:', m.material);
+        console.log('geometry attributes:', Object.fromEntries(
+          Object.entries(geo.attributes).map(([k, a]) => [k, { count: a.count, itemSize: a.itemSize }]),
+        ));
+        if (geo.index) console.log('indexed faces:', geo.index.count / 3);
+        console.log('userData:', m.userData);
+        console.groupEnd();
+      });
+
+      const formatVal = (k, v) => {
+        if (k === 'createTime' && typeof v === 'string') {
+          return new Date(v).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        return typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+      };
+
+      if (best.metadata) {
+        // Primary: EXT_structural_metadata parsed from binary buffers
+        bodyHtml += `<div class="tc-mesh"><table class="tc-table">`;
+        Object.entries(best.metadata).forEach(([k, v]) => {
+          bodyHtml += `<tr><td class="tc-key">${k}</td><td class="tc-val">${formatVal(k, v)}</td></tr>`;
+        });
+        bodyHtml += `</table></div>`;
+      } else {
+        // Fallback: mesh.extras / node.extras via userData
+        const seen = new Set();
+        model.traverse((obj) => {
+          const entries = Object.entries(obj.userData).filter(([k]) => k !== 'glbTileInfo');
+          if (!entries.length) return;
+          const dedupeKey = JSON.stringify(obj.userData);
+          if (seen.has(dedupeKey)) return;
+          seen.add(dedupeKey);
+          bodyHtml += `<div class="tc-mesh"><table class="tc-table">`;
+          entries.forEach(([k, v]) => {
+            bodyHtml += `<tr><td class="tc-key">${k}</td><td class="tc-val">${formatVal(k, v)}</td></tr>`;
+          });
+          bodyHtml += `</table></div>`;
+        });
+      }
+      console.groupEnd();
+    });
+
+    if (!bodyHtml) bodyHtml = '<span class="tc-empty">userData пуст</span>';
+    openTileCard(`${hit.level} / ${hit.x} / ${hit.y}`, bodyHtml);
+  } else if (settings.glbMetadata) {
+    openTileCard(`${hit.level} / ${hit.x} / ${hit.y}`, '<span class="tc-empty">GLB не загружен для этой точки</span>');
+    console.log('glb: no loaded GLB covers this point (toggle enabled?', settings.glbTiles, ')');
+  } else {
+    console.log('glb: no loaded GLB covers this point (toggle enabled?', settings.glbTiles, ')');
+  }
+
+  console.groupEnd();
 });
 
 // ─── Cesium hover entity ──────────────────────────────────────────────────────
@@ -396,6 +722,7 @@ canvas.addEventListener('click', (e) => {
   }
 });
 
+
 canvas.addEventListener('mouseleave', () => {
   if (hoveredMesh) {
     hoveredMesh.material = MAT_ERROR_NORMAL;
@@ -417,6 +744,7 @@ cesiumViewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength) =>
     const tiles = cesiumViewer.scene.globe._surface._tilesToRender;
     buildTileGrid(tiles);
     focusCameraOnTiles(tiles);
+    if (settings.glbTiles) loadGlbForViewport();
   }
 });
 

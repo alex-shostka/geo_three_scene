@@ -46,6 +46,22 @@
           </label>
         </li>
 
+        <li class="settings-item">
+          <label class="settings-label">
+            <span class="settings-text">GLB тайлы (3D)</span>
+            <input type="checkbox" id="toggle-glb-tiles">
+            <span class="settings-toggle"></span>
+          </label>
+        </li>
+
+        <li class="settings-item settings-item--child">
+          <label class="settings-label">
+            <span class="settings-text">Включить метадата GLB</span>
+            <input type="checkbox" id="toggle-glb-metadata" disabled>
+            <span class="settings-toggle"></span>
+          </label>
+        </li>
+
       </ul>
     </div>
   </aside>
@@ -57,6 +73,14 @@
   </div>
 
   <div id="tile-tooltip"></div>
+
+  <div id="tile-card">
+    <div id="tile-card-header">
+      <span id="tile-card-title">Тайл</span>
+      <button id="tile-card-close" aria-label="Закрыть">&times;</button>
+    </div>
+    <div id="tile-card-body"></div>
+  </div>
 
   <script type="module" src="main.js"></script>
 </body>
