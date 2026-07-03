@@ -27,7 +27,7 @@ document.getElementById('tile-card-close').addEventListener('click', () => {
   tileCard.classList.remove('open');
 });
 
-function openTileCard(title = 'Тайл', bodyHtml = '') {
+function openTileCard(title = 'Tile', bodyHtml = '') {
   tileCardTitle.textContent = title;
   tileCardBody.innerHTML    = bodyHtml;
   tileCard.classList.add('open');
@@ -56,7 +56,7 @@ document.getElementById('toggle-active-tiles').addEventListener('change', (e) =>
       hoveredActiveTile.fillMesh.material.opacity = 0;
       hoveredActiveTile = null;
     }
-    // сбрасываем подлёт если активные тайлы выключены
+    // reset fly-to if active tiles are disabled
     toggleFlyToTile.checked = false;
     toggleFlyToTile.disabled = true;
     settings.flyToTile = false;
@@ -69,7 +69,7 @@ toggleFlyToTile.addEventListener('change', (e) => {
   settings.flyToTile = e.target.checked;
 });
 
-// Слой сетки тайлов — создаётся один раз и показывается/скрывается тогглом
+// Tile grid layer — created once and shown/hidden via the toggle
 let tileGridLayer = null;
 
 document.getElementById('toggle-tile-grid').addEventListener('change', (e) => {
@@ -222,17 +222,17 @@ const LEVEL_COLORS = [
 const tileGroup = new THREE.Group();
 scene.add(tileGroup);
 
-/** Ключи уже добавленных в сцену тайлов — предотвращает дублирование */
+/** Keys of tiles already added to the scene — prevents duplication */
 const seenTiles = new Set();
 
 /**
- * Хранит данные об ошибочных тайлах для hover-логики.
- * key = `err:level/x/y`, value = { mesh, west, east, south, north } (в градусах)
+ * Stores data about error tiles for hover logic.
+ * key = `err:level/x/y`, value = { mesh, west, east, south, north } (in degrees)
  */
 const errorTileData = new Map();
 
 /**
- * Хранит данные об активных тайлах сцены для hover-логики.
+ * Stores data about active scene tiles for hover logic.
  * key = `level/x/y`, value = { hitMesh, fillMesh, lineMat, baseColor, west, east, south, north, level, x, y }
  */
 const activeTileData = new Map();
@@ -453,10 +453,10 @@ cesiumViewer.canvas.addEventListener('click', (e) => {
       console.groupEnd();
     });
 
-    if (!bodyHtml) bodyHtml = '<span class="tc-empty">userData пуст</span>';
+    if (!bodyHtml) bodyHtml = '<span class="tc-empty">userData is empty</span>';
     openTileCard(`${hit.level} / ${hit.x} / ${hit.y}`, bodyHtml);
   } else if (settings.glbMetadata) {
-    openTileCard(`${hit.level} / ${hit.x} / ${hit.y}`, '<span class="tc-empty">GLB не загружен для этой точки</span>');
+    openTileCard(`${hit.level} / ${hit.x} / ${hit.y}`, '<span class="tc-empty">No GLB loaded for this point</span>');
     console.log('glb: no loaded GLB covers this point (toggle enabled?', settings.glbTiles, ')');
   } else {
     console.log('glb: no loaded GLB covers this point (toggle enabled?', settings.glbTiles, ')');
@@ -468,8 +468,8 @@ cesiumViewer.canvas.addEventListener('click', (e) => {
 // ─── Cesium hover entity ──────────────────────────────────────────────────────
 
 /**
- * Одна переиспользуемая entity для подсветки тайла на глобусе.
- * Меняем только её `rectangle.coordinates` при каждом hover.
+ * A single reusable entity for highlighting a tile on the globe.
+ * We only change its `rectangle.coordinates` on each hover.
  */
 const hoverEntity = cesiumViewer.entities.add({
   show: false,
@@ -483,11 +483,11 @@ const hoverEntity = cesiumViewer.entities.add({
   },
 });
 
-// ─── Обработка ошибок тайлов ─────────────────────────────────────────────────
+// ─── Tile error handling ─────────────────────────────────────────────────────
 
 /**
- * Когда Cesium не может загрузить тайл (404 и т.д.) — рисуем красный квадрат
- * в Three.js-сцене и сохраняем его данные для hover.
+ * When Cesium fails to load a tile (404, etc.) — draw a red square
+ * in the Three.js scene and store its data for hover.
  */
 localTiles.errorEvent.addEventListener((err) => {
   if (err.x == null || err.y == null || err.level == null) return;
@@ -504,7 +504,7 @@ localTiles.errorEvent.addEventListener((err) => {
   const north = rect.north * 180 / Math.PI;
   const z     = -err.level * LEVEL_DEPTH;
 
-  // Заполненный красный квадрат (только Mesh участвует в raycasting)
+  // Filled red square (only the Mesh participates in raycasting)
   const mat = new THREE.MeshBasicMaterial({
     color: 0xff2222,
     transparent: true,
@@ -513,10 +513,10 @@ localTiles.errorEvent.addEventListener((err) => {
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(east - west, north - south), mat);
   mesh.position.set((west + east) / 2, (south + north) / 2, z);
-  mesh.userData.errorTileKey = key;   // маркер для raycaster
+  mesh.userData.errorTileKey = key;   // marker for the raycaster
   tileGroup.add(mesh);
 
-  // Красный контур поверх
+  // Red outline on top
   const pts = [
     new THREE.Vector3(west, south, z + 0.01),
     new THREE.Vector3(east, south, z + 0.01),
@@ -533,7 +533,7 @@ localTiles.errorEvent.addEventListener((err) => {
     .replace('{z}', err.level).replace('{x}', err.x).replace('{y}', err.y);
   const errorMsg = err.error?.message ?? err.error ?? 'unknown';
 
-  // Сохраняем данные для hover
+  // Store data for hover
   errorTileData.set(key, { mesh, west, east, south, north, level: err.level, x: err.x, y: err.y, tileUrl, errorMsg });
   updateHud();
 });
@@ -590,10 +590,10 @@ function hideTooltip() {
 const raycaster = new THREE.Raycaster();
 const pointer   = new THREE.Vector2();
 
-/** Mesh который сейчас под курсором (error tile, или null) */
+/** Mesh currently under the cursor (error tile, or null) */
 let hoveredMesh = null;
 
-/** Данные активного тайла под курсором (или null) */
+/** Data of the active tile under the cursor (or null) */
 let hoveredActiveTile = null;
 
 const MAT_ERROR_NORMAL = new THREE.MeshBasicMaterial({
@@ -610,7 +610,7 @@ canvas.addEventListener('mousemove', (e) => {
 
   raycaster.setFromCamera(pointer, camera);
 
-  // Один проход — собираем оба типа meshes
+  // Single pass — collect both mesh types
   const errorMeshes  = [];
   const activeMeshes = [];
   tileGroup.traverse((obj) => {
@@ -619,11 +619,11 @@ canvas.addEventListener('mousemove', (e) => {
     if (obj.userData.activeTileKey) activeMeshes.push(obj);
   });
 
-  // Хиты error-тайлов
+  // Error tile hits
   const errorHits  = raycaster.intersectObjects(errorMeshes, false);
   const newErrorHit = errorHits.length > 0 ? errorHits[0].object : null;
 
-  // Хиты активных тайлов (только если тоггл включён)
+  // Active tile hits (only if the toggle is enabled)
   const newActiveData = settings.activeTilesOnScene && activeMeshes.length
     ? activeTileData.get(raycaster.intersectObjects(activeMeshes, false)[0]?.object?.userData?.activeTileKey)
     : null;
@@ -656,7 +656,7 @@ canvas.addEventListener('mousemove', (e) => {
     }
   }
 
-  // ── Cesium highlight: error имеет приоритет над активным ─────────────────
+  // ── Cesium highlight: error takes priority over active ───────────────────
   if (hoveredMesh) {
     const data = errorTileData.get(hoveredMesh.userData.errorTileKey);
     if (data) {
@@ -680,7 +680,7 @@ canvas.addEventListener('mousemove', (e) => {
 function flyToTileData(data) {
   const centerLon = (data.west + data.east)  / 2;
   const centerLat = (data.south + data.north) / 2;
-  // Сохраняем текущую высоту — не меняем zoom, чтобы сетка не перестроилась
+  // Keep the current height — don't change zoom so the grid doesn't rebuild
   const currentHeight = cesiumViewer.camera.positionCartographic.height;
   cesiumViewer.camera.flyTo({
     destination: Cartesian3.fromDegrees(centerLon, centerLat, currentHeight),
@@ -688,7 +688,7 @@ function flyToTileData(data) {
   });
 }
 
-// Клик по квадрату на сцене — подлёт включён тогглом
+// Click on a square in the scene — fly-to enabled via the toggle
 canvas.addEventListener('click', (e) => {
   if (!settings.flyToTile) return;
 
@@ -707,14 +707,14 @@ canvas.addEventListener('click', (e) => {
     if (obj.userData.activeTileKey) activeMeshes.push(obj);
   });
 
-  // error-тайлы имеют приоритет
+  // error tiles take priority
   const errorHits = raycaster.intersectObjects(errorMeshes, false);
   if (errorHits.length) {
     const data = errorTileData.get(errorHits[0].object.userData.errorTileKey);
     if (data) { flyToTileData(data); return; }
   }
 
-  // active-тайлы
+  // active tiles
   const activeHits = raycaster.intersectObjects(activeMeshes, false);
   if (activeHits.length) {
     const data = activeTileData.get(activeHits[0].object.userData.activeTileKey);
@@ -749,7 +749,7 @@ cesiumViewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength) =>
 });
 
 /**
- * Преобразует географические координаты (lon/lat) и уровень тайла в позицию Three.js.
+ * Converts geographic coordinates (lon/lat) and tile level into a Three.js position.
  *
  * @param {number} lon
  * @param {number} lat
@@ -761,9 +761,9 @@ function geoToScene(lon, lat, level) {
 }
 
 /**
- * Позиционирует камеру Three.js так, чтобы все тайлы поместились в кадр.
+ * Positions the Three.js camera so that all tiles fit in the frame.
  *
- * @param {Array} tiles - Массив QuadtreeTile от Cesium
+ * @param {Array} tiles - Array of QuadtreeTile from Cesium
  */
 function focusCameraOnTiles(tiles) {
   if (!tiles.length) return;
@@ -798,10 +798,10 @@ function focusCameraOnTiles(tiles) {
 }
 
 /**
- * Строит контуры тайлов Cesium в Three.js-сцене.
- * Уже добавленные тайлы пропускаются через seenTiles.
+ * Builds Cesium tile outlines in the Three.js scene.
+ * Tiles already added are skipped via seenTiles.
  *
- * @param {Array} tiles - Массив QuadtreeTile от Cesium
+ * @param {Array} tiles - Array of QuadtreeTile from Cesium
  */
 function buildTileGrid(tiles) {
   tiles.forEach((tile) => {
@@ -835,7 +835,7 @@ function buildTileGrid(tiles) {
     const cx = (west + east) / 2;
     const cy = (south + north) / 2;
 
-    // Полупрозрачная заливка — показывается при ховере
+    // Semi-transparent fill — shown on hover
     const fillMat = new THREE.MeshBasicMaterial({
       color: baseColor,
       transparent: true,
@@ -846,7 +846,7 @@ function buildTileGrid(tiles) {
     fillMesh.position.set(cx, cy, z - 0.01);
     tileGroup.add(fillMesh);
 
-    // Невидимый mesh для raycasting
+    // Invisible mesh for raycasting
     const hitMesh = new THREE.Mesh(
       new THREE.PlaneGeometry(w, h),
       new THREE.MeshBasicMaterial({ visible: false }),

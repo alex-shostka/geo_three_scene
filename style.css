@@ -161,12 +161,12 @@ body {
   letter-spacing: 0;
 }
 
-/* Скрываем нативный чекбокс */
+/* Hide native checkbox */
 .settings-label input[type="checkbox"] {
   display: none;
 }
 
-/* Кастомный тоггл */
+/* Custom toggle */
 .settings-toggle {
   flex-shrink: 0;
   width: 38px;
