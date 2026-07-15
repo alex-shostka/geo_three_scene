@@ -27,7 +27,71 @@ body {
   top: 16px;
   right: 16px;
   z-index: 1000;
+  width: clamp(600px, 32vw, 1100px);
+  height: clamp(400px, 24vw, 750px);
 }
+
+.drag-handle {
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 22px;
+  z-index: 1001;
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.drag-handle:hover::after,
+.drag-handle:active::after {
+  opacity: 1;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  z-index: 1001;
+  touch-action: none;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.resize-handle:hover::after,
+.resize-handle:active::after {
+  opacity: 1;
+}
+
+.resize-handle--nw { top: -4px; left: -4px; cursor: nwse-resize; }
+.resize-handle--ne { top: -4px; right: -4px; cursor: nesw-resize; }
+.resize-handle--sw { bottom: -4px; left: -4px; cursor: nesw-resize; }
+.resize-handle--se { bottom: -4px; right: -4px; cursor: nwse-resize; }
 
 /* ── Hamburger button ── */
 #menu-btn {
