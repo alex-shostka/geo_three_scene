@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { SettingsProvider } from './state/SettingsContext';
 import { TilesProvider } from './state/TilesContext';
 import { CesiumProvider } from './state/CesiumContext';
@@ -28,6 +29,7 @@ export function App() {
         </CesiumProvider>
       </TilesProvider>
       <Analytics />
+      <SpeedInsights />
     </SettingsProvider>
   );
 }
