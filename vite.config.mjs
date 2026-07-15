@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import fs from 'fs';
 import path from 'path';
+import react from '@vitejs/plugin-react';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const TRANSPARENT_PNG = Buffer.from(
@@ -30,6 +31,7 @@ export default defineConfig({
     CESIUM_BASE_URL: JSON.stringify('/cesium'),
   },
   plugins: [
+    react(),
     viteStaticCopy({
       targets: [
         { src: 'node_modules/cesium/Build/CesiumUnminified/Assets', dest: 'cesium' },
