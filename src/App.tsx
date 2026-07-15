@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { SettingsProvider } from './state/SettingsContext';
 import { TilesProvider } from './state/TilesContext';
 import { CesiumProvider } from './state/CesiumContext';
@@ -26,6 +27,7 @@ export function App() {
           </UiProvider>
         </CesiumProvider>
       </TilesProvider>
+      <Analytics />
     </SettingsProvider>
   );
 }
