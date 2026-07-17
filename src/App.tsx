@@ -8,9 +8,9 @@ import { CesiumGlobe } from './cesium/CesiumGlobe';
 import { ThreeOverlay } from './three/ThreeOverlay';
 import { HamburgerMenu } from './components/HamburgerMenu';
 import { SidePanel } from './components/SidePanel';
-import { TileHud } from './components/TileHud';
 import { TileTooltip } from './components/TileTooltip';
 import { TileCard } from './components/TileCard';
+import { Footer } from './components/Footer';
 
 export function App() {
   return (
@@ -22,9 +22,9 @@ export function App() {
             <ThreeOverlay />
             <HamburgerMenu />
             <SidePanel />
-            <TileHud />
             <TileTooltip />
             <TileCard />
+            <Footer />
           </UiProvider>
         </CesiumProvider>
       </TilesProvider>

@@ -146,9 +146,9 @@ body {
   position: fixed;
   top: 12px;
   left: 68px;
+  bottom: 46px;
   z-index: 1099;
   width: 500px;
-  height: calc(100% - 24px);
   border-radius: 16px;
   background: linear-gradient(160deg, #f5f6f8 0%, #eceef2 100%);
   border: 1px solid rgba(255, 255, 255, 0.9);
@@ -281,49 +281,27 @@ body {
   opacity: 0.4;
 }
 
-/* ── HUD counter ── */
+/* ── HUD counter (in footer bar) ── */
 #tile-hud {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  z-index: 1001;
+  flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
-  background: rgba(15, 15, 25, 0.82);
-  border: 1px solid rgba(255, 60, 60, 0.45);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 13px;
-  color: #ccc;
-  backdrop-filter: blur(6px);
   pointer-events: none;
-  transition: border-color 0.2s;
 }
 
-#tile-hud.has-errors {
-  border-color: rgba(255, 60, 60, 0.9);
+#tile-hud .fs-icon {
+  font-size: 20px;
+  color: #666;
+  transition: color 0.2s;
 }
 
-#hud-icon {
-  font-size: 14px;
-  color: #ff4444;
+#tile-hud.has-errors .fs-icon {
+  color: #ff5555;
 }
 
-#hud-count {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ff6666;
-  min-width: 18px;
-  text-align: right;
-}
-
-#hud-label {
-  color: #888;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+#tile-hud.has-errors .fs-value {
+  color: #ff8080;
 }
 
 /* ── Tooltip ── */
@@ -454,4 +432,113 @@ body {
   font-size: 13px;
   color: #9ca3af;
   padding: 8px 4px;
+}
+
+/* ── Footer ── */
+#app-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  height: 30px;
+  background: rgba(15, 15, 25, 0.88);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#app-footer.open {
+  height: 200px;
+}
+
+#footer-bar {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+#footer-toggle {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 34px;
+  height: 30px;
+  border: none;
+  border-radius: 0 0 6px 6px;
+  background: transparent;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+#footer-toggle:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#footer-toggle svg {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#app-footer.open #footer-toggle svg {
+  transform: rotate(180deg);
+}
+
+/* ── Footer stat groups (camera info + tile errors) ── */
+#camera-info {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.footer-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.footer-stat + .footer-stat {
+  padding-left: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fs-label {
+  color: #7d8290;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.fs-value {
+  color: #e8e8ec;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+#footer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: #999;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
 }
