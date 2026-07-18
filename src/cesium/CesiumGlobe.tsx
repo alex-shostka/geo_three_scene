@@ -13,6 +13,7 @@ import { useCesium } from '../state/CesiumContext';
 import { useUi } from '../state/UiContext';
 import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/tileGeometry';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
+import { formatTileError } from '../lib/formatTileError';
 import type { ActiveTileRecord, TileCardSection } from '../types';
 
 export function CesiumGlobe() {
@@ -98,10 +99,7 @@ export function CesiumGlobe() {
       const { west, east, south, north } = rectRadiansToDegrees(rect);
       const tileUrl = localTiles.url
         .replace('{z}', String(err.level)).replace('{x}', String(err.x)).replace('{y}', String(err.y));
-      const rawError = err.error?.message ?? err.error ?? 'unknown';
-      // Keep it a single bounded-length line — the tooltip's CSS (white-space: pre)
-      // doesn't wrap, and a raw RequestErrorEvent can stringify to a very long blob.
-      const errorMsg = typeof rawError === 'string' ? rawError : JSON.stringify(rawError).slice(0, 140);
+      const errorMsg = formatTileError(err.error);
 
       addErrorTile({ type: 'error', key, level: err.level, x: err.x, y: err.y, west, east, south, north, tileUrl, errorMsg });
     });

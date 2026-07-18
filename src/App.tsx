@@ -8,6 +8,8 @@ import { CesiumGlobe } from './cesium/CesiumGlobe';
 import { ThreeOverlay } from './three/ThreeOverlay';
 import { HamburgerMenu } from './components/HamburgerMenu';
 import { SidePanel } from './components/SidePanel';
+import { AnalyticsButton } from './components/AnalyticsButton';
+import { AnalyticsPanel } from './components/AnalyticsPanel';
 import { TileTooltip } from './components/TileTooltip';
 import { TileCard } from './components/TileCard';
 import { Footer } from './components/Footer';
@@ -23,6 +25,8 @@ export function App() {
             <ThreeOverlay />
             <HamburgerMenu />
             <SidePanel />
+            <AnalyticsButton />
+            <AnalyticsPanel />
             <TileTooltip />
             <TileCard />
             <MapControls />
