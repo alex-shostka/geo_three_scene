@@ -42,6 +42,11 @@ export function SidePanel() {
             onChange={settings.setGlbMetadata}
             child
           />
+          <SettingsToggleItem
+            label="Show tooltips"
+            checked={settings.showTooltips}
+            onChange={settings.setShowTooltips}
+          />
         </ul>
       </div>
     </aside>

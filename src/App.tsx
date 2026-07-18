@@ -11,6 +11,7 @@ import { SidePanel } from './components/SidePanel';
 import { TileTooltip } from './components/TileTooltip';
 import { TileCard } from './components/TileCard';
 import { Footer } from './components/Footer';
+import { MapControls } from './components/MapControls';
 
 export function App() {
   return (
@@ -24,6 +25,7 @@ export function App() {
             <SidePanel />
             <TileTooltip />
             <TileCard />
+            <MapControls />
             <Footer />
           </UiProvider>
         </CesiumProvider>

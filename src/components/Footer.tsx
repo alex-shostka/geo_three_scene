@@ -2,12 +2,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCesium } from '../state/CesiumContext';
 import { useTiles } from '../state/TilesContext';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
+import { CameraPoseGauges, type CameraPose } from './CameraPoseGauges';
+import { InfoTip } from './InfoTip';
+
+const HEIGHT_TIP = 'Camera altitude above the ground.';
+const LOD_TIP = 'Tile detail level — higher means more zoomed in.';
 
 export function Footer() {
   const [open, setOpen] = useState(false);
   const { viewer } = useCesium();
   const { tiles, focusBounds } = useTiles();
-  const [height, setHeight] = useState<number | null>(null);
+  const [pose, setPose] = useState<CameraPose | null>(null);
 
   const errorCount = useMemo(() => {
     let count = 0;
@@ -23,7 +28,19 @@ export function Footer() {
       const now = performance.now();
       if (now - lastUpdate < 100) return;
       lastUpdate = now;
-      setHeight(viewer.camera.positionCartographic.height);
+
+      const carto = viewer.camera.positionCartographic;
+      let rollDeg = (viewer.camera.roll * 180) / Math.PI;
+      if (rollDeg > 180) rollDeg -= 360;
+
+      setPose({
+        height: carto.height,
+        lon: (carto.longitude * 180) / Math.PI,
+        lat: (carto.latitude * 180) / Math.PI,
+        heading: (viewer.camera.heading * 180) / Math.PI,
+        pitch: (viewer.camera.pitch * 180) / Math.PI,
+        roll: rollDeg,
+      });
     };
 
     update();
@@ -38,11 +55,17 @@ export function Footer() {
       <div id="footer-bar">
         <div id="camera-info">
           <div className="footer-stat">
-            <span className="fs-label">Height</span>
-            <span className="fs-value">{height != null ? `${Math.round(height).toLocaleString()} m` : '—'}</span>
+            <span className="label-row">
+              <InfoTip text={HEIGHT_TIP} />
+              <span className="fs-label">Height</span>
+            </span>
+            <span className="fs-value">{pose ? `${Math.round(pose.height).toLocaleString()} m` : '—'}</span>
           </div>
           <div className="footer-stat">
-            <span className="fs-label">LOD</span>
+            <span className="label-row">
+              <InfoTip text={LOD_TIP} />
+              <span className="fs-label">LOD</span>
+            </span>
             <span className="fs-value">{lod ?? '—'}</span>
           </div>
         </div>
@@ -69,7 +92,9 @@ export function Footer() {
           </svg>
         </button>
       </div>
-      <div id="footer-content" />
+      <div id="footer-content">
+        <CameraPoseGauges pose={pose} />
+      </div>
     </footer>
   );
 }

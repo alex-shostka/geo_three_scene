@@ -4,7 +4,7 @@ import {
   ImageryLayer, TileCoordinatesImageryProvider,
   Rectangle, Color, type Entity,
 } from 'cesium';
-import { AMSTERDAM, createLocalTilesProvider } from './cesiumConfig';
+import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig';
 import { useGlbTiles, type GlbEntry } from './useGlbTiles';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useSettings } from '../state/SettingsContext';
@@ -60,7 +60,7 @@ export function CesiumGlobe() {
     (window as unknown as { geoThreeScene: unknown }).geoThreeScene = { cesiumViewer: viewer };
 
     viewer.camera.setView({
-      destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, 50000),
+      destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, HOME_HEIGHT),
     });
 
     const hoverEntity = viewer.entities.add({
