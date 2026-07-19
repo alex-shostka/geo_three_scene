@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
+import type { ThreeEvent } from '@react-three/fiber';
 import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
 import { useTiles } from '../state/TilesContext';
 import { useSettings } from '../state/SettingsContext';
@@ -31,13 +32,15 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
     return new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: baseColor }));
   }, [west, east, south, north, level, baseColor]);
 
-  const handlePointerOver = () => {
+  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
     if (activeTilesOnScene) setHoveredTile({ type: 'active', key });
   };
   const handlePointerOut = () => {
     if (hoveredTile?.type === 'active' && hoveredTile.key === key) setHoveredTile(null);
   };
-  const handleClick = () => {
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
     if (activeTilesOnScene && flyToTile) flyToTileData({ west, east, south, north });
   };
 
