@@ -36,6 +36,14 @@ export interface FocusBounds {
   centerLat: number;
   span: number;
   tileZ: number;
+  /** Z-depth spanned by the currently-rendered levels (see LEVEL_DEPTH); lets
+   *  CameraRig start the camera in front of the shallowest level even though
+   *  tileZ now targets the deepest one. */
+  zRange: number;
+  /** True for an explicit user navigation (level-list click) — CameraRig applies
+   *  these even after the user has taken manual control of OrbitControls, unlike
+   *  the ambient auto-framing updates fired on every Cesium tile load. */
+  manual?: boolean;
 }
 
 export interface GlbTileInfo extends TileBounds {

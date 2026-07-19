@@ -93,6 +93,68 @@ body {
 .resize-handle--sw { bottom: -4px; left: -4px; cursor: nesw-resize; }
 .resize-handle--se { bottom: -4px; right: -4px; cursor: nwse-resize; }
 
+/* ── Level list (Three.js scene legend) ── */
+.level-list {
+  position: absolute;
+  top: 30px;
+  left: 8px;
+  z-index: 1001;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
+  padding: 6px;
+  background: rgba(10, 10, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.level-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: transparent;
+  color: #ddd;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.level-list-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.level-list-item:active {
+  background: rgba(255, 136, 0, 0.18);
+}
+
+.level-list-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--lvl-color);
+  flex-shrink: 0;
+}
+
+.level-list-label {
+  font-weight: 600;
+  color: #eee;
+}
+
+.level-list-count {
+  margin-left: auto;
+  color: #888;
+}
+
 /* ── Hamburger button ── */
 #menu-btn {
   position: fixed;

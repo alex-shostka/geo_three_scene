@@ -50,7 +50,7 @@ export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null 
 
   let minLon = Infinity, maxLon = -Infinity;
   let minLat = Infinity, maxLat = -Infinity;
-  let minLevel = Infinity;
+  let minLevel = Infinity, maxLevel = -Infinity;
 
   tiles.forEach((tile) => {
     const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
@@ -59,12 +59,53 @@ export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null 
     if (south < minLat) minLat = south;
     if (north > maxLat) maxLat = north;
     if (tile.level < minLevel) minLevel = tile.level;
+    if (tile.level > maxLevel) maxLevel = tile.level;
   });
 
+  // Each zoom level sits on its own Z-plane (see geoToScene), and OrbitControls
+  // can only dolly up to its target — never past it. Targeting the shallowest
+  // level (as before) left every deeper, more distant level permanently out of
+  // scroll reach, so we target the deepest rendered level instead; zRange lets
+  // CameraRig still start the camera in front of the shallowest level, keeping
+  // the initial "see everything" framing unchanged.
   return {
     centerLon: (minLon + maxLon) / 2,
     centerLat: (minLat + maxLat) / 2,
     span: Math.max(maxLon - minLon, maxLat - minLat),
-    tileZ: -minLevel * LEVEL_DEPTH,
+    tileZ: -maxLevel * LEVEL_DEPTH,
+    zRange: (maxLevel - minLevel) * LEVEL_DEPTH,
+  };
+}
+
+/**
+ * Focus bounds for jumping straight to one specific rendered level (level-list
+ * click). Unlike computeFocusBounds, target IS that level's own plane, so
+ * zRange is 0 — the camera settles right in front of just that level's tiles.
+ */
+export function computeLevelFocusBounds(
+  tiles: Iterable<TileBounds & { level: number }>,
+  level: number,
+): FocusBounds | null {
+  let west = Infinity, east = -Infinity;
+  let south = Infinity, north = -Infinity;
+  let found = false;
+
+  for (const tile of tiles) {
+    if (tile.level !== level) continue;
+    found = true;
+    if (tile.west < west) west = tile.west;
+    if (tile.east > east) east = tile.east;
+    if (tile.south < south) south = tile.south;
+    if (tile.north > north) north = tile.north;
+  }
+  if (!found) return null;
+
+  return {
+    centerLon: (west + east) / 2,
+    centerLat: (south + north) / 2,
+    span: Math.max(east - west, north - south) || 0.01,
+    tileZ: -level * LEVEL_DEPTH,
+    zRange: 0,
+    manual: true,
   };
 }
