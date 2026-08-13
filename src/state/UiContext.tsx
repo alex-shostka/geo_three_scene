@@ -14,7 +14,7 @@ export interface TooltipState {
   record: ErrorTileRecord;
 }
 
-type PanelId = 'menu' | 'analytics';
+type PanelId = 'menu' | 'analytics' | 'network';
 
 interface UiContextValue {
   activePanel: PanelId | null;
@@ -22,6 +22,8 @@ interface UiContextValue {
   toggleMenu: () => void;
   analyticsOpen: boolean;
   toggleAnalytics: () => void;
+  networkOpen: boolean;
+  toggleNetwork: () => void;
   tileCard: TileCardState;
   openTileCard: (title: string, sections: TileCardSection[], message?: string) => void;
   closeTileCard: () => void;
@@ -44,6 +46,9 @@ export function UiProvider({ children }: { children: ReactNode }) {
   const toggleAnalytics = useCallback(() => {
     setActivePanel((v) => (v === 'analytics' ? null : 'analytics'));
   }, []);
+  const toggleNetwork = useCallback(() => {
+    setActivePanel((v) => (v === 'network' ? null : 'network'));
+  }, []);
   const openTileCard = useCallback((title: string, sections: TileCardSection[], message?: string) => {
     setTileCard({ open: true, title, sections, message });
   }, []);
@@ -55,8 +60,10 @@ export function UiProvider({ children }: { children: ReactNode }) {
     toggleMenu,
     analyticsOpen: activePanel === 'analytics',
     toggleAnalytics,
+    networkOpen: activePanel === 'network',
+    toggleNetwork,
     tileCard, openTileCard, closeTileCard, tooltip, setTooltip,
-  }), [activePanel, toggleMenu, toggleAnalytics, tileCard, openTileCard, closeTileCard, tooltip]);
+  }), [activePanel, toggleMenu, toggleAnalytics, toggleNetwork, tileCard, openTileCard, closeTileCard, tooltip]);
 
   return <UiContext.Provider value={value}>{children}</UiContext.Provider>;
 }

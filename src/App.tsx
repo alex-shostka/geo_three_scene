@@ -10,6 +10,8 @@ import { HamburgerMenu } from './components/HamburgerMenu';
 import { SidePanel } from './components/SidePanel';
 import { AnalyticsButton } from './components/AnalyticsButton';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
+import { NetworkButton } from './components/NetworkButton';
+import { NetworkPanel } from './components/NetworkPanel';
 import { TileTooltip } from './components/TileTooltip';
 import { TileCard } from './components/TileCard';
 import { Footer } from './components/Footer';
@@ -27,6 +29,8 @@ export function App() {
             <SidePanel />
             <AnalyticsButton />
             <AnalyticsPanel />
+            <NetworkButton />
+            <NetworkPanel />
             <TileTooltip />
             <TileCard />
             <MapControls />
