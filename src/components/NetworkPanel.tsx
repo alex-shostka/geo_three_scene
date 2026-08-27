@@ -2,6 +2,7 @@ import { useUi } from '../state/UiContext';
 import { useWebVitals } from '../hooks/useWebVitals';
 import { formatWebVitalValue } from '../lib/formatWebVitalValue';
 import { getLcpElement } from '../lib/getLcpElement';
+import { getInpElement } from '../lib/getInpElement';
 import { highlightElement } from '../lib/highlightElement';
 
 const WEB_VITALS_ORDER = ['LCP', 'INP', 'CLS'] as const;
@@ -34,12 +35,13 @@ export function NetworkPanel() {
             ) : (
               WEB_VITALS_ORDER.filter((name) => webVitals[name]).map((name) => {
                 const metric = webVitals[name]!;
-                const lcpElement = name === 'LCP' ? getLcpElement(metric) : null;
+                const targetElement =
+                  name === 'LCP' ? getLcpElement(metric) : name === 'INP' ? getInpElement(metric) : null;
                 return (
                   <tr
                     key={name}
-                    className={lcpElement ? 'stats-table-row' : ''}
-                    onClick={lcpElement ? () => highlightElement(lcpElement) : undefined}
+                    className={targetElement ? 'stats-table-row' : ''}
+                    onClick={targetElement ? () => highlightElement(targetElement) : undefined}
                   >
                     <td>{name}</td>
                     <td>{formatWebVitalValue(metric)}</td>

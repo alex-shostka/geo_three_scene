@@ -11,9 +11,9 @@ export function useWebVitals(): WebVitalsState {
     const record = (metric: Metric) => {
       setMetrics((prev) => ({ ...prev, [metric.name]: metric }));
     };
-    onCLS(record);
-    onINP(record);
-    onLCP(record);
+    onCLS(record, { reportAllChanges: true });
+    onINP(record, { reportAllChanges: true });
+    onLCP(record, { reportAllChanges: true });
     // onFCP(record);
     // onTTFB(record);
   }, []);
