@@ -6,7 +6,7 @@ import { getInpElement } from '../lib/getInpElement';
 import { getClsElement } from '../lib/getClsElement';
 import { highlightElement } from '../lib/highlightElement';
 
-const WEB_VITALS_ORDER = ['LCP', 'INP', 'CLS'] as const;
+const WEB_VITALS_ORDER = ['LCP', 'INP', 'CLS', 'TTFB'] as const;
 // const WEB_VITALS_ORDER = ['LCP', 'INP', 'CLS', 'FCP', 'TTFB'] as const;
 
 export function NetworkPanel() {
