@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { onCLS, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
-// import { onFCP } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 
 export type WebVitalsState = Partial<Record<Metric['name'], Metric>>;
 
@@ -15,7 +14,7 @@ export function useWebVitals(): WebVitalsState {
     onINP(record, { reportAllChanges: true });
     onLCP(record, { reportAllChanges: true });
     onTTFB(record, { reportAllChanges: true });
-    // onFCP(record);
+    onFCP(record, { reportAllChanges: true });
   }, []);
 
   return metrics;
