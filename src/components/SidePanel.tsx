@@ -47,6 +47,11 @@ export function SidePanel() {
             checked={settings.showTooltips}
             onChange={settings.setShowTooltips}
           />
+          <SettingsToggleItem
+            label="Play DOOM"
+            checked={settings.playDoom}
+            onChange={settings.setPlayDoom}
+          />
         </ul>
       </div>
     </aside>

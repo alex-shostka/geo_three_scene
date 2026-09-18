@@ -7,6 +7,7 @@ interface SettingsState {
   glbTiles: boolean;
   glbMetadata: boolean;
   showTooltips: boolean;
+  playDoom: boolean;
 }
 
 interface SettingsContextValue extends SettingsState {
@@ -16,6 +17,7 @@ interface SettingsContextValue extends SettingsState {
   setGlbTiles: (value: boolean) => void;
   setGlbMetadata: (value: boolean) => void;
   setShowTooltips: (value: boolean) => void;
+  setPlayDoom: (value: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -28,6 +30,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     glbTiles: false,
     glbMetadata: false,
     showTooltips: true,
+    playDoom: false,
   });
 
   const value = useMemo<SettingsContextValue>(() => ({
@@ -48,6 +51,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     })),
     setGlbMetadata: (value) => setState((s) => ({ ...s, glbMetadata: value })),
     setShowTooltips: (value) => setState((s) => ({ ...s, showTooltips: value })),
+    setPlayDoom: (value) => setState((s) => ({ ...s, playDoom: value })),
   }), [state]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;

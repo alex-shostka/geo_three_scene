@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Viewer, Cartesian3, Cartesian2, Cartographic,
   ImageryLayer, TileCoordinatesImageryProvider,
@@ -7,6 +7,7 @@ import {
 import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig';
 import { useGlbTiles, type GlbEntry } from './useGlbTiles';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
+import { useDoomTile } from './useDoomTile';
 import { useSettings } from '../state/SettingsContext';
 import { useTiles } from '../state/TilesContext';
 import { useCesium } from '../state/CesiumContext';
@@ -14,7 +15,7 @@ import { useUi } from '../state/UiContext';
 import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/tileGeometry';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
-import type { ActiveTileRecord, TileCardSection } from '../types';
+import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -275,6 +276,20 @@ export function CesiumGlobe() {
     ) as any;
     hoverEntity.show = true;
   }, [hoveredTile, tiles]);
+
+  // ── "Play DOOM" toggle: while on, drape it over whichever active tile loads
+  // first; turning it off tears the whole thing down (see useDoomTile cleanup).
+  const [doomTileBounds, setDoomTileBounds] = useState<TileBounds | null>(null);
+  useEffect(() => {
+    if (!settings.playDoom) {
+      setDoomTileBounds(null);
+      return;
+    }
+    if (doomTileBounds) return;
+    const firstActive = Array.from(tiles.values()).find((t) => t.type === 'active');
+    if (firstActive) setDoomTileBounds(firstActive);
+  }, [settings.playDoom, tiles, doomTileBounds]);
+  useDoomTile(viewerRef.current, doomTileBounds);
 
   return <div id="cesium-container" ref={containerRef} />;
 }
