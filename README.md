@@ -1,4 +1,8 @@
-# Geo Three Scene Demo App
+<h1 align="center">Geo Three Scene Demo App</h1>
+
+<p align="center">
+  <img src="docs/banner.png" alt="Geo Three Scene" />
+</p>
 
 ## About
 
@@ -106,3 +110,14 @@ It shows a progress bar with counts of downloaded (`✓`), skipped (`↷`) and f
 > **Note:** `tile.openstreetmap.org` is a free community service. Its [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/) forbids bulk downloading. Keep the area small, leave `DELAY` in place and set a real `User-Agent`. For larger areas, use a commercial tile provider or render your own tiles.
 
 DOOM and its emulator load from the js-dos CDN when the game starts, so that feature needs an internet connection.
+
+## Future steps
+
+1. **Move state to Redux Toolkit.** Replace the nested React Context providers with a Redux Toolkit store split into slices, so components read state directly instead of through layers of context.
+2. **Add a real backend.** One option is Firebase for the API and tile storage. The other is a custom geo server built with PostGIS and Python.
+3. **Explore 3D spatial data.** Try spatial meshes, point clouds and LIDAR data.
+4. **Go deeper into Three.js and React Three Fiber.**
+
+## Disclaimer
+
+This is a prototype, not a production application. To move fast, the code sometimes skips conventions that a production codebase would follow, such as strict code style, full test coverage and consistent project structure.
