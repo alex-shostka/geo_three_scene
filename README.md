@@ -1,7 +1,7 @@
 <h1 align="center">Geo Three Scene Demo App</h1>
 
 <p align="center">
-  <img src="docs/banner.png" alt="Geo Three Scene" />
+  <img src="docs/banner.jpeg" alt="Geo Three Scene" />
 </p>
 
 ## About
