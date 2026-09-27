@@ -40,6 +40,27 @@ The dev server always returns 404 for a few tiles, so there are failed tiles to 
 
 **Stack:** React, TypeScript, Vite, Cesium, Three.js, React Three Fiber, drei.
 
+## Posts on LinkedIn
+
+Tile profiling and web performance were part of my job on a 3D geospatial digital twin project. I summarized the approaches I used in a series of LinkedIn posts and built this demo to show them in practice. You can find more on my [LinkedIn profile](https://www.linkedin.com/in/alexshostka/).
+
+### Tile profiling for 3D geospatial apps
+
+1. [Optimizing custom tile loading and LOD transitions in a digital twin project](https://www.linkedin.com/posts/alexshostka_3dtiles-geospatial-digitaltwin-activity-7462467479987204096-v-8g)
+2. [Continuing with tile profiling for 3D geospatial development](https://www.linkedin.com/posts/alexshostka_cesium-threejs-3d-activity-7465046256797773824-AGUn)
+3. [Profiling and data management for 3D geospatial development](https://www.linkedin.com/posts/alexshostka_digitaltwin-gis-webgl-activity-7467813912038633472-YE5Z)
+4. [Let's talk about formats](https://www.linkedin.com/posts/alexshostka_gis-3dtiles-glb-activity-7472536330267381761-q8dZ)
+5. [Picking back up on the tile profiling series](https://www.linkedin.com/posts/alexshostka_cesiumjs-digitaltwin-3dgeospatial-activity-7475166614372384770-3eDJ)
+6. [Profiling an app isn't one tool, it's a few different approaches](https://www.linkedin.com/posts/alexshostka_profiling-an-app-isnt-one-tool-its-a-few-activity-7493611629767725057-lK_H)
+
+### Core Web Vitals
+
+1. [LCP: Largest Contentful Paint](https://www.linkedin.com/posts/alexshostka_webperformance-corewebvitals-lcp-activity-7496450155630481409-1T5H)
+2. [INP: Interaction to Next Paint](https://www.linkedin.com/posts/alexshostka_webperformance-corewebvitals-inp-activity-7498433379206377472-yJ8E)
+3. [CLS: Cumulative Layout Shift](https://www.linkedin.com/posts/alexshostka_webperformance-corewebvitals-cls-activity-7500479412983824384-DRom)
+4. [TTFB: Time to First Byte](https://www.linkedin.com/posts/alexshostka_webperformance-ttfb-corewebvitals-activity-7503880380798738432-mJ_p)
+5. [FCP: First Contentful Paint](https://www.linkedin.com/posts/alexshostka_webperformance-fcp-corewebvitals-activity-7506246113016823808-W-Y8)
+
 ## Getting started
 
 ### Requirements
