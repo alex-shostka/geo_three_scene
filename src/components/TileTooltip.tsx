@@ -1,8 +1,9 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { useUi } from '../state/UiContext';
+import { useAppSelector } from '../store/hooks';
+import { selectTooltip } from '../store/uiSlice';
 
 export function TileTooltip() {
-  const { tooltip } = useUi();
+  const tooltip = useAppSelector(selectTooltip);
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ left: 0, top: 0 });
 

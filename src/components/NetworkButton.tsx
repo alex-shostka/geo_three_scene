@@ -1,14 +1,16 @@
-import { useUi } from '../state/UiContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectIsPanelOpen, togglePanel } from '../store/uiSlice';
 
 export function NetworkButton() {
-  const { networkOpen, toggleNetwork } = useUi();
+  const networkOpen = useAppSelector((s) => selectIsPanelOpen(s, 'network'));
+  const dispatch = useAppDispatch();
 
   return (
     <button
       id="network-btn"
       aria-label="Network"
       aria-expanded={networkOpen}
-      onClick={toggleNetwork}
+      onClick={() => dispatch(togglePanel('network'))}
     >
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
         <path d="M8.5 6H15.5M8 7.5L11 15.5M16 7.5L13 15.5" stroke="currentColor" strokeWidth="1.5" fill="none" />

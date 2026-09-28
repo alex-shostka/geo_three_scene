@@ -10,15 +10,15 @@ import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useDoomTile } from './useDoomTile';
 import { useTiles } from '../state/TilesContext';
 import { useCesium } from '../state/CesiumContext';
-import { useUi } from '../state/UiContext';
 import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/tileGeometry';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
 import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
-import { useAppSelector, useAppStore } from '../store/hooks';
+import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
 import {
   selectActiveTilesOnScene, selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe,
 } from '../store/settingsSlice';
+import { openTileCard } from '../store/uiSlice';
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,9 +38,7 @@ export function CesiumGlobe() {
   useEffect(() => { tilesRef.current = tiles; }, [tiles]);
 
   const { setCesiumHandles } = useCesium();
-  const { openTileCard } = useUi();
-  const openTileCardRef = useRef(openTileCard);
-  useEffect(() => { openTileCardRef.current = openTileCard; }, [openTileCard]);
+  const dispatch = useAppDispatch();
 
   const localTilesRef = useRef(createLocalTilesProvider());
   const localTiles = localTilesRef.current;
@@ -194,7 +192,7 @@ export function CesiumGlobe() {
       });
 
       if (!matchingGlbs.length) {
-        openTileCardRef.current(title, [], 'No GLB loaded for this point');
+        dispatch(openTileCard({ title, sections: [], message: 'No GLB loaded for this point' }));
         return;
       }
 
@@ -230,7 +228,7 @@ export function CesiumGlobe() {
         });
       }
 
-      openTileCardRef.current(title, sections);
+      dispatch(openTileCard({ title, sections }));
     };
     viewer.canvas.addEventListener('click', handleClick);
 

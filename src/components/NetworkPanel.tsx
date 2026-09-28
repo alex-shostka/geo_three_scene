@@ -1,15 +1,16 @@
-import { useUi } from '../state/UiContext';
 import { useWebVitals } from '../hooks/useWebVitals';
 import { formatWebVitalValue } from '../lib/formatWebVitalValue';
 import { getLcpElement } from '../lib/getLcpElement';
 import { getInpElement } from '../lib/getInpElement';
 import { getClsElement } from '../lib/getClsElement';
 import { highlightElement } from '../lib/highlightElement';
+import { useAppSelector } from '../store/hooks';
+import { selectIsPanelOpen } from '../store/uiSlice';
 
 const WEB_VITALS_ORDER = ['FCP', 'LCP', 'INP', 'CLS', 'TTFB'] as const;
 
 export function NetworkPanel() {
-  const { networkOpen } = useUi();
+  const networkOpen = useAppSelector((s) => selectIsPanelOpen(s, 'network'));
   const webVitals = useWebVitals();
 
   return (

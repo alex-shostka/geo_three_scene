@@ -1,11 +1,10 @@
-import { useUi } from '../state/UiContext';
 import { SettingsToggleItem } from './SettingsToggleItem';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { selectSettings, setActiveTilesOnScene, setFlyToTile, setGlbMetadata, setGlbTiles, setPlayDoom, setShowTooltips, setTileGridOnGlobe } from '../store/settingsSlice';
+import { selectIsPanelOpen } from '../store/uiSlice';
 
 export function SidePanel() {
-  const { menuOpen } = useUi();
-
+  const menuOpen = useAppSelector((s) => selectIsPanelOpen(s, 'menu'));
   const settings = useAppSelector(selectSettings);
   const dispatch = useAppDispatch();
 

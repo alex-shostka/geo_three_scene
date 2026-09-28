@@ -1,13 +1,15 @@
-import { useUi } from '../state/UiContext';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { closeTileCard, selectTileCard } from '../store/uiSlice';
 
 export function TileCard() {
-  const { tileCard, closeTileCard } = useUi();
+  const tileCard = useAppSelector(selectTileCard);
+  const dispatch = useAppDispatch();
 
   return (
     <div id="tile-card" className={tileCard.open ? 'open' : ''}>
       <div id="tile-card-header">
         <span id="tile-card-title">{tileCard.title}</span>
-        <button id="tile-card-close" aria-label="Close" onClick={closeTileCard}>&times;</button>
+        <button id="tile-card-close" aria-label="Close" onClick={() => dispatch(closeTileCard())}>&times;</button>
       </div>
       <div id="tile-card-body">
         {tileCard.sections.length === 0 && tileCard.message && (

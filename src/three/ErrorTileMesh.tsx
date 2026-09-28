@@ -4,10 +4,10 @@ import type { ThreeEvent } from '@react-three/fiber';
 import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
 import { useTiles } from '../state/TilesContext';
 import { useCesium } from '../state/CesiumContext';
-import { useUi } from '../state/UiContext';
 import type { ErrorTileRecord } from '../types';
-import { useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectFlyToTile } from '../store/settingsSlice';
+import { setTooltip } from '../store/uiSlice';
 
 const MAT_NORMAL = { color: 0xff2222, opacity: 0.55 };
 const MAT_HOVER = { color: 0xff8800, opacity: 0.8 };
@@ -16,7 +16,7 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   const { hoveredTile, setHoveredTile } = useTiles();
   const flyToTile = useAppSelector(selectFlyToTile);
   const { flyToTileData } = useCesium();
-  const { setTooltip } = useUi();
+  const dispatch = useAppDispatch();
 
   const { west, east, south, north, level, key } = record;
   const isHovered = hoveredTile?.type === 'error' && hoveredTile.key === key;
@@ -41,15 +41,15 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     setHoveredTile({ type: 'error', key });
-    setTooltip({ x: e.clientX, y: e.clientY, record });
+    dispatch(setTooltip({ x: e.clientX, y: e.clientY, record }));
   };
   const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (isHovered) setTooltip({ x: e.clientX, y: e.clientY, record });
+    if (isHovered) dispatch(setTooltip({ x: e.clientX, y: e.clientY, record }));
   };
   const handlePointerOut = () => {
     if (isHovered) {
       setHoveredTile(null);
-      setTooltip(null);
+      dispatch(setTooltip(null));
     }
   };
   const handleClick = () => {
