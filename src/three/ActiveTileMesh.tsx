@@ -36,8 +36,8 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
     return new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: baseColor }));
   }, [west, east, south, north, level, baseColor]);
 
-  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
+  const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
 
     if (activeTilesOnScene) {
       setHoveredTile({ type: 'active', key });
@@ -48,8 +48,8 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
       setHoveredTile(null);
     }
   };
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation();
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
 
     if (activeTilesOnScene && flyToTile) {
       flyToTileData({ west, east, south, north });

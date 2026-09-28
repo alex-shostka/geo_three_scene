@@ -23,18 +23,18 @@ interface Box {
 }
 
 export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, setSizeRef: SetCanvasSizeRef) {
-  return useCallback((corner: ResizeCorner) => (e: React.PointerEvent) => {
+  return useCallback((corner: ResizeCorner) => (event: React.PointerEvent) => {
     const container = containerRef.current;
 
     if (!container) {
       return;
     }
 
-    e.preventDefault();
+    event.preventDefault();
 
     const startRect = container.getBoundingClientRect();
-    const startX = e.clientX;
-    const startY = e.clientY;
+    const startX = event.clientX;
+    const startY = event.clientY;
     const prevUserSelect = document.body.style.userSelect;
     document.body.style.userSelect = 'none';
     container.style.transformOrigin = '0 0';
@@ -99,9 +99,9 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
       container.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
     };
 
-    const onPointerMove = (ev: PointerEvent) => {
-      pendingX = ev.clientX;
-      pendingY = ev.clientY;
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      pendingX = moveEvent.clientX;
+      pendingY = moveEvent.clientY;
 
       if (!rafId) {
         rafId = requestAnimationFrame(applyPreview);

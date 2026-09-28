@@ -15,7 +15,7 @@ export function SettingsToggleItem({ label, checked, disabled, onChange, child }
           type="checkbox"
           checked={checked}
           disabled={disabled}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(event) => onChange(event.target.checked)}
         />
         <span className="settings-toggle"></span>
       </label>

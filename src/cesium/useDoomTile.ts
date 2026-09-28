@@ -114,9 +114,9 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
     let isHovering = false;
     const heldKeys = new Set<number>();
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (event: MouseEvent) => {
       const carto = viewer.camera.pickEllipsoid(
-        new Cartesian2(e.offsetX, e.offsetY),
+        new Cartesian2(event.offsetX, event.offsetY),
         viewer.scene.globe.ellipsoid,
       );
 
@@ -133,29 +133,29 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
     };
     const handleMouseLeave = () => { isHovering = false; };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (!isHovering || !ci) {
         return;
       }
 
-      const dosKey = DOM_KEY_TO_DOS_KEY[e.code];
+      const dosKey = DOM_KEY_TO_DOS_KEY[event.code];
 
       if (dosKey === undefined) {
         return;
       }
 
-      e.preventDefault();
+      event.preventDefault();
       ci.sendKeyEvent(dosKey, true);
       heldKeys.add(dosKey);
     };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      const dosKey = DOM_KEY_TO_DOS_KEY[e.code];
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const dosKey = DOM_KEY_TO_DOS_KEY[event.code];
 
       if (dosKey === undefined || !heldKeys.has(dosKey)) {
         return;
       }
 
-      e.preventDefault();
+      event.preventDefault();
       ci?.sendKeyEvent(dosKey, false);
       heldKeys.delete(dosKey);
     };

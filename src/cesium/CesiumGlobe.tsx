@@ -147,7 +147,7 @@ export function CesiumGlobe() {
 
     // ── GLB metadata hover outline (cyan) ─────────────────────────────────────
     let lastHoveredCesiumTileKey: string | null = null;
-    const handleGlbHoverMove = (e: MouseEvent) => {
+    const handleGlbHoverMove = (event: MouseEvent) => {
       if (!selectGlbMetadata(store.getState())) {
         if (glbHoverOutline.show) {
           glbHoverOutline.show = false;
@@ -157,7 +157,7 @@ export function CesiumGlobe() {
         return;
       }
 
-      const hit = pickRenderedTile(viewer, e.offsetX, e.offsetY);
+      const hit = pickRenderedTile(viewer, event.offsetX, event.offsetY);
 
       if (!hit) {
         glbHoverOutline.show = false;
@@ -188,13 +188,13 @@ export function CesiumGlobe() {
     viewer.canvas.addEventListener('mouseleave', handleGlbHoverLeave);
 
     // ── tile card click (GLB metadata lookup) ─────────────────────────────────
-    const handleClick = (e: MouseEvent) => {
+    const handleClick = (event: MouseEvent) => {
       if (!selectGlbMetadata(store.getState())) {
         return;
       }
 
       const carto = viewer.camera.pickEllipsoid(
-        new Cartesian2(e.offsetX, e.offsetY),
+        new Cartesian2(event.offsetX, event.offsetY),
         viewer.scene.globe.ellipsoid,
       );
 
@@ -206,7 +206,7 @@ export function CesiumGlobe() {
       const lon = (cartographic.longitude * 180) / Math.PI;
       const lat = (cartographic.latitude * 180) / Math.PI;
 
-      const hit = pickRenderedTile(viewer, e.offsetX, e.offsetY);
+      const hit = pickRenderedTile(viewer, event.offsetX, event.offsetY);
 
       if (!hit) {
         return;

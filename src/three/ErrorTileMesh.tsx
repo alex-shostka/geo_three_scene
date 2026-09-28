@@ -39,14 +39,14 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
     return new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0xff0000 }));
   }, [west, east, south, north, level]);
 
-  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
+  const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
     setHoveredTile({ type: 'error', key });
-    dispatch(setTooltip({ x: e.clientX, y: e.clientY, record }));
+    dispatch(setTooltip({ x: event.clientX, y: event.clientY, record }));
   };
-  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+  const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
     if (isHovered) {
-      dispatch(setTooltip({ x: e.clientX, y: e.clientY, record }));
+      dispatch(setTooltip({ x: event.clientX, y: event.clientY, record }));
     }
   };
   const handlePointerOut = () => {
