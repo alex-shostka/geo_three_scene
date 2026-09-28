@@ -28,7 +28,10 @@ declare global {
 let emulatorsScriptPromise: Promise<EmulatorsGlobal> | null = null;
 
 export function loadEmulators(): Promise<EmulatorsGlobal> {
-  if (window.emulators) return Promise.resolve(window.emulators);
+  if (window.emulators) {
+    return Promise.resolve(window.emulators);
+  }
+
   if (!emulatorsScriptPromise) {
     emulatorsScriptPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -38,6 +41,7 @@ export function loadEmulators(): Promise<EmulatorsGlobal> {
           reject(new Error('emulators global missing after script load'));
           return;
         }
+
         window.emulators.pathPrefix = EMULATORS_PATH_PREFIX;
         resolve(window.emulators);
       };
@@ -45,5 +49,6 @@ export function loadEmulators(): Promise<EmulatorsGlobal> {
       document.head.appendChild(script);
     });
   }
+
   return emulatorsScriptPromise;
 }

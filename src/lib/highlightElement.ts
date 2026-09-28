@@ -1,7 +1,10 @@
 const HIGHLIGHT_DURATION_MS = 1600;
 
 export function highlightElement(element: Element): void {
-  if (!(element instanceof HTMLElement)) return;
+  if (!(element instanceof HTMLElement)) {
+    return;
+  }
+
   element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
   const previousOutline = element.style.outline;

@@ -9,7 +9,10 @@ export function MapControls() {
   const { viewer } = useCesium();
 
   const resetView = () => {
-    if (!viewer) return;
+    if (!viewer) {
+      return;
+    }
+
     viewer.camera.flyTo({
       destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, HOME_HEIGHT),
       duration: 1.2,
@@ -17,7 +20,10 @@ export function MapControls() {
   };
 
   const zoomBy = (factor: number) => {
-    if (!viewer) return;
+    if (!viewer) {
+      return;
+    }
+
     const { camera } = viewer;
     const carto = camera.positionCartographic;
     camera.flyTo({

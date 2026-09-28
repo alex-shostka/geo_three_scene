@@ -20,7 +20,10 @@ export function TilesProvider({ children }: { children: ReactNode }) {
 
   const addErrorTile = useCallback((tile: ErrorTileRecord) => {
     setTiles((prev) => {
-      if (prev.has(tile.key)) return prev;
+      if (prev.has(tile.key)) {
+        return prev;
+      }
+
       const next = new Map(prev);
       next.set(tile.key, tile);
       return next;
@@ -30,7 +33,11 @@ export function TilesProvider({ children }: { children: ReactNode }) {
   const addActiveTiles = useCallback((newTiles: ActiveTileRecord[]) => {
     setTiles((prev) => {
       const fresh = newTiles.filter((t) => !prev.has(t.key));
-      if (!fresh.length) return prev;
+
+      if (!fresh.length) {
+        return prev;
+      }
+
       const next = new Map(prev);
       fresh.forEach((t) => next.set(t.key, t));
       return next;
@@ -46,6 +53,10 @@ export function TilesProvider({ children }: { children: ReactNode }) {
 
 export function useTiles(): TilesContextValue {
   const ctx = useContext(TilesContext);
-  if (!ctx) throw new Error('useTiles must be used within TilesProvider');
+
+  if (!ctx) {
+    throw new Error('useTiles must be used within TilesProvider');
+  }
+
   return ctx;
 }

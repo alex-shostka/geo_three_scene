@@ -18,7 +18,10 @@ export function InfoTip({ text }: InfoTipProps) {
 
   const show = () => {
     const rect = triggerRef.current?.getBoundingClientRect();
-    if (!rect) return;
+
+    if (!rect) {
+      return;
+    }
 
     const centerX = rect.left + rect.width / 2;
     const half = BUBBLE_WIDTH / 2;
@@ -38,7 +41,9 @@ export function InfoTip({ text }: InfoTipProps) {
 
   const hide = () => setPos(null);
 
-  if (!showTooltips) return null;
+  if (!showTooltips) {
+    return null;
+  }
 
   return (
     <span

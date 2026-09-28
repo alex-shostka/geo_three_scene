@@ -22,7 +22,11 @@ export function CesiumProvider({ children }: { children: ReactNode }) {
   // Keeps the current camera height so zooming out to fly doesn't rebuild the tile grid.
   const flyToTileData = useCallback((bounds: TileBounds) => {
     const { viewer } = handles;
-    if (!viewer) return;
+
+    if (!viewer) {
+      return;
+    }
+
     const centerLon = (bounds.west + bounds.east) / 2;
     const centerLat = (bounds.south + bounds.north) / 2;
     const currentHeight = viewer.camera.positionCartographic.height;
@@ -41,6 +45,10 @@ export function CesiumProvider({ children }: { children: ReactNode }) {
 
 export function useCesium(): CesiumContextValue {
   const ctx = useContext(CesiumContext);
-  if (!ctx) throw new Error('useCesium must be used within CesiumProvider');
+
+  if (!ctx) {
+    throw new Error('useCesium must be used within CesiumProvider');
+  }
+
   return ctx;
 }

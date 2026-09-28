@@ -16,22 +16,36 @@ export function Footer() {
 
   const errorCount = useMemo(() => {
     let count = 0;
-    tiles.forEach((tile) => { if (tile.type === 'error') count++; });
+    tiles.forEach((tile) => {
+      if (tile.type === 'error') {
+        count++;
+      }
+    });
+
     return count;
   }, [tiles]);
 
   useEffect(() => {
-    if (!viewer) return;
+    if (!viewer) {
+      return;
+    }
 
     let lastUpdate = 0;
     const update = () => {
       const now = performance.now();
-      if (now - lastUpdate < 100) return;
+
+      if (now - lastUpdate < 100) {
+        return;
+      }
+
       lastUpdate = now;
 
       const carto = viewer.camera.positionCartographic;
       let rollDeg = (viewer.camera.roll * 180) / Math.PI;
-      if (rollDeg > 180) rollDeg -= 360;
+
+      if (rollDeg > 180) {
+        rollDeg -= 360;
+      }
 
       setPose({
         height: carto.height,

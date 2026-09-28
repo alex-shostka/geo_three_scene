@@ -4,7 +4,11 @@ import { EDGE_MARGIN } from './overlayEdgeMargin';
 export function useDragMove(containerRef: RefObject<HTMLDivElement | null>) {
   return useCallback((e: React.PointerEvent) => {
     const container = containerRef.current;
-    if (!container) return;
+
+    if (!container) {
+      return;
+    }
+
     e.preventDefault();
 
     const startRect = container.getBoundingClientRect();
@@ -46,11 +50,17 @@ export function useDragMove(containerRef: RefObject<HTMLDivElement | null>) {
     const onPointerMove = (ev: PointerEvent) => {
       pendingX = ev.clientX;
       pendingY = ev.clientY;
-      if (!rafId) rafId = requestAnimationFrame(applyMove);
+
+      if (!rafId) {
+        rafId = requestAnimationFrame(applyMove);
+      }
     };
 
     const onPointerUp = () => {
-      if (rafId) cancelAnimationFrame(rafId);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+
       document.body.style.userSelect = prevUserSelect;
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);

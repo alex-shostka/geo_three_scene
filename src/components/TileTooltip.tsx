@@ -8,18 +8,30 @@ export function TileTooltip() {
   const [pos, setPos] = useState({ left: 0, top: 0 });
 
   useLayoutEffect(() => {
-    if (!tooltip || !ref.current) return;
+    if (!tooltip || !ref.current) {
+      return;
+    }
+
     const offset = 16;
     const tw = ref.current.offsetWidth;
     const th = ref.current.offsetHeight;
     let x = tooltip.x + offset;
     let y = tooltip.y + offset;
-    if (x + tw > window.innerWidth - 8) x = tooltip.x - tw - offset;
-    if (y + th > window.innerHeight - 8) y = tooltip.y - th - offset;
+
+    if (x + tw > window.innerWidth - 8) {
+      x = tooltip.x - tw - offset;
+    }
+
+    if (y + th > window.innerHeight - 8) {
+      y = tooltip.y - th - offset;
+    }
+
     setPos({ left: x, top: y });
   }, [tooltip]);
 
-  if (!tooltip) return <div id="tile-tooltip" ref={ref} />;
+  if (!tooltip) {
+    return <div id="tile-tooltip" ref={ref} />;
+  }
 
   const { record } = tooltip;
   const widthKm = (record.east - record.west) * 111 * Math.cos(((record.south + record.north) / 2) * Math.PI / 180);

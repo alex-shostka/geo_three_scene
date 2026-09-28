@@ -22,7 +22,10 @@ export function CameraRig() {
   const userTouchedRef = useRef(false);
 
   useEffect(() => {
-    if (!controls) return;
+    if (!controls) {
+      return;
+    }
+
     // Re-pivot onto the deepest currently-rendered level at the start of every
     // user gesture (drag or wheel tick), so a level-list jump to a shallower
     // level doesn't leave OrbitControls' target — and thus its dolly-in limit —
@@ -31,8 +34,16 @@ export function CameraRig() {
     const onStart = () => {
       userTouchedRef.current = true;
       let maxLevel = -Infinity;
-      tilesRef.current.forEach((tile) => { if (tile.level > maxLevel) maxLevel = tile.level; });
-      if (maxLevel === -Infinity) return;
+      tilesRef.current.forEach((tile) => {
+        if (tile.level > maxLevel) {
+          maxLevel = tile.level;
+        }
+      });
+
+      if (maxLevel === -Infinity) {
+        return;
+      }
+
       controls.target.z = -maxLevel * LEVEL_DEPTH;
       controls.update();
     };
@@ -41,8 +52,13 @@ export function CameraRig() {
   }, [controls]);
 
   useEffect(() => {
-    if (!focusBounds || !controls) return;
-    if (userTouchedRef.current && !focusBounds.manual) return;
+    if (!focusBounds || !controls) {
+      return;
+    }
+
+    if (userTouchedRef.current && !focusBounds.manual) {
+      return;
+    }
 
     const { centerLon, centerLat, span, tileZ, zRange } = focusBounds;
     const fovRad = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 180;

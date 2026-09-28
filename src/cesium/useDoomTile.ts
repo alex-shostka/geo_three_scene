@@ -30,7 +30,10 @@ const OUTPUT_HEIGHT = 200;
  */
 export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
   useEffect(() => {
-    if (!viewer || !bounds) return;
+    if (!viewer || !bounds) {
+      return;
+    }
+
     let cancelled = false;
     let entity: Entity | null = null;
     let stream: MediaStream | null = null;
@@ -56,9 +59,16 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
       .then(() => fetch(DOOM_BUNDLE_URL))
       .then((res) => res.arrayBuffer())
       .then(async (buf) => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
+
         ci = await window.emulators!.dosboxWorker(new Uint8Array(buf));
-        if (cancelled) { ci.exit(); return; }
+
+        if (cancelled) {
+          ci.exit();
+          return;
+        }
 
         ci.events().onFrameSize((width, height) => {
           source.width = width;
@@ -66,7 +76,10 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
           rgba = new Uint8ClampedArray(width * height * 4);
         });
         ci.events().onFrame((rgb) => {
-          if (!rgb || !sourceCtx || !outputCtx) return;
+          if (!rgb || !sourceCtx || !outputCtx) {
+            return;
+          }
+
           const pixels = source.width * source.height;
           for (let i = 0; i < pixels; i++) {
             rgba[i * 4] = rgb[i * 3];
@@ -81,7 +94,10 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
         stream = output.captureStream(30);
         video.srcObject = stream;
         await video.play();
-        if (cancelled) return;
+
+        if (cancelled) {
+          return;
+        }
 
         entity = viewer.entities.add({
           rectangle: {
@@ -102,7 +118,12 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
         new Cartesian2(e.offsetX, e.offsetY),
         viewer.scene.globe.ellipsoid,
       );
-      if (!carto) { isHovering = false; return; }
+
+      if (!carto) {
+        isHovering = false;
+        return;
+      }
+
       const { longitude, latitude } = Cartographic.fromCartesian(carto);
       const lon = (longitude * 180) / Math.PI;
       const lat = (latitude * 180) / Math.PI;
@@ -111,16 +132,27 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
     const handleMouseLeave = () => { isHovering = false; };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isHovering || !ci) return;
+      if (!isHovering || !ci) {
+        return;
+      }
+
       const dosKey = DOM_KEY_TO_DOS_KEY[e.code];
-      if (dosKey === undefined) return;
+
+      if (dosKey === undefined) {
+        return;
+      }
+
       e.preventDefault();
       ci.sendKeyEvent(dosKey, true);
       heldKeys.add(dosKey);
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       const dosKey = DOM_KEY_TO_DOS_KEY[e.code];
-      if (dosKey === undefined || !heldKeys.has(dosKey)) return;
+
+      if (dosKey === undefined || !heldKeys.has(dosKey)) {
+        return;
+      }
+
       e.preventDefault();
       ci?.sendKeyEvent(dosKey, false);
       heldKeys.delete(dosKey);
@@ -138,7 +170,11 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       heldKeys.forEach((key) => ci?.sendKeyEvent(key, false));
-      if (entity) viewer.entities.remove(entity);
+
+      if (entity) {
+        viewer.entities.remove(entity);
+      }
+
       stream?.getTracks().forEach((t) => t.stop());
       ci?.exit();
     };

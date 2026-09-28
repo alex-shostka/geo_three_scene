@@ -46,7 +46,9 @@ export function CesiumGlobe() {
 
   // ── one-time Cesium viewer setup ────────────────────────────────────────────
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) {
+      return;
+    }
 
     const viewer = new Viewer(containerRef.current, {
       timeline: false,
@@ -96,7 +98,10 @@ export function CesiumGlobe() {
 
     // ── error tiles → Three-side error grid (via TilesContext) ───────────────
     localTiles.errorEvent.addEventListener((err: any) => {
-      if (err.x == null || err.y == null || err.level == null) return;
+      if (err.x == null || err.y == null || err.level == null) {
+        return;
+      }
+
       err.retry = false;
 
       const key = `err:${err.level}/${err.x}/${err.y}`;
@@ -116,7 +121,10 @@ export function CesiumGlobe() {
       }
 
       const renderedTiles = getRenderedTiles(viewer);
-      if (!renderedTiles.length) return;
+
+      if (!renderedTiles.length) {
+        return;
+      }
 
       const records: ActiveTileRecord[] = renderedTiles.map((tile) => {
         const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
@@ -140,14 +148,28 @@ export function CesiumGlobe() {
     let lastHoveredCesiumTileKey: string | null = null;
     const handleGlbHoverMove = (e: MouseEvent) => {
       if (!selectGlbMetadata(store.getState())) {
-        if (glbHoverOutline.show) { glbHoverOutline.show = false; lastHoveredCesiumTileKey = null; }
+        if (glbHoverOutline.show) {
+          glbHoverOutline.show = false;
+          lastHoveredCesiumTileKey = null;
+        }
+
         return;
       }
+
       const hit = pickRenderedTile(viewer, e.offsetX, e.offsetY);
-      if (!hit) { glbHoverOutline.show = false; lastHoveredCesiumTileKey = null; return; }
+
+      if (!hit) {
+        glbHoverOutline.show = false;
+        lastHoveredCesiumTileKey = null;
+        return;
+      }
 
       const key = `${hit.level}/${hit.x}/${hit.y}`;
-      if (key === lastHoveredCesiumTileKey) return;
+
+      if (key === lastHoveredCesiumTileKey) {
+        return;
+      }
+
       lastHoveredCesiumTileKey = key;
 
       const r = hit.rectangle;
@@ -165,27 +187,41 @@ export function CesiumGlobe() {
 
     // ── tile card click (GLB metadata lookup) ─────────────────────────────────
     const handleClick = (e: MouseEvent) => {
-      if (!selectGlbMetadata(store.getState())) return;
+      if (!selectGlbMetadata(store.getState())) {
+        return;
+      }
 
       const carto = viewer.camera.pickEllipsoid(
         new Cartesian2(e.offsetX, e.offsetY),
         viewer.scene.globe.ellipsoid,
       );
-      if (!carto) return;
+
+      if (!carto) {
+        return;
+      }
+
       const cartographic = Cartographic.fromCartesian(carto);
       const lon = (cartographic.longitude * 180) / Math.PI;
       const lat = (cartographic.latitude * 180) / Math.PI;
 
       const hit = pickRenderedTile(viewer, e.offsetX, e.offsetY);
-      if (!hit) return;
+
+      if (!hit) {
+        return;
+      }
+
       const title = `${hit.level} / ${hit.x} / ${hit.y}`;
 
       // GLBs use WebMercator coords — different scheme from Cesium globe tiles,
       // so we match by geographic position, not by key.
       const matchingGlbs: GlbEntry[] = [];
       loadedGlbsRef.current.forEach((entry) => {
-        if (!entry) return;
+        if (!entry) {
+          return;
+        }
+
         const { info } = entry;
+
         if (lon >= info.west && lon <= info.east && lat >= info.south && lat <= info.north) {
           matchingGlbs.push(entry);
         }
@@ -220,9 +256,17 @@ export function CesiumGlobe() {
         const seen = new Set<string>();
         best.model.traverse((obj) => {
           const entries = Object.entries(obj.userData).filter(([k]) => k !== 'glbTileInfo');
-          if (!entries.length) return;
+
+          if (!entries.length) {
+            return;
+          }
+
           const dedupeKey = JSON.stringify(obj.userData);
-          if (seen.has(dedupeKey)) return;
+
+          if (seen.has(dedupeKey)) {
+            return;
+          }
+
           seen.add(dedupeKey);
           sections.push({ rows: entries.map(([k, v]) => [k, formatMetadataValue(k, v)]) });
         });
@@ -245,13 +289,18 @@ export function CesiumGlobe() {
   // ── "Tile grid on globe" toggle ─────────────────────────────────────────────
   useEffect(() => {
     const viewer = viewerRef.current;
-    if (!viewer) return;
+
+    if (!viewer) {
+      return;
+    }
+
     if (tileGridOnGlobe) {
       if (!tileGridLayerRef.current) {
         tileGridLayerRef.current = viewer.imageryLayers.addImageryProvider(
           new TileCoordinatesImageryProvider({ color: Color.WHITE }),
         );
       }
+
       tileGridLayerRef.current.show = true;
     } else if (tileGridLayerRef.current) {
       tileGridLayerRef.current.show = false;
@@ -261,7 +310,10 @@ export function CesiumGlobe() {
   // ── "GLB tiles" toggled on → load immediately for the current viewport ─────
   useEffect(() => {
     const viewer = viewerRef.current;
-    if (glbTiles && viewer) loadGlbForViewport(viewer);
+
+    if (glbTiles && viewer) {
+      loadGlbForViewport(viewer);
+    }
   }, [glbTiles, loadGlbForViewport]);
 
   // ── Disabling "active tiles" clears any active-tile hover highlight ────────
@@ -274,13 +326,18 @@ export function CesiumGlobe() {
   // ── Sync R3F hover state → Cesium hover rectangle ───────────────────────────
   useEffect(() => {
     const hoverEntity = hoverEntityRef.current;
-    if (!hoverEntity || !hoverEntity.rectangle) return;
+
+    if (!hoverEntity || !hoverEntity.rectangle) {
+      return;
+    }
 
     const record = hoveredTile ? tiles.get(hoveredTile.key) : null;
+
     if (!record) {
       hoverEntity.show = false;
       return;
     }
+
     hoverEntity.rectangle.coordinates = Rectangle.fromDegrees(
       record.west, record.south, record.east, record.north,
     ) as any;
@@ -295,9 +352,16 @@ export function CesiumGlobe() {
       setDoomTileBounds(null);
       return;
     }
-    if (doomTileBounds) return;
+
+    if (doomTileBounds) {
+      return;
+    }
+
     const firstActive = Array.from(tiles.values()).find((t) => t.type === 'active');
-    if (firstActive) setDoomTileBounds(firstActive);
+
+    if (firstActive) {
+      setDoomTileBounds(firstActive);
+    }
   }, [playDoom, tiles, doomTileBounds]);
   useDoomTile(viewerRef.current, doomTileBounds);
 

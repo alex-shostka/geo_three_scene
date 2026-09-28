@@ -44,7 +44,9 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
     dispatch(setTooltip({ x: e.clientX, y: e.clientY, record }));
   };
   const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (isHovered) dispatch(setTooltip({ x: e.clientX, y: e.clientY, record }));
+    if (isHovered) {
+      dispatch(setTooltip({ x: e.clientX, y: e.clientY, record }));
+    }
   };
   const handlePointerOut = () => {
     if (isHovered) {
@@ -53,7 +55,9 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
     }
   };
   const handleClick = () => {
-    if (flyToTile) flyToTileData({ west, east, south, north });
+    if (flyToTile) {
+      flyToTileData({ west, east, south, north });
+    }
   };
 
   return (

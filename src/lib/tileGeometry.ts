@@ -46,7 +46,9 @@ interface CesiumTileLike {
  * the live camera.fov.
  */
 export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null {
-  if (!tiles.length) return null;
+  if (!tiles.length) {
+    return null;
+  }
 
   let minLon = Infinity, maxLon = -Infinity;
   let minLat = Infinity, maxLat = -Infinity;
@@ -54,12 +56,30 @@ export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null 
 
   tiles.forEach((tile) => {
     const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
-    if (west < minLon) minLon = west;
-    if (east > maxLon) maxLon = east;
-    if (south < minLat) minLat = south;
-    if (north > maxLat) maxLat = north;
-    if (tile.level < minLevel) minLevel = tile.level;
-    if (tile.level > maxLevel) maxLevel = tile.level;
+
+    if (west < minLon) {
+      minLon = west;
+    }
+
+    if (east > maxLon) {
+      maxLon = east;
+    }
+
+    if (south < minLat) {
+      minLat = south;
+    }
+
+    if (north > maxLat) {
+      maxLat = north;
+    }
+
+    if (tile.level < minLevel) {
+      minLevel = tile.level;
+    }
+
+    if (tile.level > maxLevel) {
+      maxLevel = tile.level;
+    }
   });
 
   // Each zoom level sits on its own Z-plane (see geoToScene), and OrbitControls
@@ -91,14 +111,32 @@ export function computeLevelFocusBounds(
   let found = false;
 
   for (const tile of tiles) {
-    if (tile.level !== level) continue;
+    if (tile.level !== level) {
+      continue;
+    }
+
     found = true;
-    if (tile.west < west) west = tile.west;
-    if (tile.east > east) east = tile.east;
-    if (tile.south < south) south = tile.south;
-    if (tile.north > north) north = tile.north;
+
+    if (tile.west < west) {
+      west = tile.west;
+    }
+
+    if (tile.east > east) {
+      east = tile.east;
+    }
+
+    if (tile.south < south) {
+      south = tile.south;
+    }
+
+    if (tile.north > north) {
+      north = tile.north;
+    }
   }
-  if (!found) return null;
+
+  if (!found) {
+    return null;
+  }
 
   return {
     centerLon: (west + east) / 2,

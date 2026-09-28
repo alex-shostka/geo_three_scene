@@ -37,14 +37,22 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
 
   const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
-    if (activeTilesOnScene) setHoveredTile({ type: 'active', key });
+
+    if (activeTilesOnScene) {
+      setHoveredTile({ type: 'active', key });
+    }
   };
   const handlePointerOut = () => {
-    if (hoveredTile?.type === 'active' && hoveredTile.key === key) setHoveredTile(null);
+    if (hoveredTile?.type === 'active' && hoveredTile.key === key) {
+      setHoveredTile(null);
+    }
   };
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    if (activeTilesOnScene && flyToTile) flyToTileData({ west, east, south, north });
+
+    if (activeTilesOnScene && flyToTile) {
+      flyToTileData({ west, east, south, north });
+    }
   };
 
   return (

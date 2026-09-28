@@ -20,15 +20,29 @@ export function LevelAxis() {
   const { tiles } = useTiles();
 
   const layout = useMemo(() => {
-    if (!tiles.size) return null;
+    if (!tiles.size) {
+      return null;
+    }
 
     let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
     const levels = new Set<number>();
     tiles.forEach((tile) => {
-      if (tile.west < west) west = tile.west;
-      if (tile.east > east) east = tile.east;
-      if (tile.south < south) south = tile.south;
-      if (tile.north > north) north = tile.north;
+      if (tile.west < west) {
+        west = tile.west;
+      }
+
+      if (tile.east > east) {
+        east = tile.east;
+      }
+
+      if (tile.south < south) {
+        south = tile.south;
+      }
+
+      if (tile.north > north) {
+        north = tile.north;
+      }
+
       levels.add(tile.level);
     });
 
@@ -63,7 +77,9 @@ export function LevelAxis() {
     return { axisX, axisY, tickLength, spine, ticks };
   }, [tiles]);
 
-  if (!layout) return null;
+  if (!layout) {
+    return null;
+  }
 
   return (
     <group>

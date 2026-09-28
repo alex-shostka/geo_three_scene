@@ -27,8 +27,13 @@ export function AnalyticsPanel() {
         loaded: 0, errors: 0,
         west: Infinity, east: -Infinity, south: Infinity, north: -Infinity,
       };
-      if (tile.type === 'active') entry.loaded += 1;
-      else entry.errors += 1;
+
+      if (tile.type === 'active') {
+        entry.loaded += 1;
+      } else {
+        entry.errors += 1;
+      }
+
       entry.west = Math.min(entry.west, tile.west);
       entry.east = Math.max(entry.east, tile.east);
       entry.south = Math.min(entry.south, tile.south);
@@ -47,7 +52,10 @@ export function AnalyticsPanel() {
   const FIT_SHRINK = 0.5;
 
   const flyToLevel = (stats: LevelStats) => {
-    if (!viewer) return;
+    if (!viewer) {
+      return;
+    }
+
     const centerLon = (stats.west + stats.east) / 2;
     const centerLat = (stats.south + stats.north) / 2;
     const halfLon = ((stats.east - stats.west) * FIT_SHRINK) / 2;

@@ -4,20 +4,31 @@ import type { GlbMetadata } from '../types';
 /** Reads property values from EXT_structural_metadata binary buffers via gltf.parser. */
 export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata | null> {
   const ext = (gltf.parser.json.extensions as Record<string, any> | undefined)?.EXT_structural_metadata;
-  if (!ext?.propertyTables?.length) return null;
+
+  if (!ext?.propertyTables?.length) {
+    return null;
+  }
 
   const table = ext.propertyTables[0];
   const classProps = ext.schema?.classes?.[table.class]?.properties;
-  if (!classProps) return null;
+
+  if (!classProps) {
+    return null;
+  }
 
   const result: GlbMetadata = {};
   const decoder = new TextDecoder();
 
   for (const [propName, tableEntry] of Object.entries(table.properties) as [string, any][]) {
     const schemaProp = classProps[propName];
-    if (!schemaProp) continue;
+
+    if (!schemaProp) {
+      continue;
+    }
+
     try {
       const valuesBV = await gltf.parser.getDependency('bufferView', tableEntry.values);
+
       if (schemaProp.type === 'STRING') {
         const offsetBV = await gltf.parser.getDependency('bufferView', tableEntry.stringOffsets);
         const offsets = new Uint32Array(offsetBV as ArrayBuffer);

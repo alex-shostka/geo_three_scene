@@ -18,7 +18,10 @@ export function pickRenderedTile(viewer: Viewer, offsetX: number, offsetY: numbe
     new Cartesian2(offsetX, offsetY),
     viewer.scene.globe.ellipsoid,
   );
-  if (!carto) return null;
+
+  if (!carto) {
+    return null;
+  }
 
   const cartographic = Cartographic.fromCartesian(carto);
   const tiles = getRenderedTiles(viewer);

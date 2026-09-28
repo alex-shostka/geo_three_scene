@@ -18,11 +18,16 @@ export function LevelList() {
       .map(([level, count]) => ({ level, count }));
   }, [tiles]);
 
-  if (!levels.length) return null;
+  if (!levels.length) {
+    return null;
+  }
 
   const handleJump = (level: number) => {
     const bounds = computeLevelFocusBounds(tiles.values(), level);
-    if (bounds) setFocusBounds(bounds);
+
+    if (bounds) {
+      setFocusBounds(bounds);
+    }
   };
 
   return (
