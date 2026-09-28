@@ -3,13 +3,16 @@ import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
 import { useTiles } from '../state/TilesContext';
-import { useSettings } from '../state/SettingsContext';
 import { useCesium } from '../state/CesiumContext';
 import type { ActiveTileRecord } from '../types';
+import { useAppSelector } from '../store/hooks';
+import { selectActiveTilesOnScene, selectFlyToTile } from '../store/settingsSlice';
 
 export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
   const { hoveredTile, setHoveredTile } = useTiles();
-  const { activeTilesOnScene, flyToTile } = useSettings();
+  const activeTilesOnScene = useAppSelector(selectActiveTilesOnScene);
+  const flyToTile = useAppSelector(selectFlyToTile);
+
   const { flyToTileData } = useCesium();
 
   const { west, east, south, north, level, baseColor, key } = record;

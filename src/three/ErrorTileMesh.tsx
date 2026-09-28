@@ -3,17 +3,18 @@ import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
 import { useTiles } from '../state/TilesContext';
-import { useSettings } from '../state/SettingsContext';
 import { useCesium } from '../state/CesiumContext';
 import { useUi } from '../state/UiContext';
 import type { ErrorTileRecord } from '../types';
+import { useAppSelector } from '../store/hooks';
+import { selectFlyToTile } from '../store/settingsSlice';
 
 const MAT_NORMAL = { color: 0xff2222, opacity: 0.55 };
 const MAT_HOVER = { color: 0xff8800, opacity: 0.8 };
 
 export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   const { hoveredTile, setHoveredTile } = useTiles();
-  const { flyToTile } = useSettings();
+  const flyToTile = useAppSelector(selectFlyToTile);
   const { flyToTileData } = useCesium();
   const { setTooltip } = useUi();
 

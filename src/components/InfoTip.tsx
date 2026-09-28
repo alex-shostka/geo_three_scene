@@ -1,6 +1,7 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { useSettings } from '../state/SettingsContext';
+import { useAppSelector } from '../store/hooks';
+import { selectShowTooltips } from '../store/settingsSlice';
 
 interface InfoTipProps {
   text: string;
@@ -11,7 +12,7 @@ const VIEWPORT_MARGIN = 8;
 const ARROW_MARGIN = 12;
 
 export function InfoTip({ text }: InfoTipProps) {
-  const { showTooltips } = useSettings();
+  const showTooltips = useAppSelector(selectShowTooltips);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const [pos, setPos] = useState<{ left: number; top: number; arrowLeft: number } | null>(null);
 

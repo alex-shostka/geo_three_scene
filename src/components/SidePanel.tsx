@@ -1,10 +1,13 @@
 import { useUi } from '../state/UiContext';
-import { useSettings } from '../state/SettingsContext';
 import { SettingsToggleItem } from './SettingsToggleItem';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { selectSettings, setActiveTilesOnScene, setFlyToTile, setGlbMetadata, setGlbTiles, setPlayDoom, setShowTooltips, setTileGridOnGlobe } from '../store/settingsSlice';
 
 export function SidePanel() {
   const { menuOpen } = useUi();
-  const settings = useSettings();
+
+  const settings = useAppSelector(selectSettings);
+  const dispatch = useAppDispatch();
 
   return (
     <aside id="side-panel" className={menuOpen ? 'open' : ''}>
@@ -16,41 +19,41 @@ export function SidePanel() {
           <SettingsToggleItem
             label="Active tiles in scene"
             checked={settings.activeTilesOnScene}
-            onChange={settings.setActiveTilesOnScene}
+            onChange={(v) => dispatch(setActiveTilesOnScene(v))}
           />
           <SettingsToggleItem
             label="Fly to tile on click"
             checked={settings.flyToTile}
             disabled={!settings.activeTilesOnScene}
-            onChange={settings.setFlyToTile}
+            onChange={(v) => dispatch(setFlyToTile(v))}
             child
           />
           <SettingsToggleItem
             label="Tile grid on globe"
             checked={settings.tileGridOnGlobe}
-            onChange={settings.setTileGridOnGlobe}
+            onChange={(v) => dispatch(setTileGridOnGlobe(v))}
           />
           <SettingsToggleItem
             label="GLB tiles (3D)"
             checked={settings.glbTiles}
-            onChange={settings.setGlbTiles}
+            onChange={(v) => dispatch(setGlbTiles(v))}
           />
           <SettingsToggleItem
             label="Enable GLB metadata"
             checked={settings.glbMetadata}
             disabled={!settings.glbTiles}
-            onChange={settings.setGlbMetadata}
+            onChange={(v) => dispatch(setGlbMetadata(v))}
             child
           />
           <SettingsToggleItem
             label="Show tooltips"
             checked={settings.showTooltips}
-            onChange={settings.setShowTooltips}
+            onChange={(v) => dispatch(setShowTooltips(v))}
           />
           <SettingsToggleItem
             label="Play DOOM"
             checked={settings.playDoom}
-            onChange={settings.setPlayDoom}
+            onChange={(v) => dispatch(setPlayDoom(v))}
           />
         </ul>
       </div>

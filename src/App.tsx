@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { SettingsProvider } from './state/SettingsContext';
 import { TilesProvider } from './state/TilesContext';
 import { CesiumProvider } from './state/CesiumContext';
 import { UiProvider } from './state/UiContext';
@@ -19,7 +18,7 @@ import { MapControls } from './components/MapControls';
 
 export function App() {
   return (
-    <SettingsProvider>
+    <>
       <TilesProvider>
         <CesiumProvider>
           <UiProvider>
@@ -40,6 +39,6 @@ export function App() {
       </TilesProvider>
       <Analytics />
       <SpeedInsights />
-    </SettingsProvider>
+    </>
   );
 }

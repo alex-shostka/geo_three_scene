@@ -8,7 +8,6 @@ import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig
 import { useGlbTiles, type GlbEntry } from './useGlbTiles';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useDoomTile } from './useDoomTile';
-import { useSettings } from '../state/SettingsContext';
 import { useTiles } from '../state/TilesContext';
 import { useCesium } from '../state/CesiumContext';
 import { useUi } from '../state/UiContext';
@@ -16,6 +15,10 @@ import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/til
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
 import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
+import { useAppSelector, useAppStore } from '../store/hooks';
+import {
+  selectActiveTilesOnScene, selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe,
+} from '../store/settingsSlice';
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,9 +26,12 @@ export function CesiumGlobe() {
   const hoverEntityRef = useRef<Entity | null>(null);
   const tileGridLayerRef = useRef<ImageryLayer | null>(null);
 
-  const settings = useSettings();
-  const settingsRef = useRef(settings);
-  useEffect(() => { settingsRef.current = settings; }, [settings]);
+  // Cesium handlers are registered once, so they read settings via store.getState() at event time.
+  const store = useAppStore();
+  const tileGridOnGlobe = useAppSelector(selectTileGridOnGlobe);
+  const glbTiles = useAppSelector(selectGlbTiles);
+  const activeTilesOnScene = useAppSelector(selectActiveTilesOnScene);
+  const playDoom = useAppSelector(selectPlayDoom);
 
   const { addErrorTile, addActiveTiles, hoveredTile, setHoveredTile, tiles, setFocusBounds } = useTiles();
   const tilesRef = useRef(tiles);
@@ -107,7 +113,10 @@ export function CesiumGlobe() {
 
     // ── active tile grid + camera focus + GLB viewport loading ───────────────
     viewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength: number) => {
-      if (queueLength !== 0) return;
+      if (queueLength !== 0) {
+        return;
+      }
+
       const renderedTiles = getRenderedTiles(viewer);
       if (!renderedTiles.length) return;
 
@@ -123,13 +132,16 @@ export function CesiumGlobe() {
       });
       addActiveTiles(records);
       setFocusBounds(computeFocusBounds(renderedTiles));
-      if (settingsRef.current.glbTiles) loadGlbForViewport(viewer);
+
+      if (selectGlbTiles(store.getState())) {
+        loadGlbForViewport(viewer);
+      }
     });
 
     // ── GLB metadata hover outline (cyan) ─────────────────────────────────────
     let lastHoveredCesiumTileKey: string | null = null;
     const handleGlbHoverMove = (e: MouseEvent) => {
-      if (!settingsRef.current.glbMetadata) {
+      if (!selectGlbMetadata(store.getState())) {
         if (glbHoverOutline.show) { glbHoverOutline.show = false; lastHoveredCesiumTileKey = null; }
         return;
       }
@@ -155,7 +167,7 @@ export function CesiumGlobe() {
 
     // ── tile card click (GLB metadata lookup) ─────────────────────────────────
     const handleClick = (e: MouseEvent) => {
-      if (!settingsRef.current.glbMetadata) return;
+      if (!selectGlbMetadata(store.getState())) return;
 
       const carto = viewer.camera.pickEllipsoid(
         new Cartesian2(e.offsetX, e.offsetY),
@@ -236,7 +248,7 @@ export function CesiumGlobe() {
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
-    if (settings.tileGridOnGlobe) {
+    if (tileGridOnGlobe) {
       if (!tileGridLayerRef.current) {
         tileGridLayerRef.current = viewer.imageryLayers.addImageryProvider(
           new TileCoordinatesImageryProvider({ color: Color.WHITE }),
@@ -246,20 +258,20 @@ export function CesiumGlobe() {
     } else if (tileGridLayerRef.current) {
       tileGridLayerRef.current.show = false;
     }
-  }, [settings.tileGridOnGlobe]);
+  }, [tileGridOnGlobe]);
 
   // ── "GLB tiles" toggled on → load immediately for the current viewport ─────
   useEffect(() => {
     const viewer = viewerRef.current;
-    if (settings.glbTiles && viewer) loadGlbForViewport(viewer);
-  }, [settings.glbTiles, loadGlbForViewport]);
+    if (glbTiles && viewer) loadGlbForViewport(viewer);
+  }, [glbTiles, loadGlbForViewport]);
 
   // ── Disabling "active tiles" clears any active-tile hover highlight ────────
   useEffect(() => {
-    if (!settings.activeTilesOnScene && hoveredTile?.type === 'active') {
+    if (!activeTilesOnScene && hoveredTile?.type === 'active') {
       setHoveredTile(null);
     }
-  }, [settings.activeTilesOnScene, hoveredTile, setHoveredTile]);
+  }, [activeTilesOnScene, hoveredTile, setHoveredTile]);
 
   // ── Sync R3F hover state → Cesium hover rectangle ───────────────────────────
   useEffect(() => {
@@ -281,14 +293,14 @@ export function CesiumGlobe() {
   // first; turning it off tears the whole thing down (see useDoomTile cleanup).
   const [doomTileBounds, setDoomTileBounds] = useState<TileBounds | null>(null);
   useEffect(() => {
-    if (!settings.playDoom) {
+    if (!playDoom) {
       setDoomTileBounds(null);
       return;
     }
     if (doomTileBounds) return;
     const firstActive = Array.from(tiles.values()).find((t) => t.type === 'active');
     if (firstActive) setDoomTileBounds(firstActive);
-  }, [settings.playDoom, tiles, doomTileBounds]);
+  }, [playDoom, tiles, doomTileBounds]);
   useDoomTile(viewerRef.current, doomTileBounds);
 
   return <div id="cesium-container" ref={containerRef} />;
