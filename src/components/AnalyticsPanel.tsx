@@ -40,6 +40,7 @@ export function AnalyticsPanel() {
       entry.north = Math.max(entry.north, tile.north);
       stats.set(tile.level, entry);
     });
+
     return Array.from(stats.entries())
       .sort(([a], [b]) => a - b)
       .map(([level, entry]) => ({ level, ...entry }));

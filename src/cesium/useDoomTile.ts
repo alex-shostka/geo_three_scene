@@ -67,6 +67,7 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
 
         if (cancelled) {
           ci.exit();
+
           return;
         }
 
@@ -121,6 +122,7 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
 
       if (!carto) {
         isHovering = false;
+
         return;
       }
 

@@ -35,6 +35,7 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
       geoToScene(west, north, level),
       geoToScene(west, south, level),
     ]);
+
     return new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0xff0000 }));
   }, [west, east, south, north, level]);
 

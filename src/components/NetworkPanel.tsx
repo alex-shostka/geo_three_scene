@@ -44,6 +44,7 @@ export function NetworkPanel() {
                       : name === 'CLS'
                         ? getClsElement(metric)
                         : null;
+
                 return (
                   <tr
                     key={name}

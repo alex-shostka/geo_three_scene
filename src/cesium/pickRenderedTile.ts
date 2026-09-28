@@ -25,8 +25,10 @@ export function pickRenderedTile(viewer: Viewer, offsetX: number, offsetY: numbe
 
   const cartographic = Cartographic.fromCartesian(carto);
   const tiles = getRenderedTiles(viewer);
+
   return tiles.find((t) => {
     const r = t.rectangle;
+
     return cartographic.longitude >= r.west && cartographic.longitude <= r.east &&
            cartographic.latitude >= r.south && cartographic.latitude <= r.north;
   }) ?? null;

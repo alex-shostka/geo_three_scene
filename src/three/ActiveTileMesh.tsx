@@ -32,6 +32,7 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
       geoToScene(west, north, level),
       geoToScene(west, south, level),
     ]);
+
     return new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: baseColor }));
   }, [west, east, south, north, level, baseColor]);
 

@@ -26,6 +26,7 @@ export function TilesProvider({ children }: { children: ReactNode }) {
 
       const next = new Map(prev);
       next.set(tile.key, tile);
+
       return next;
     });
   }, []);
@@ -40,6 +41,7 @@ export function TilesProvider({ children }: { children: ReactNode }) {
 
       const next = new Map(prev);
       fresh.forEach((t) => next.set(t.key, t));
+
       return next;
     });
   }, []);

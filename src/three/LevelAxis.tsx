@@ -71,6 +71,7 @@ export function LevelAxis() {
         ]),
         new THREE.LineBasicMaterial({ color }),
       );
+
       return { level, z, color, line };
     });
 

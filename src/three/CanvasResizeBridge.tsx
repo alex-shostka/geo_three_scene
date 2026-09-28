@@ -6,7 +6,9 @@ export function CanvasResizeBridge({ setSizeRef }: { setSizeRef: SetCanvasSizeRe
   const setSize = useThree((state) => state.setSize);
   useEffect(() => {
     setSizeRef.current = setSize;
+
     return () => { setSizeRef.current = null; };
   }, [setSize, setSizeRef]);
+
   return null;
 }

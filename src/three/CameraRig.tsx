@@ -48,6 +48,7 @@ export function CameraRig() {
       controls.update();
     };
     controls.addEventListener('start', onStart);
+
     return () => controls.removeEventListener('start', onStart);
   }, [controls]);
 

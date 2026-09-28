@@ -39,6 +39,7 @@ export function loadEmulators(): Promise<EmulatorsGlobal> {
       script.onload = () => {
         if (!window.emulators) {
           reject(new Error('emulators global missing after script load'));
+
           return;
         }
 

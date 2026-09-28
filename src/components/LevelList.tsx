@@ -13,6 +13,7 @@ export function LevelList() {
   const levels = useMemo(() => {
     const counts = new Map<number, number>();
     tiles.forEach((tile) => counts.set(tile.level, (counts.get(tile.level) ?? 0) + 1));
+
     return Array.from(counts.entries())
       .sort(([a], [b]) => a - b)
       .map(([level, count]) => ({ level, count }));

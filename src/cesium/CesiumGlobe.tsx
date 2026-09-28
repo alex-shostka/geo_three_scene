@@ -128,6 +128,7 @@ export function CesiumGlobe() {
 
       const records: ActiveTileRecord[] = renderedTiles.map((tile) => {
         const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
+
         return {
           type: 'active',
           key: `${tile.level}/${tile.x}/${tile.y}`,
@@ -161,6 +162,7 @@ export function CesiumGlobe() {
       if (!hit) {
         glbHoverOutline.show = false;
         lastHoveredCesiumTileKey = null;
+
         return;
       }
 
@@ -229,6 +231,7 @@ export function CesiumGlobe() {
 
       if (!matchingGlbs.length) {
         dispatch(openTileCard({ title, sections: [], message: 'No GLB loaded for this point' }));
+
         return;
       }
 
@@ -335,6 +338,7 @@ export function CesiumGlobe() {
 
     if (!record) {
       hoverEntity.show = false;
+
       return;
     }
 
@@ -350,6 +354,7 @@ export function CesiumGlobe() {
   useEffect(() => {
     if (!playDoom) {
       setDoomTileBounds(null);
+
       return;
     }
 
