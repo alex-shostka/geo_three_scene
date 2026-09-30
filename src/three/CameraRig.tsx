@@ -2,17 +2,16 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useThree } from '@react-three/fiber';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { useTiles } from '../state/TilesContext';
+import { useAppSelector, useAppStore } from '../store/hooks';
+import { selectAllTiles, selectFocusBounds } from '../store/tilesSlice';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
 
 /** Positions the Three.js camera so that all currently-rendered tiles fit in the frame. */
 export function CameraRig() {
-  const { focusBounds, tiles } = useTiles();
+  const focusBounds = useAppSelector(selectFocusBounds);
+  const store = useAppStore();
   const camera = useThree((state) => state.camera);
   const controls = useThree((state) => state.controls) as OrbitControlsImpl | null;
-
-  const tilesRef = useRef(tiles);
-  useEffect(() => { tilesRef.current = tiles; }, [tiles]);
 
   // Cesium's tileLoadProgressEvent fires focusBounds updates ambiently (on every
   // globe tile load, unrelated to this scene). Once the user has taken manual
@@ -34,7 +33,7 @@ export function CameraRig() {
     const onStart = () => {
       userTouchedRef.current = true;
       let maxLevel = -Infinity;
-      tilesRef.current.forEach((tile) => {
+      selectAllTiles(store.getState()).forEach((tile) => {
         if (tile.level > maxLevel) {
           maxLevel = tile.level;
         }
@@ -50,7 +49,7 @@ export function CameraRig() {
     controls.addEventListener('start', onStart);
 
     return () => controls.removeEventListener('start', onStart);
-  }, [controls]);
+  }, [controls, store]);
 
   useEffect(() => {
     if (!focusBounds || !controls) {

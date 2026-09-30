@@ -2,18 +2,18 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
-import { useTiles } from '../state/TilesContext';
 import { useCesium } from '../state/CesiumContext';
 import type { ActiveTileRecord } from '../types';
-import { useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectActiveTilesOnScene, selectFlyToTile } from '../store/settingsSlice';
+import { selectIsTileHovered, setHoveredTile } from '../store/tilesSlice';
 
 export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
-  const { hoveredTile, setHoveredTile } = useTiles();
   const activeTilesOnScene = useAppSelector(selectActiveTilesOnScene);
   const flyToTile = useAppSelector(selectFlyToTile);
 
   const { flyToTileData } = useCesium();
+  const dispatch = useAppDispatch();
 
   const { west, east, south, north, level, baseColor, key } = record;
   const z = -level * LEVEL_DEPTH;
@@ -22,7 +22,8 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
   const cx = (west + east) / 2;
   const cy = (south + north) / 2;
 
-  const isHovered = activeTilesOnScene && hoveredTile?.type === 'active' && hoveredTile.key === key;
+  const isHoveredInStore = useAppSelector((state) => selectIsTileHovered(state, 'active', key));
+  const isHovered = activeTilesOnScene && isHoveredInStore;
 
   const outline = useMemo(() => {
     const geometry = new THREE.BufferGeometry().setFromPoints([
@@ -40,12 +41,12 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
     event.stopPropagation();
 
     if (activeTilesOnScene) {
-      setHoveredTile({ type: 'active', key });
+      dispatch(setHoveredTile({ type: 'active', key }));
     }
   };
   const handlePointerOut = () => {
-    if (hoveredTile?.type === 'active' && hoveredTile.key === key) {
-      setHoveredTile(null);
+    if (isHoveredInStore) {
+      dispatch(setHoveredTile(null));
     }
   };
   const handleClick = (event: ThreeEvent<MouseEvent>) => {

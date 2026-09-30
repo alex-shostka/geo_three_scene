@@ -1,5 +1,6 @@
-import { useMemo, type CSSProperties } from 'react';
-import { useTiles } from '../state/TilesContext';
+import { type CSSProperties } from 'react';
+import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
+import { selectAllTiles, selectLevelCounts, setFocusBounds } from '../store/tilesSlice';
 import { levelColor, computeLevelFocusBounds } from '../lib/tileGeometry';
 
 function toCssColor(color: number): string {
@@ -8,26 +9,20 @@ function toCssColor(color: number): string {
 
 /** Floating legend over the Three.js scene: one entry per rendered zoom level, click to fly there. */
 export function LevelList() {
-  const { tiles, setFocusBounds } = useTiles();
-
-  const levels = useMemo(() => {
-    const counts = new Map<number, number>();
-    tiles.forEach((tile) => counts.set(tile.level, (counts.get(tile.level) ?? 0) + 1));
-
-    return Array.from(counts.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([level, count]) => ({ level, count }));
-  }, [tiles]);
+  const levels = useAppSelector(selectLevelCounts);
+  const store = useAppStore();
+  const dispatch = useAppDispatch();
 
   if (!levels.length) {
     return null;
   }
 
   const handleJump = (level: number) => {
-    const bounds = computeLevelFocusBounds(tiles.values(), level);
+    // Tiles are read only at click time, so the list doesn't re-render on every tile load.
+    const bounds = computeLevelFocusBounds(selectAllTiles(store.getState()), level);
 
     if (bounds) {
-      setFocusBounds(bounds);
+      dispatch(setFocusBounds(bounds));
     }
   };
 

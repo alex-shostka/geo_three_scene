@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
-import { useTiles } from '../state/TilesContext';
+import { useAppSelector } from '../store/hooks';
+import { selectAllTiles } from '../store/tilesSlice';
 import { LEVEL_DEPTH, levelColor } from '../lib/tileGeometry';
 
 interface Tick {
@@ -17,10 +18,10 @@ interface Tick {
  * Z-plane (see geoToScene) so it reads as a depth axis for the stack.
  */
 export function LevelAxis() {
-  const { tiles } = useTiles();
+  const tiles = useAppSelector(selectAllTiles);
 
   const layout = useMemo(() => {
-    if (!tiles.size) {
+    if (!tiles.length) {
       return null;
     }
 

@@ -8,7 +8,6 @@ import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig
 import { useGlbTiles, type GlbEntry } from './useGlbTiles';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useDoomTile } from './useDoomTile';
-import { useTiles } from '../state/TilesContext';
 import { useCesium } from '../state/CesiumContext';
 import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/tileGeometry';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
@@ -16,9 +15,12 @@ import { formatTileError } from '../lib/formatTileError';
 import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
 import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
 import {
-  selectActiveTilesOnScene, selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe,
+  selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe,
 } from '../store/settingsSlice';
 import { openTileCard } from '../store/uiSlice';
+import {
+  addActiveTiles, addErrorTile, selectFirstActiveTile, selectHoveredRecord, setFocusBounds,
+} from '../store/tilesSlice';
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -30,12 +32,10 @@ export function CesiumGlobe() {
   const store = useAppStore();
   const tileGridOnGlobe = useAppSelector(selectTileGridOnGlobe);
   const glbTiles = useAppSelector(selectGlbTiles);
-  const activeTilesOnScene = useAppSelector(selectActiveTilesOnScene);
   const playDoom = useAppSelector(selectPlayDoom);
 
-  const { addErrorTile, addActiveTiles, hoveredTile, setHoveredTile, tiles, setFocusBounds } = useTiles();
-  const tilesRef = useRef(tiles);
-  useEffect(() => { tilesRef.current = tiles; }, [tiles]);
+  const hoveredRecord = useAppSelector(selectHoveredRecord);
+  const firstActiveTile = useAppSelector(selectFirstActiveTile);
 
   const { setCesiumHandles } = useCesium();
   const dispatch = useAppDispatch();
@@ -96,7 +96,7 @@ export function CesiumGlobe() {
 
     setCesiumHandles({ viewer, hoverEntity });
 
-    // ── error tiles → Three-side error grid (via TilesContext) ───────────────
+    // ── error tiles → Three-side error grid (via the tiles slice) ───────────────
     localTiles.errorEvent.addEventListener((err: any) => {
       if (err.x == null || err.y == null || err.level == null) {
         return;
@@ -111,7 +111,7 @@ export function CesiumGlobe() {
         .replace('{z}', String(err.level)).replace('{x}', String(err.x)).replace('{y}', String(err.y));
       const errorMsg = formatTileError(err.error);
 
-      addErrorTile({ type: 'error', key, level: err.level, x: err.x, y: err.y, west, east, south, north, tileUrl, errorMsg });
+      dispatch(addErrorTile({ type: 'error', key, level: err.level, x: err.x, y: err.y, west, east, south, north, tileUrl, errorMsg }));
     });
 
     // ── active tile grid + camera focus + GLB viewport loading ───────────────
@@ -137,8 +137,8 @@ export function CesiumGlobe() {
           baseColor: levelColor(tile.level),
         };
       });
-      addActiveTiles(records);
-      setFocusBounds(computeFocusBounds(renderedTiles));
+      dispatch(addActiveTiles(records));
+      dispatch(setFocusBounds(computeFocusBounds(renderedTiles)));
 
       if (selectGlbTiles(store.getState())) {
         loadGlbForViewport(viewer);
@@ -319,13 +319,6 @@ export function CesiumGlobe() {
     }
   }, [glbTiles, loadGlbForViewport]);
 
-  // ── Disabling "active tiles" clears any active-tile hover highlight ────────
-  useEffect(() => {
-    if (!activeTilesOnScene && hoveredTile?.type === 'active') {
-      setHoveredTile(null);
-    }
-  }, [activeTilesOnScene, hoveredTile, setHoveredTile]);
-
   // ── Sync R3F hover state → Cesium hover rectangle ───────────────────────────
   useEffect(() => {
     const hoverEntity = hoverEntityRef.current;
@@ -334,19 +327,17 @@ export function CesiumGlobe() {
       return;
     }
 
-    const record = hoveredTile ? tiles.get(hoveredTile.key) : null;
-
-    if (!record) {
+    if (!hoveredRecord) {
       hoverEntity.show = false;
 
       return;
     }
 
     hoverEntity.rectangle.coordinates = Rectangle.fromDegrees(
-      record.west, record.south, record.east, record.north,
+      hoveredRecord.west, hoveredRecord.south, hoveredRecord.east, hoveredRecord.north,
     ) as any;
     hoverEntity.show = true;
-  }, [hoveredTile, tiles]);
+  }, [hoveredRecord]);
 
   // ── "Play DOOM" toggle: while on, drape it over whichever active tile loads
   // first; turning it off tears the whole thing down (see useDoomTile cleanup).
@@ -362,12 +353,10 @@ export function CesiumGlobe() {
       return;
     }
 
-    const firstActive = Array.from(tiles.values()).find((t) => t.type === 'active');
-
-    if (firstActive) {
-      setDoomTileBounds(firstActive);
+    if (firstActiveTile) {
+      setDoomTileBounds(firstActiveTile);
     }
-  }, [playDoom, tiles, doomTileBounds]);
+  }, [playDoom, firstActiveTile, doomTileBounds]);
   useDoomTile(viewerRef.current, doomTileBounds);
 
   return <div id="cesium-container" ref={containerRef} />;

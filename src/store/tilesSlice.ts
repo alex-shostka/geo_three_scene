@@ -1,0 +1,78 @@
+import { createEntityAdapter, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { setActiveTilesOnScene } from './settingsSlice';
+import type { FocusBounds, HoveredTile, TileRecord } from '../types';
+
+const tilesAdapter = createEntityAdapter({
+  selectId: (tile: TileRecord) => tile.key,
+});
+
+// Adapter selectors that take the slice state (no argument = "local" selectors).
+const adapterSelectors = tilesAdapter.getSelectors();
+
+const initialState = tilesAdapter.getInitialState<{
+  hoveredTile: HoveredTile | null;
+  focusBounds: FocusBounds | null;
+}>({
+  hoveredTile: null,
+  focusBounds: null,
+});
+
+type TilesState = typeof initialState;
+
+// Memoized: these return new arrays/numbers derived from the tile list.
+const countErrorTiles = createSelector([adapterSelectors.selectAll], (tiles) =>
+  tiles.filter((tile) => tile.type === 'error').length);
+
+const countTilesByLevel = createSelector([adapterSelectors.selectAll], (tiles) => {
+  const counts = new Map<number, number>();
+  tiles.forEach((tile) => counts.set(tile.level, (counts.get(tile.level) ?? 0) + 1));
+
+  return Array.from(counts.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([level, count]) => ({ level, count }));
+});
+
+export const tilesSlice = createSlice({
+  name: 'tiles',
+  initialState,
+  reducers: {
+    // addOne/addMany skip keys that are already stored.
+    addErrorTile: tilesAdapter.addOne,
+    addActiveTiles: tilesAdapter.addMany,
+    setHoveredTile(state, action: PayloadAction<HoveredTile | null>) {
+      state.hoveredTile = action.payload;
+    },
+    setFocusBounds(state, action: PayloadAction<FocusBounds | null>) {
+      state.focusBounds = action.payload;
+    },
+  },
+  // Turning off "active tiles" clears any active-tile hover highlight.
+  extraReducers: (builder) => {
+    builder.addCase(setActiveTilesOnScene, (state, action) => {
+      if (!action.payload && state.hoveredTile?.type === 'active') {
+        state.hoveredTile = null;
+      }
+    });
+  },
+  selectors: {
+    selectAllTiles: adapterSelectors.selectAll,
+    selectTileById: adapterSelectors.selectById,
+    selectHoveredTile: (state) => state.hoveredTile,
+    selectFocusBounds: (state) => state.focusBounds,
+    selectIsTileHovered: (state, type: TileRecord['type'], key: string) =>
+      state.hoveredTile?.type === type && state.hoveredTile.key === key,
+    selectHoveredRecord: (state: TilesState) =>
+      state.hoveredTile ? adapterSelectors.selectById(state, state.hoveredTile.key) : undefined,
+    selectFirstActiveTile: (state: TilesState) =>
+      adapterSelectors.selectAll(state).find((tile) => tile.type === 'active'),
+    selectErrorCount: countErrorTiles,
+    selectLevelCounts: countTilesByLevel,
+  },
+});
+
+export const { addErrorTile, addActiveTiles, setHoveredTile, setFocusBounds } = tilesSlice.actions;
+
+export const {
+  selectAllTiles, selectTileById, selectHoveredTile, selectFocusBounds, selectIsTileHovered,
+  selectHoveredRecord, selectFirstActiveTile, selectErrorCount, selectLevelCounts,
+} = tilesSlice.selectors;

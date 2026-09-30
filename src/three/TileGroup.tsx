@@ -1,11 +1,10 @@
-import { useMemo } from 'react';
-import { useTiles } from '../state/TilesContext';
+import { useAppSelector } from '../store/hooks';
+import { selectAllTiles } from '../store/tilesSlice';
 import { ErrorTileMesh } from './ErrorTileMesh';
 import { ActiveTileMesh } from './ActiveTileMesh';
 
 export function TileGroup() {
-  const { tiles } = useTiles();
-  const records = useMemo(() => Array.from(tiles.values()), [tiles]);
+  const records = useAppSelector(selectAllTiles);
 
   return (
     <group>
