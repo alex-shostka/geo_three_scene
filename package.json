@@ -11,7 +11,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "jscpd": "npx -y jscpd@5 src --min-tokens 50 --ignore \"**/*.test.ts\"",
+    "madge": "npx -y madge@8 --circular --extensions ts,tsx src"
   },
   "keywords": [],
   "author": "",
