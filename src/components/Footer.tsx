@@ -15,6 +15,7 @@ export function Footer() {
   const errorCount = useAppSelector(selectErrorCount);
   const focusBounds = useAppSelector(selectFocusBounds);
   const [pose, setPose] = useState<CameraPose | null>(null);
+  const lod = focusBounds ? Math.round(-focusBounds.tileZ / LEVEL_DEPTH) : null;
 
   useEffect(() => {
     if (!viewer) {
@@ -29,10 +30,10 @@ export function Footer() {
         return;
       }
 
-      lastUpdate = now;
-
       const carto = viewer.camera.positionCartographic;
       let rollDeg = (viewer.camera.roll * 180) / Math.PI;
+
+      lastUpdate = now;
 
       if (rollDeg > 180) {
         rollDeg -= 360;
@@ -53,8 +54,6 @@ export function Footer() {
 
     return () => { viewer.scene.postRender.removeEventListener(update); };
   }, [viewer]);
-
-  const lod = focusBounds ? Math.round(-focusBounds.tileZ / LEVEL_DEPTH) : null;
 
   return (
     <footer id="app-footer" className={open ? 'open' : ''}>

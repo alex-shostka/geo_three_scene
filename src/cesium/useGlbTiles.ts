@@ -47,7 +47,9 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
       info.url,
       async (gltf) => {
         gltf.scene.userData.glbTileInfo = info;
+
         const metadata = await parseStructuralMetadata(gltf);
+
         loadedGlbs.set(key, { gltf, model: gltf.scene, info, metadata });
       },
       undefined,
@@ -63,6 +65,7 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
     }
 
     const scheme = localTiles.tilingScheme;
+
     GLB_LEVELS.forEach((level) => {
       const nw = scheme.positionToTileXY(new Cartographic(rect.west, rect.north), level);
       const se = scheme.positionToTileXY(new Cartographic(rect.east, rect.south), level);

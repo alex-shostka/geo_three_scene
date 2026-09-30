@@ -8,6 +8,7 @@ import {
 describe('settings', () => {
   it('turning off active tiles resets fly-to-tile', () => {
     const store = makeStore();
+
     store.dispatch(setActiveTilesOnScene(true));
     store.dispatch(setFlyToTile(true));
 
@@ -18,6 +19,7 @@ describe('settings', () => {
 
   it('turning off GLB tiles resets GLB metadata', () => {
     const store = makeStore();
+
     store.dispatch(setGlbTiles(true));
     store.dispatch(setGlbMetadata(true));
 

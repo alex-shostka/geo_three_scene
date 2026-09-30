@@ -34,6 +34,7 @@ export function flyCameraToTile(bounds: TileBounds): void {
   const centerLon = (bounds.west + bounds.east) / 2;
   const centerLat = (bounds.south + bounds.north) / 2;
   const currentHeight = viewer.camera.positionCartographic.height;
+
   viewer.camera.flyTo({
     destination: Cartesian3.fromDegrees(centerLon, centerLat, currentHeight),
     duration: 1.5,

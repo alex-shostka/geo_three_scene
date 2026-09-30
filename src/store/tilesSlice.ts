@@ -33,6 +33,7 @@ const countErrorTiles = createSelector([adapterSelectors.selectAll], (tiles) =>
 
 const countTilesByLevel = createSelector([adapterSelectors.selectAll], (tiles) => {
   const counts = new Map<number, number>();
+
   tiles.forEach((tile) => counts.set(tile.level, (counts.get(tile.level) ?? 0) + 1));
 
   return Array.from(counts.entries())
@@ -42,6 +43,7 @@ const countTilesByLevel = createSelector([adapterSelectors.selectAll], (tiles) =
 
 const computeLevelStats = createSelector([adapterSelectors.selectAll], (tiles): LevelStats[] => {
   const stats = new Map<number, Omit<LevelStats, 'level'>>();
+
   tiles.forEach((tile) => {
     const entry = stats.get(tile.level) ?? {
       loaded: 0, errors: 0,

@@ -9,6 +9,7 @@ export function highlightElement(element: Element): void {
 
   const previousOutline = element.style.outline;
   const previousOutlineOffset = element.style.outlineOffset;
+
   element.style.outline = '3px solid #3b82f6';
   element.style.outlineOffset = '2px';
 

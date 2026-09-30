@@ -9,20 +9,17 @@ export function useDragMove(containerRef: RefObject<HTMLDivElement | null>) {
       return;
     }
 
-    event.preventDefault();
-
     const startRect = container.getBoundingClientRect();
     const startX = event.clientX;
     const startY = event.clientY;
     const prevUserSelect = document.body.style.userSelect;
-    document.body.style.userSelect = 'none';
-
     let rafId = 0;
     let pendingX = startX;
     let pendingY = startY;
 
     const applyMove = () => {
       rafId = 0;
+
       const dx = pendingX - startX;
       const dy = pendingY - startY;
 
@@ -60,6 +57,8 @@ export function useDragMove(containerRef: RefObject<HTMLDivElement | null>) {
       window.removeEventListener('pointerup', onPointerUp);
     };
 
+    event.preventDefault();
+    document.body.style.userSelect = 'none';
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
   }, [containerRef]);

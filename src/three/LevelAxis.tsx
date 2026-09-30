@@ -22,6 +22,7 @@ export function LevelAxis() {
 
     let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
     const levels = new Set<number>();
+
     tiles.forEach((tile) => {
       if (tile.west < west) {
         west = tile.west;

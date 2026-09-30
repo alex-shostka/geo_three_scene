@@ -26,6 +26,7 @@ export function MapControls() {
 
     const { camera } = viewer;
     const carto = camera.positionCartographic;
+
     camera.flyTo({
       destination: Cartesian3.fromRadians(carto.longitude, carto.latitude, carto.height * factor),
       orientation: { heading: camera.heading, pitch: camera.pitch, roll: camera.roll },

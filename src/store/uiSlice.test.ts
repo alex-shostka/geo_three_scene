@@ -5,6 +5,7 @@ import { closeTileCard, openTileCard, selectIsPanelOpen, selectTileCard, toggleP
 describe('ui', () => {
   it('opening one panel closes the other', () => {
     const store = makeStore();
+
     store.dispatch(togglePanel('menu'));
     store.dispatch(togglePanel('analytics'));
 
@@ -14,6 +15,7 @@ describe('ui', () => {
 
   it('toggling the open panel closes it', () => {
     const store = makeStore();
+
     store.dispatch(togglePanel('network'));
     store.dispatch(togglePanel('network'));
 
@@ -23,6 +25,7 @@ describe('ui', () => {
   it('closing the tile card keeps its content', () => {
     const store = makeStore();
     const sections = [{ rows: [['url', '/tiles_glb/10/1/1.glb']] as [string, string][] }];
+
     store.dispatch(openTileCard({ title: '10 / 1 / 1', sections }));
 
     store.dispatch(closeTileCard());

@@ -33,12 +33,14 @@ export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata |
         const offsets = new Uint32Array(offsetBV as ArrayBuffer);
         const bytes = new Uint8Array(valuesBV as ArrayBuffer);
         const strings: string[] = [];
+
         for (let i = 0; i < table.count; i++) {
           strings.push(decoder.decode(bytes.slice(offsets[i], offsets[i + 1])));
         }
         result[propName] = table.count === 1 ? strings[0] : strings;
       } else if (schemaProp.componentType === 'FLOAT32') {
         const floats = new Float32Array(valuesBV as ArrayBuffer);
+
         result[propName] = table.count === 1 ? floats[0] : Array.from(floats);
       }
     } catch {

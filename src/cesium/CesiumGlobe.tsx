@@ -35,6 +35,7 @@ export function CesiumGlobe() {
 
   const hoveredRecord = useAppSelector(selectHoveredRecord);
   const firstActiveTile = useAppSelector(selectFirstActiveTile);
+  const [doomTileBounds, setDoomTileBounds] = useState<TileBounds | null>(null);
 
   const dispatch = useAppDispatch();
 
@@ -61,12 +62,6 @@ export function CesiumGlobe() {
       creditContainer: document.createElement('div'),
       baseLayer: new ImageryLayer(localTiles),
     });
-    viewerRef.current = viewer;
-    (window as unknown as { geoThreeScene: unknown }).geoThreeScene = { cesiumViewer: viewer };
-
-    viewer.camera.setView({
-      destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, HOME_HEIGHT),
-    });
 
     const hoverEntity = viewer.entities.add({
       show: false,
@@ -79,8 +74,6 @@ export function CesiumGlobe() {
         height: 0,
       },
     });
-    hoverEntityRef.current = hoverEntity;
-
     const glbHoverOutline = viewer.entities.add({
       show: false,
       polyline: {
@@ -89,6 +82,139 @@ export function CesiumGlobe() {
         material: Color.CYAN.withAlpha(0.9),
         clampToGround: true,
       },
+    });
+    let lastHoveredCesiumTileKey: string | null = null;
+    const handleGlbHoverMove = (event: MouseEvent) => {
+      if (!selectGlbMetadata(store.getState())) {
+        if (glbHoverOutline.show) {
+          glbHoverOutline.show = false;
+          lastHoveredCesiumTileKey = null;
+        }
+
+        return;
+      }
+
+      const hit = pickRenderedTile(viewer, event.offsetX, event.offsetY);
+
+      if (!hit) {
+        glbHoverOutline.show = false;
+        lastHoveredCesiumTileKey = null;
+
+        return;
+      }
+
+      const key = `${hit.level}/${hit.x}/${hit.y}`;
+
+      if (key === lastHoveredCesiumTileKey) {
+        return;
+      }
+
+      lastHoveredCesiumTileKey = key;
+
+      const r = hit.rectangle;
+
+      glbHoverOutline.polyline!.positions = Cartesian3.fromRadiansArray([
+        r.west, r.south, r.east, r.south, r.east, r.north, r.west, r.north, r.west, r.south,
+      ]) as any;
+      glbHoverOutline.show = true;
+    };
+    const handleGlbHoverLeave = () => {
+      glbHoverOutline.show = false;
+      lastHoveredCesiumTileKey = null;
+    };
+    const handleClick = (event: MouseEvent) => {
+      if (!selectGlbMetadata(store.getState())) {
+        return;
+      }
+
+      const carto = viewer.camera.pickEllipsoid(
+        new Cartesian2(event.offsetX, event.offsetY),
+        viewer.scene.globe.ellipsoid,
+      );
+
+      if (!carto) {
+        return;
+      }
+
+      const cartographic = Cartographic.fromCartesian(carto);
+      const lon = (cartographic.longitude * 180) / Math.PI;
+      const lat = (cartographic.latitude * 180) / Math.PI;
+
+      const hit = pickRenderedTile(viewer, event.offsetX, event.offsetY);
+
+      if (!hit) {
+        return;
+      }
+
+      const title = `${hit.level} / ${hit.x} / ${hit.y}`;
+
+      const matchingGlbs: GlbEntry[] = [];
+
+      loadedGlbsRef.current.forEach((entry) => {
+        if (!entry) {
+          return;
+        }
+
+        const { info } = entry;
+
+        if (lon >= info.west && lon <= info.east && lat >= info.south && lat <= info.north) {
+          matchingGlbs.push(entry);
+        }
+      });
+
+      if (!matchingGlbs.length) {
+        dispatch(openTileCard({ title, sections: [], message: 'No GLB loaded for this point' }));
+
+        return;
+      }
+
+      const best = matchingGlbs.reduce((a, b) =>
+        Math.abs(a.info.z - hit.level) <= Math.abs(b.info.z - hit.level) ? a : b);
+
+      const sections: TileCardSection[] = [{
+        rows: [
+          ['url', best.info.url],
+          ['west', String(best.info.west)],
+          ['east', String(best.info.east)],
+          ['south', String(best.info.south)],
+          ['north', String(best.info.north)],
+        ],
+      }];
+
+      if (best.metadata) {
+        sections.push({
+          rows: Object.entries(best.metadata).map(([k, v]) => [k, formatMetadataValue(k, v)]),
+        });
+      } else {
+        const seen = new Set<string>();
+
+        best.model.traverse((obj) => {
+          const entries = Object.entries(obj.userData).filter(([k]) => k !== 'glbTileInfo');
+
+          if (!entries.length) {
+            return;
+          }
+
+          const dedupeKey = JSON.stringify(obj.userData);
+
+          if (seen.has(dedupeKey)) {
+            return;
+          }
+
+          seen.add(dedupeKey);
+          sections.push({ rows: entries.map(([k, v]) => [k, formatMetadataValue(k, v)]) });
+        });
+      }
+
+      dispatch(openTileCard({ title, sections }));
+    };
+
+    viewerRef.current = viewer;
+    hoverEntityRef.current = hoverEntity;
+    (window as unknown as { geoThreeScene: unknown }).geoThreeScene = { cesiumViewer: viewer };
+
+    viewer.camera.setView({
+      destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, HOME_HEIGHT),
     });
 
     setViewer(viewer);
@@ -132,6 +258,7 @@ export function CesiumGlobe() {
           baseColor: levelColor(tile.level),
         };
       });
+
       dispatch(addActiveTiles(records));
       dispatch(setFocusBounds(computeFocusBounds(renderedTiles)));
 
@@ -140,131 +267,8 @@ export function CesiumGlobe() {
       }
     });
 
-    let lastHoveredCesiumTileKey: string | null = null;
-    const handleGlbHoverMove = (event: MouseEvent) => {
-      if (!selectGlbMetadata(store.getState())) {
-        if (glbHoverOutline.show) {
-          glbHoverOutline.show = false;
-          lastHoveredCesiumTileKey = null;
-        }
-
-        return;
-      }
-
-      const hit = pickRenderedTile(viewer, event.offsetX, event.offsetY);
-
-      if (!hit) {
-        glbHoverOutline.show = false;
-        lastHoveredCesiumTileKey = null;
-
-        return;
-      }
-
-      const key = `${hit.level}/${hit.x}/${hit.y}`;
-
-      if (key === lastHoveredCesiumTileKey) {
-        return;
-      }
-
-      lastHoveredCesiumTileKey = key;
-
-      const r = hit.rectangle;
-      glbHoverOutline.polyline!.positions = Cartesian3.fromRadiansArray([
-        r.west, r.south, r.east, r.south, r.east, r.north, r.west, r.north, r.west, r.south,
-      ]) as any;
-      glbHoverOutline.show = true;
-    };
-    const handleGlbHoverLeave = () => {
-      glbHoverOutline.show = false;
-      lastHoveredCesiumTileKey = null;
-    };
     viewer.canvas.addEventListener('mousemove', handleGlbHoverMove);
     viewer.canvas.addEventListener('mouseleave', handleGlbHoverLeave);
-
-    const handleClick = (event: MouseEvent) => {
-      if (!selectGlbMetadata(store.getState())) {
-        return;
-      }
-
-      const carto = viewer.camera.pickEllipsoid(
-        new Cartesian2(event.offsetX, event.offsetY),
-        viewer.scene.globe.ellipsoid,
-      );
-
-      if (!carto) {
-        return;
-      }
-
-      const cartographic = Cartographic.fromCartesian(carto);
-      const lon = (cartographic.longitude * 180) / Math.PI;
-      const lat = (cartographic.latitude * 180) / Math.PI;
-
-      const hit = pickRenderedTile(viewer, event.offsetX, event.offsetY);
-
-      if (!hit) {
-        return;
-      }
-
-      const title = `${hit.level} / ${hit.x} / ${hit.y}`;
-
-      const matchingGlbs: GlbEntry[] = [];
-      loadedGlbsRef.current.forEach((entry) => {
-        if (!entry) {
-          return;
-        }
-
-        const { info } = entry;
-
-        if (lon >= info.west && lon <= info.east && lat >= info.south && lat <= info.north) {
-          matchingGlbs.push(entry);
-        }
-      });
-
-      if (!matchingGlbs.length) {
-        dispatch(openTileCard({ title, sections: [], message: 'No GLB loaded for this point' }));
-
-        return;
-      }
-
-      const best = matchingGlbs.reduce((a, b) =>
-        Math.abs(a.info.z - hit.level) <= Math.abs(b.info.z - hit.level) ? a : b);
-
-      const sections: TileCardSection[] = [{
-        rows: [
-          ['url', best.info.url],
-          ['west', String(best.info.west)],
-          ['east', String(best.info.east)],
-          ['south', String(best.info.south)],
-          ['north', String(best.info.north)],
-        ],
-      }];
-
-      if (best.metadata) {
-        sections.push({
-          rows: Object.entries(best.metadata).map(([k, v]) => [k, formatMetadataValue(k, v)]),
-        });
-      } else {
-        const seen = new Set<string>();
-        best.model.traverse((obj) => {
-          const entries = Object.entries(obj.userData).filter(([k]) => k !== 'glbTileInfo');
-
-          if (!entries.length) {
-            return;
-          }
-
-          const dedupeKey = JSON.stringify(obj.userData);
-
-          if (seen.has(dedupeKey)) {
-            return;
-          }
-
-          seen.add(dedupeKey);
-          sections.push({ rows: entries.map(([k, v]) => [k, formatMetadataValue(k, v)]) });
-        });
-      }
-
-      dispatch(openTileCard({ title, sections }));
-    };
     viewer.canvas.addEventListener('click', handleClick);
 
     return () => {
@@ -324,7 +328,6 @@ export function CesiumGlobe() {
     hoverEntity.show = true;
   }, [hoveredRecord]);
 
-  const [doomTileBounds, setDoomTileBounds] = useState<TileBounds | null>(null);
   useEffect(() => {
     if (!playDoom) {
       setDoomTileBounds(null);

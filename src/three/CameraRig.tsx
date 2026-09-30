@@ -21,7 +21,9 @@ export function CameraRig() {
 
     const onStart = () => {
       userTouchedRef.current = true;
+
       let maxLevel = -Infinity;
+
       selectAllTiles(store.getState()).forEach((tile) => {
         if (tile.level > maxLevel) {
           maxLevel = tile.level;
@@ -35,6 +37,7 @@ export function CameraRig() {
       controls.target.z = -maxLevel * LEVEL_DEPTH;
       controls.update();
     };
+
     controls.addEventListener('start', onStart);
 
     return () => controls.removeEventListener('start', onStart);

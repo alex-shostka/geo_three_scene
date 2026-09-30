@@ -20,6 +20,7 @@ const activeTile = (key: string, level = 10): ActiveTileRecord => ({
 describe('tiles', () => {
   it('ignores tiles that are already stored', () => {
     const store = makeStore();
+
     store.dispatch(addActiveTiles([activeTile('10/1/1'), activeTile('10/1/2')]));
     store.dispatch(addActiveTiles([activeTile('10/1/1')]));
 
@@ -28,7 +29,9 @@ describe('tiles', () => {
 
   it('keeps state identity when nothing new is added', () => {
     const store = makeStore();
+
     store.dispatch(addActiveTiles([activeTile('10/1/1')]));
+
     const before = store.getState().tiles;
 
     store.dispatch(addActiveTiles([activeTile('10/1/1')]));
@@ -38,6 +41,7 @@ describe('tiles', () => {
 
   it('counts error tiles', () => {
     const store = makeStore();
+
     store.dispatch(addErrorTile(errorTile('err:10/1/1')));
     store.dispatch(addActiveTiles([activeTile('10/1/1')]));
 
@@ -46,6 +50,7 @@ describe('tiles', () => {
 
   it('counts tiles per level, sorted by level', () => {
     const store = makeStore();
+
     store.dispatch(addActiveTiles([activeTile('12/1/1', 12), activeTile('10/1/1', 10), activeTile('12/1/2', 12)]));
 
     expect(selectLevelCounts(store.getState())).toEqual([
@@ -56,6 +61,7 @@ describe('tiles', () => {
 
   it('computes per-level stats with counts and extent', () => {
     const store = makeStore();
+
     store.dispatch(addActiveTiles([
       { ...activeTile('10/1/1'), west: 0, east: 1, south: 0, north: 1 },
       { ...activeTile('10/2/1'), west: 1, east: 2, south: 0, north: 1 },
@@ -71,6 +77,7 @@ describe('tiles', () => {
 
   it('returns the same stats array while tiles are unchanged', () => {
     const store = makeStore();
+
     store.dispatch(addActiveTiles([activeTile('10/1/1')]));
 
     expect(selectLevelStats(store.getState())).toBe(selectLevelStats(store.getState()));
@@ -78,6 +85,7 @@ describe('tiles', () => {
 
   it('clears active hover when active tiles are turned off', () => {
     const store = makeStore();
+
     store.dispatch(setActiveTilesOnScene(true));
     store.dispatch(setHoveredTile({ type: 'active', key: '10/1/1' }));
 
@@ -88,6 +96,7 @@ describe('tiles', () => {
 
   it('keeps error hover when active tiles are turned off', () => {
     const store = makeStore();
+
     store.dispatch(setHoveredTile({ type: 'error', key: 'err:10/1/1' }));
 
     store.dispatch(setActiveTilesOnScene(false));

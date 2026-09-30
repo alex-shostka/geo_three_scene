@@ -4,6 +4,7 @@ import type { SetCanvasSizeRef } from './useCornerResize';
 
 export function CanvasResizeBridge({ setSizeRef }: { setSizeRef: SetCanvasSizeRef }) {
   const setSize = useThree((state) => state.setSize);
+
   useEffect(() => {
     setSizeRef.current = setSize;
 

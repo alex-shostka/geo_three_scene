@@ -33,6 +33,7 @@ export function loadEmulators(): Promise<EmulatorsGlobal> {
   if (!emulatorsScriptPromise) {
     emulatorsScriptPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
+
       script.src = EMULATORS_SCRIPT_URL;
       script.onload = () => {
         if (!window.emulators) {

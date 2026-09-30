@@ -20,6 +20,7 @@ export function AnalyticsPanel() {
     const centerLat = (stats.south + stats.north) / 2;
     const halfLon = ((stats.east - stats.west) * FIT_SHRINK) / 2;
     const halfLat = ((stats.north - stats.south) * FIT_SHRINK) / 2;
+
     viewer.camera.flyTo({
       destination: Rectangle.fromDegrees(
         centerLon - halfLon, centerLat - halfLat,

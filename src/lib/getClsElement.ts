@@ -13,6 +13,7 @@ interface LayoutShiftEntry extends PerformanceEntry {
 
 export function getClsElement(metric: Metric): Element | null {
   let worstEntry: LayoutShiftEntry | undefined;
+
   for (const entry of metric.entries as LayoutShiftEntry[]) {
     if (!worstEntry || entry.value > worstEntry.value) {
       worstEntry = entry;
@@ -25,6 +26,7 @@ export function getClsElement(metric: Metric): Element | null {
 
   let worstSource: LayoutShiftAttribution | undefined;
   let worstArea = -1;
+
   for (const source of worstEntry.sources) {
     const area = Math.max(
       source.previousRect.width * source.previousRect.height,

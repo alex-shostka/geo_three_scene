@@ -28,15 +28,10 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
       return;
     }
 
-    event.preventDefault();
-
     const startRect = container.getBoundingClientRect();
     const startX = event.clientX;
     const startY = event.clientY;
     const prevUserSelect = document.body.style.userSelect;
-    document.body.style.userSelect = 'none';
-    container.style.transformOrigin = '0 0';
-
     let rafId = 0;
     let pendingX = startX;
     let pendingY = startY;
@@ -73,12 +68,16 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
 
     const applyPreview = () => {
       rafId = 0;
+
       const box = computeBox();
+
       finalBox = box;
+
       const scaleX = box.width / startRect.width;
       const scaleY = box.height / startRect.height;
       const translateX = box.left - startRect.left;
       const translateY = box.top - startRect.top;
+
       container.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
     };
 
@@ -111,6 +110,9 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
       container.style.transform = 'none';
     };
 
+    event.preventDefault();
+    document.body.style.userSelect = 'none';
+    container.style.transformOrigin = '0 0';
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
   }, [containerRef, setSizeRef]);
