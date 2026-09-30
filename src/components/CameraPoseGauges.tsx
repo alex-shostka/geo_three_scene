@@ -1,4 +1,5 @@
 import { InfoTip } from './InfoTip';
+import { EMPTY_VALUE } from '../constants';
 
 export interface CameraPose {
   height: number;
@@ -43,7 +44,7 @@ export function CameraPoseGauges({ pose }: CameraPoseGaugesProps) {
           <span className="gauge-label">Heading</span>
           <InfoTip text={HEADING_TIP} />
         </span>
-        <span className="gauge-value">{pose ? `${pose.heading.toFixed(1)}°` : '—'}</span>
+        <span className="gauge-value">{pose ? `${pose.heading.toFixed(1)}°` : EMPTY_VALUE}</span>
       </div>
 
       <div className="gauge-block">
@@ -67,18 +68,18 @@ export function CameraPoseGauges({ pose }: CameraPoseGaugesProps) {
           <InfoTip text={PITCH_ROLL_TIP} />
         </span>
         <span className="gauge-value">
-          {pose ? `${pose.pitch.toFixed(1)}° / ${pose.roll.toFixed(1)}°` : '—'}
+          {pose ? `${pose.pitch.toFixed(1)}° / ${pose.roll.toFixed(1)}°` : EMPTY_VALUE}
         </span>
       </div>
 
       <div id="pose-coords">
         <div className="footer-stat">
           <span className="fs-label">Lon</span>
-          <span className="fs-value">{pose ? `${pose.lon.toFixed(5)}°` : '—'}</span>
+          <span className="fs-value">{pose ? `${pose.lon.toFixed(5)}°` : EMPTY_VALUE}</span>
         </div>
         <div className="footer-stat">
           <span className="fs-label">Lat</span>
-          <span className="fs-value">{pose ? `${pose.lat.toFixed(5)}°` : '—'}</span>
+          <span className="fs-value">{pose ? `${pose.lat.toFixed(5)}°` : EMPTY_VALUE}</span>
         </div>
       </div>
     </div>

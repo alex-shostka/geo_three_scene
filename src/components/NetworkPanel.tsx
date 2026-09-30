@@ -7,11 +7,12 @@ import { getClsElement } from '../lib/getClsElement';
 import { highlightElement } from '../lib/highlightElement';
 import { useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen } from '../store/uiSlice';
+import { NETWORK_PANEL } from '../constants';
 
 const WEB_VITALS_ORDER: MetricType['name'][] = ['FCP', 'LCP', 'INP', 'CLS', 'TTFB'];
 
 export function NetworkPanel() {
-  const networkOpen = useAppSelector((s) => selectIsPanelOpen(s, 'network'));
+  const networkOpen = useAppSelector((s) => selectIsPanelOpen(s, NETWORK_PANEL));
   const webVitals = useWebVitals();
   const metrics = WEB_VITALS_ORDER.flatMap((name) => webVitals[name] ?? []);
 

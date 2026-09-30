@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectFlyToTile } from '../store/settingsSlice';
 import { setTooltip } from '../store/uiSlice';
 import { selectIsTileHovered, setHoveredTile } from '../store/tilesSlice';
+import { ERROR_TILE } from '../constants';
 
 const MAT_NORMAL = { color: 0xff2222, opacity: 0.55 };
 const MAT_HOVER = { color: 0xff8800, opacity: 0.8 };
@@ -17,7 +18,7 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   const dispatch = useAppDispatch();
 
   const { west, east, south, north, level, key } = record;
-  const isHovered = useAppSelector((state) => selectIsTileHovered(state, 'error', key));
+  const isHovered = useAppSelector((state) => selectIsTileHovered(state, ERROR_TILE, key));
   const z = -level * LEVEL_DEPTH;
   const w = east - west;
   const h = north - south;
@@ -39,7 +40,7 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
 
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
-    dispatch(setHoveredTile({ type: 'error', key }));
+    dispatch(setHoveredTile({ type: ERROR_TILE, key }));
     dispatch(setTooltip({ x: event.clientX, y: event.clientY, record }));
   };
   const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {

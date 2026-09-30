@@ -5,6 +5,7 @@ import { selectErrorCount, selectFocusBounds } from '../store/tilesSlice';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
 import { CameraPoseGauges, type CameraPose } from './CameraPoseGauges';
 import { InfoTip } from './InfoTip';
+import { EMPTY_VALUE } from '../constants';
 
 const HEIGHT_TIP = 'Camera altitude above the ground.';
 const LOD_TIP = 'Tile detail level — higher means more zoomed in.';
@@ -64,14 +65,14 @@ export function Footer() {
               <InfoTip text={HEIGHT_TIP} />
               <span className="fs-label">Height</span>
             </span>
-            <span className="fs-value">{pose ? `${Math.round(pose.height).toLocaleString()} m` : '—'}</span>
+            <span className="fs-value">{pose ? `${Math.round(pose.height).toLocaleString()} m` : EMPTY_VALUE}</span>
           </div>
           <div className="footer-stat">
             <span className="label-row">
               <InfoTip text={LOD_TIP} />
               <span className="fs-label">LOD</span>
             </span>
-            <span className="fs-value">{lod ?? '—'}</span>
+            <span className="fs-value">{lod ?? EMPTY_VALUE}</span>
           </div>
         </div>
         <div id="tile-hud" className={errorCount > 0 ? 'has-errors' : ''}>

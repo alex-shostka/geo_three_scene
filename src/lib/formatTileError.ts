@@ -1,3 +1,5 @@
+const DEFAULT_TILE_ERROR = 'Failed to load tile';
+
 export function formatTileError(rawError: unknown): string {
   if (rawError && typeof rawError === 'object') {
     if ('statusCode' in rawError && typeof rawError.statusCode === 'number') {
@@ -13,5 +15,5 @@ export function formatTileError(rawError: unknown): string {
     return rawError;
   }
 
-  return 'Failed to load tile';
+  return DEFAULT_TILE_ERROR;
 }

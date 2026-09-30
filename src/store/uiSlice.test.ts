@@ -1,26 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { makeStore } from './index';
 import type { TileCardSection } from '../types';
+import { ANALYTICS_PANEL, MENU_PANEL, NETWORK_PANEL } from '../constants';
 import { closeTileCard, openTileCard, selectIsPanelOpen, selectTileCard, togglePanel } from './uiSlice';
 
 describe('ui', () => {
   it('opening one panel closes the other', () => {
     const store = makeStore();
 
-    store.dispatch(togglePanel('menu'));
-    store.dispatch(togglePanel('analytics'));
+    store.dispatch(togglePanel(MENU_PANEL));
+    store.dispatch(togglePanel(ANALYTICS_PANEL));
 
-    expect(selectIsPanelOpen(store.getState(), 'menu')).toBe(false);
-    expect(selectIsPanelOpen(store.getState(), 'analytics')).toBe(true);
+    expect(selectIsPanelOpen(store.getState(), MENU_PANEL)).toBe(false);
+    expect(selectIsPanelOpen(store.getState(), ANALYTICS_PANEL)).toBe(true);
   });
 
   it('toggling the open panel closes it', () => {
     const store = makeStore();
 
-    store.dispatch(togglePanel('network'));
-    store.dispatch(togglePanel('network'));
+    store.dispatch(togglePanel(NETWORK_PANEL));
+    store.dispatch(togglePanel(NETWORK_PANEL));
 
-    expect(selectIsPanelOpen(store.getState(), 'network')).toBe(false);
+    expect(selectIsPanelOpen(store.getState(), NETWORK_PANEL)).toBe(false);
   });
 
   it('closing the tile card keeps its content', () => {

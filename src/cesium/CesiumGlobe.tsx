@@ -5,13 +5,16 @@ import {
   Rectangle, Color, ConstantProperty, PolylineGraphics, type Entity, type TileProviderError,
 } from 'cesium';
 import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig';
-import { useGlbTiles, type GlbEntry } from './useGlbTiles';
+import { GLB_TILE_INFO_KEY, useGlbTiles, type GlbEntry } from './useGlbTiles';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useDoomTile } from './useDoomTile';
 import { setViewer } from './viewerStore';
 import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/tileGeometry';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
+import { errorTileKey, tileKey } from '../lib/tileKey';
+import { buildTileUrl } from '../lib/tileUrl';
+import { ACTIVE_TILE, ERROR_TILE } from '../constants';
 import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
 import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
 import {
@@ -21,6 +24,8 @@ import { openTileCard } from '../store/uiSlice';
 import {
   addActiveTiles, addErrorTile, selectFirstActiveTile, selectHoveredRecord, setFocusBounds,
 } from '../store/tilesSlice';
+
+const NO_GLB_MESSAGE = 'No GLB loaded for this point';
 
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,7 +106,7 @@ export function CesiumGlobe() {
         return;
       }
 
-      const key = `${hit.level}/${hit.x}/${hit.y}`;
+      const key = tileKey(hit.level, hit.x, hit.y);
 
       if (key === lastHoveredCesiumTileKey) {
         return;
@@ -161,7 +166,7 @@ export function CesiumGlobe() {
       });
 
       if (!matchingGlbs.length) {
-        dispatch(openTileCard({ title, sections: [], message: 'No GLB loaded for this point' }));
+        dispatch(openTileCard({ title, sections: [], message: NO_GLB_MESSAGE }));
 
         return;
       }
@@ -187,7 +192,7 @@ export function CesiumGlobe() {
         const seen = new Set<string>();
 
         best.model.traverse((obj) => {
-          const entries = Object.entries(obj.userData).filter(([k]) => k !== 'glbTileInfo');
+          const entries = Object.entries(obj.userData).filter(([k]) => k !== GLB_TILE_INFO_KEY);
 
           if (!entries.length) {
             return;
@@ -225,14 +230,13 @@ export function CesiumGlobe() {
 
       err.retry = false;
 
-      const key = `err:${err.level}/${err.x}/${err.y}`;
+      const key = errorTileKey(err.level, err.x, err.y);
       const rect = localTiles.tilingScheme.tileXYToRectangle(err.x, err.y, err.level);
       const { west, east, south, north } = rectRadiansToDegrees(rect);
-      const tileUrl = localTiles.url
-        .replace('{z}', String(err.level)).replace('{x}', String(err.x)).replace('{y}', String(err.y));
+      const tileUrl = buildTileUrl(localTiles.url, err.level, err.x, err.y);
       const errorMsg = formatTileError(err.error);
 
-      dispatch(addErrorTile({ type: 'error', key, level: err.level, x: err.x, y: err.y, west, east, south, north, tileUrl, errorMsg }));
+      dispatch(addErrorTile({ type: ERROR_TILE, key, level: err.level, x: err.x, y: err.y, west, east, south, north, tileUrl, errorMsg }));
     });
 
     viewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength: number) => {
@@ -250,8 +254,8 @@ export function CesiumGlobe() {
         const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
 
         return {
-          type: 'active',
-          key: `${tile.level}/${tile.x}/${tile.y}`,
+          type: ACTIVE_TILE,
+          key: tileKey(tile.level, tile.x, tile.y),
           level: tile.level, x: tile.x, y: tile.y,
           west, east, south, north,
           baseColor: levelColor(tile.level),

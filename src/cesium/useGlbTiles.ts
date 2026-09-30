@@ -3,6 +3,8 @@ import type { Group } from 'three';
 import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { Cartographic, type UrlTemplateImageryProvider, type Viewer } from 'cesium';
 import { parseStructuralMetadata } from '../lib/parseStructuralMetadata';
+import { tileKey } from '../lib/tileKey';
+import { GLB_TILES_URL_TEMPLATE, buildTileUrl } from '../lib/tileUrl';
 import type { GlbMetadata, GlbTileInfo } from '../types';
 
 export interface GlbEntry {
@@ -12,6 +14,8 @@ export interface GlbEntry {
   metadata: GlbMetadata | null;
 }
 
+export const GLB_TILE_INFO_KEY = 'glbTileInfo';
+
 const GLB_LEVELS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
 export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
@@ -19,7 +23,7 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
   const loadedGlbsRef = useRef<Map<string, GlbEntry | null>>(new Map());
 
   const loadGlbTile = useCallback((z: number, x: number, y: number) => {
-    const key = `${z}/${x}/${y}`;
+    const key = tileKey(z, x, y);
     const loadedGlbs = loadedGlbsRef.current;
 
     if (loadedGlbs.has(key)) {
@@ -35,13 +39,13 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
       east: (rect.east * 180) / Math.PI,
       south: (rect.south * 180) / Math.PI,
       north: (rect.north * 180) / Math.PI,
-      url: `/tiles_glb_meta_ext/${z}/${x}/${y}.glb`,
+      url: buildTileUrl(GLB_TILES_URL_TEMPLATE, z, x, y),
     };
 
     loader.load(
       info.url,
       async (gltf) => {
-        gltf.scene.userData.glbTileInfo = info;
+        gltf.scene.userData[GLB_TILE_INFO_KEY] = info;
 
         const metadata = await parseStructuralMetadata(gltf);
 

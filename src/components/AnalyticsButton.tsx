@@ -1,8 +1,9 @@
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen, togglePanel } from '../store/uiSlice';
+import { ANALYTICS_PANEL } from '../constants';
 
 export function AnalyticsButton() {
-  const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, 'analytics'));
+  const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));
   const dispatch = useAppDispatch();
 
   return (
@@ -10,7 +11,7 @@ export function AnalyticsButton() {
       id="analytics-btn"
       aria-label="Analytics"
       aria-expanded={analyticsOpen}
-      onClick={() => dispatch(togglePanel('analytics'))}
+      onClick={() => dispatch(togglePanel(ANALYTICS_PANEL))}
     >
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
         <rect x="4" y="13" width="4" height="7" rx="1" fill="currentColor" />

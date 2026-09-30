@@ -26,6 +26,10 @@ interface GltfExtensions {
   EXT_structural_metadata?: StructuralMetadataExtension;
 }
 
+const BUFFER_VIEW = 'bufferView';
+const STRING_TYPE = 'STRING';
+const FLOAT32_COMPONENT = 'FLOAT32';
+
 export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata | null> {
   const extensions: GltfExtensions | undefined = gltf.parser.json.extensions;
   const ext = extensions?.EXT_structural_metadata;
@@ -51,10 +55,10 @@ export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata |
     }
 
     try {
-      const valuesBV: ArrayBuffer = await gltf.parser.getDependency('bufferView', tableEntry.values);
+      const valuesBV: ArrayBuffer = await gltf.parser.getDependency(BUFFER_VIEW, tableEntry.values);
 
-      if (schemaProp.type === 'STRING' && tableEntry.stringOffsets !== undefined) {
-        const offsetBV: ArrayBuffer = await gltf.parser.getDependency('bufferView', tableEntry.stringOffsets);
+      if (schemaProp.type === STRING_TYPE && tableEntry.stringOffsets !== undefined) {
+        const offsetBV: ArrayBuffer = await gltf.parser.getDependency(BUFFER_VIEW, tableEntry.stringOffsets);
         const offsets = new Uint32Array(offsetBV);
         const bytes = new Uint8Array(valuesBV);
         const strings: string[] = [];
@@ -64,7 +68,7 @@ export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata |
         }
 
         result[propName] = table.count === 1 ? strings[0] : strings;
-      } else if (schemaProp.componentType === 'FLOAT32') {
+      } else if (schemaProp.componentType === FLOAT32_COMPONENT) {
         const floats = new Float32Array(valuesBV);
 
         result[propName] = table.count === 1 ? floats[0] : Array.from(floats);

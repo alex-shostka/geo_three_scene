@@ -1,6 +1,7 @@
 import { createEntityAdapter, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { setActiveTilesOnScene } from './settingsSlice';
 import type { FocusBounds, HoveredTile, TileRecord } from '../types';
+import { ACTIVE_TILE, ERROR_TILE } from '../constants';
 
 const tilesAdapter = createEntityAdapter({
   selectId: (tile: TileRecord) => tile.key,
@@ -29,7 +30,7 @@ export interface LevelStats {
 }
 
 const countErrorTiles = createSelector([adapterSelectors.selectAll], (tiles) =>
-  tiles.filter((tile) => tile.type === 'error').length);
+  tiles.filter((tile) => tile.type === ERROR_TILE).length);
 
 const countTilesByLevel = createSelector([adapterSelectors.selectAll], (tiles) => {
   const counts = new Map<number, number>();
@@ -50,7 +51,7 @@ const computeLevelStats = createSelector([adapterSelectors.selectAll], (tiles): 
       west: Infinity, east: -Infinity, south: Infinity, north: -Infinity,
     };
 
-    if (tile.type === 'active') {
+    if (tile.type === ACTIVE_TILE) {
       entry.loaded += 1;
     } else {
       entry.errors += 1;
@@ -83,7 +84,7 @@ export const tilesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(setActiveTilesOnScene, (state, action) => {
-      if (!action.payload && state.hoveredTile?.type === 'active') {
+      if (!action.payload && state.hoveredTile?.type === ACTIVE_TILE) {
         state.hoveredTile = null;
       }
     });
@@ -98,7 +99,7 @@ export const tilesSlice = createSlice({
     selectHoveredRecord: (state: TilesState) =>
       state.hoveredTile ? adapterSelectors.selectById(state, state.hoveredTile.key) : undefined,
     selectFirstActiveTile: (state: TilesState) =>
-      adapterSelectors.selectAll(state).find((tile) => tile.type === 'active'),
+      adapterSelectors.selectAll(state).find((tile) => tile.type === ACTIVE_TILE),
     selectErrorCount: countErrorTiles,
     selectLevelCounts: countTilesByLevel,
     selectLevelStats: computeLevelStats,

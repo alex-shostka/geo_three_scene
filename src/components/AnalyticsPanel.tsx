@@ -3,9 +3,10 @@ import { useViewer } from '../cesium/viewerStore';
 import { useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen } from '../store/uiSlice';
 import { selectLevelStats, type LevelStats } from '../store/tilesSlice';
+import { ANALYTICS_PANEL } from '../constants';
 
 export function AnalyticsPanel() {
-  const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, 'analytics'));
+  const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));
   const levelStats = useAppSelector(selectLevelStats);
   const viewer = useViewer();
 

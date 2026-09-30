@@ -7,6 +7,7 @@ import type { ActiveTileRecord } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectActiveTilesOnScene, selectFlyToTile } from '../store/settingsSlice';
 import { selectIsTileHovered, setHoveredTile } from '../store/tilesSlice';
+import { ACTIVE_TILE } from '../constants';
 
 export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
   const activeTilesOnScene = useAppSelector(selectActiveTilesOnScene);
@@ -20,7 +21,7 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
   const cx = (west + east) / 2;
   const cy = (south + north) / 2;
 
-  const isHoveredInStore = useAppSelector((state) => selectIsTileHovered(state, 'active', key));
+  const isHoveredInStore = useAppSelector((state) => selectIsTileHovered(state, ACTIVE_TILE, key));
   const isHovered = activeTilesOnScene && isHoveredInStore;
 
   const outline = useMemo(() => {
@@ -39,7 +40,7 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
     event.stopPropagation();
 
     if (activeTilesOnScene) {
-      dispatch(setHoveredTile({ type: 'active', key }));
+      dispatch(setHoveredTile({ type: ACTIVE_TILE, key }));
     }
   };
   const handlePointerOut = () => {

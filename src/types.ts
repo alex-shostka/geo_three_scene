@@ -1,3 +1,5 @@
+import type { ACTIVE_TILE, ERROR_TILE } from './constants';
+
 export interface TileBounds {
   west: number;
   east: number;
@@ -6,7 +8,7 @@ export interface TileBounds {
 }
 
 export interface ErrorTileRecord extends TileBounds {
-  type: 'error';
+  type: typeof ERROR_TILE;
   key: string;
   level: number;
   x: number;
@@ -16,7 +18,7 @@ export interface ErrorTileRecord extends TileBounds {
 }
 
 export interface ActiveTileRecord extends TileBounds {
-  type: 'active';
+  type: typeof ACTIVE_TILE;
   key: string;
   level: number;
   x: number;
