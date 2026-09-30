@@ -1,2 +1,5 @@
 # format codebase with Prettier
 adb7aff4f78c1399a9ee204ecc253e9c9341b72b
+
+# sort imports and CSS properties, fix Stylelint issues
+a6607ca87b1801e183726ea351da66c8a3c8a80d
