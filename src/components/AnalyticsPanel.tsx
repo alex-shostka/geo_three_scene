@@ -1,50 +1,13 @@
-import { useMemo } from 'react';
 import { Rectangle } from 'cesium';
 import { useViewer } from '../cesium/viewerStore';
 import { useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen } from '../store/uiSlice';
-import { selectAllTiles } from '../store/tilesSlice';
-
-interface LevelStats {
-  level: number;
-  loaded: number;
-  errors: number;
-  west: number;
-  east: number;
-  south: number;
-  north: number;
-}
+import { selectLevelStats, type LevelStats } from '../store/tilesSlice';
 
 export function AnalyticsPanel() {
   const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, 'analytics'));
-  const tiles = useAppSelector(selectAllTiles);
+  const levelStats = useAppSelector(selectLevelStats);
   const viewer = useViewer();
-
-  const levelStats = useMemo(() => {
-    const stats = new Map<number, Omit<LevelStats, 'level'>>();
-    tiles.forEach((tile) => {
-      const entry = stats.get(tile.level) ?? {
-        loaded: 0, errors: 0,
-        west: Infinity, east: -Infinity, south: Infinity, north: -Infinity,
-      };
-
-      if (tile.type === 'active') {
-        entry.loaded += 1;
-      } else {
-        entry.errors += 1;
-      }
-
-      entry.west = Math.min(entry.west, tile.west);
-      entry.east = Math.max(entry.east, tile.east);
-      entry.south = Math.min(entry.south, tile.south);
-      entry.north = Math.max(entry.north, tile.north);
-      stats.set(tile.level, entry);
-    });
-
-    return Array.from(stats.entries())
-      .sort(([a], [b]) => a - b)
-      .map(([level, entry]) => ({ level, ...entry }));
-  }, [tiles]);
 
   // Fitting the camera exactly to the tiles' bounding box puts it right at the
   // boundary distance where Cesium's screen-space-error check backs off to the

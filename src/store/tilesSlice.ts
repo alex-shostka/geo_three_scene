@@ -19,6 +19,16 @@ const initialState = tilesAdapter.getInitialState<{
 
 type TilesState = typeof initialState;
 
+export interface LevelStats {
+  level: number;
+  loaded: number;
+  errors: number;
+  west: number;
+  east: number;
+  south: number;
+  north: number;
+}
+
 // Memoized: these return new arrays/numbers derived from the tile list.
 const countErrorTiles = createSelector([adapterSelectors.selectAll], (tiles) =>
   tiles.filter((tile) => tile.type === 'error').length);
@@ -30,6 +40,33 @@ const countTilesByLevel = createSelector([adapterSelectors.selectAll], (tiles) =
   return Array.from(counts.entries())
     .sort(([a], [b]) => a - b)
     .map(([level, count]) => ({ level, count }));
+});
+
+// Per-level loaded/error counts and the geographic extent of each level, sorted by level.
+const computeLevelStats = createSelector([adapterSelectors.selectAll], (tiles): LevelStats[] => {
+  const stats = new Map<number, Omit<LevelStats, 'level'>>();
+  tiles.forEach((tile) => {
+    const entry = stats.get(tile.level) ?? {
+      loaded: 0, errors: 0,
+      west: Infinity, east: -Infinity, south: Infinity, north: -Infinity,
+    };
+
+    if (tile.type === 'active') {
+      entry.loaded += 1;
+    } else {
+      entry.errors += 1;
+    }
+
+    entry.west = Math.min(entry.west, tile.west);
+    entry.east = Math.max(entry.east, tile.east);
+    entry.south = Math.min(entry.south, tile.south);
+    entry.north = Math.max(entry.north, tile.north);
+    stats.set(tile.level, entry);
+  });
+
+  return Array.from(stats.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([level, entry]) => ({ level, ...entry }));
 });
 
 export const tilesSlice = createSlice({
@@ -67,6 +104,7 @@ export const tilesSlice = createSlice({
       adapterSelectors.selectAll(state).find((tile) => tile.type === 'active'),
     selectErrorCount: countErrorTiles,
     selectLevelCounts: countTilesByLevel,
+    selectLevelStats: computeLevelStats,
   },
 });
 
@@ -74,5 +112,5 @@ export const { addErrorTile, addActiveTiles, setHoveredTile, setFocusBounds } = 
 
 export const {
   selectAllTiles, selectTileById, selectHoveredTile, selectFocusBounds, selectIsTileHovered,
-  selectHoveredRecord, selectFirstActiveTile, selectErrorCount, selectLevelCounts,
+  selectHoveredRecord, selectFirstActiveTile, selectErrorCount, selectLevelCounts, selectLevelStats,
 } = tilesSlice.selectors;

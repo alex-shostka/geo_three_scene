@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { makeStore } from './index';
 import { setActiveTilesOnScene } from './settingsSlice';
 import {
-  addActiveTiles, addErrorTile, selectAllTiles, selectErrorCount, selectHoveredTile, selectLevelCounts, setHoveredTile,
+  addActiveTiles, addErrorTile, selectAllTiles, selectErrorCount, selectHoveredTile, selectLevelCounts, selectLevelStats,
+  setHoveredTile,
 } from './tilesSlice';
 import type { ActiveTileRecord, ErrorTileRecord } from '../types';
 
@@ -51,6 +52,28 @@ describe('tiles', () => {
       { level: 10, count: 1 },
       { level: 12, count: 2 },
     ]);
+  });
+
+  it('computes per-level stats with counts and extent', () => {
+    const store = makeStore();
+    store.dispatch(addActiveTiles([
+      { ...activeTile('10/1/1'), west: 0, east: 1, south: 0, north: 1 },
+      { ...activeTile('10/2/1'), west: 1, east: 2, south: 0, north: 1 },
+    ]));
+    store.dispatch(addErrorTile({ ...errorTile('err:10/1/2'), west: 0, east: 1, south: -1, north: 0 }));
+    store.dispatch(addActiveTiles([activeTile('12/1/1', 12)]));
+
+    expect(selectLevelStats(store.getState())).toEqual([
+      { level: 10, loaded: 2, errors: 1, west: 0, east: 2, south: -1, north: 1 },
+      { level: 12, loaded: 1, errors: 0, west: 0, east: 1, south: 0, north: 1 },
+    ]);
+  });
+
+  it('returns the same stats array while tiles are unchanged', () => {
+    const store = makeStore();
+    store.dispatch(addActiveTiles([activeTile('10/1/1')]));
+
+    expect(selectLevelStats(store.getState())).toBe(selectLevelStats(store.getState()));
   });
 
   it('clears active hover when active tiles are turned off', () => {
