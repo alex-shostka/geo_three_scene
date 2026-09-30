@@ -1,0 +1,20 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "ignoreDisables": true,
+  "rules": {
+    "no-descending-specificity": null,
+    "function-disallowed-list": [
+      ["rgb", "rgba", "hsl", "hsla", "hwb", "lab", "lch", "oklab", "oklch"],
+      {
+        "message": "Use hex colors instead of \"%s()\""
+      }
+    ],
+    "selector-class-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+      {
+        "message": "Expected class selector \"%s\" to be kebab-case (BEM __element and --modifier allowed)"
+      }
+    ],
+    "color-named": "never"
+  }
+}
