@@ -3,10 +3,7 @@ import type { FocusBounds, TileBounds } from '../types';
 
 export const LEVEL_DEPTH = 5;
 
-export const LEVEL_COLORS = [
-  0xffffff, 0x4fc3f7, 0x81c784, 0xffb74d,
-  0xf06292, 0xba68c8, 0x4dd0e1, 0xdce775,
-];
+export const LEVEL_COLORS = [0xffffff, 0x4fc3f7, 0x81c784, 0xffb74d, 0xf06292, 0xba68c8, 0x4dd0e1, 0xdce775];
 
 export function levelColor(level: number): number {
   return LEVEL_COLORS[level % LEVEL_COLORS.length];
@@ -42,9 +39,12 @@ export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null 
     return null;
   }
 
-  let minLon = Infinity, maxLon = -Infinity;
-  let minLat = Infinity, maxLat = -Infinity;
-  let minLevel = Infinity, maxLevel = -Infinity;
+  let minLon = Infinity,
+    maxLon = -Infinity;
+  let minLat = Infinity,
+    maxLat = -Infinity;
+  let minLevel = Infinity,
+    maxLevel = -Infinity;
 
   tiles.forEach((tile) => {
     const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
@@ -87,8 +87,10 @@ export function computeLevelFocusBounds(
   tiles: Iterable<TileBounds & { level: number }>,
   level: number,
 ): FocusBounds | null {
-  let west = Infinity, east = -Infinity;
-  let south = Infinity, north = -Infinity;
+  let west = Infinity,
+    east = -Infinity;
+  let south = Infinity,
+    north = -Infinity;
   let found = false;
 
   for (const tile of tiles) {

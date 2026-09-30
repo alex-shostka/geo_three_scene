@@ -53,7 +53,9 @@ export function Footer() {
     update();
     viewer.scene.postRender.addEventListener(update);
 
-    return () => { viewer.scene.postRender.removeEventListener(update); };
+    return () => {
+      viewer.scene.postRender.removeEventListener(update);
+    };
   }, [viewer]);
 
   return (

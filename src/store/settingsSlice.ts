@@ -39,7 +39,7 @@ export const settingsSlice = createSlice({
     },
     setGlbTiles(state, action: PayloadAction<boolean>) {
       state.glbTiles = action.payload;
-      
+
       if (!action.payload) {
         state.glbMetadata = false;
       }
@@ -67,11 +67,22 @@ export const settingsSlice = createSlice({
 });
 
 export const {
-  setActiveTilesOnScene, setFlyToTile, setTileGridOnGlobe,
-  setGlbTiles, setGlbMetadata, setShowTooltips, setPlayDoom,
+  setActiveTilesOnScene,
+  setFlyToTile,
+  setTileGridOnGlobe,
+  setGlbTiles,
+  setGlbMetadata,
+  setShowTooltips,
+  setPlayDoom,
 } = settingsSlice.actions;
 
 export const {
-  selectSettings, selectActiveTilesOnScene, selectFlyToTile, selectTileGridOnGlobe,
-  selectGlbTiles, selectGlbMetadata, selectShowTooltips, selectPlayDoom,
+  selectSettings,
+  selectActiveTilesOnScene,
+  selectFlyToTile,
+  selectTileGridOnGlobe,
+  selectGlbTiles,
+  selectGlbMetadata,
+  selectShowTooltips,
+  selectPlayDoom,
 } = settingsSlice.selectors;

@@ -59,7 +59,7 @@ export function CameraRig() {
 
     const { centerLon, centerLat, span, tileZ, zRange } = focusBounds;
     const fovRad = (camera.fov * Math.PI) / 180;
-    const xyDist = ((span / 2) / Math.tan(fovRad / 2)) * 1.4;
+    const xyDist = (span / 2 / Math.tan(fovRad / 2)) * 1.4;
     const dist = xyDist + zRange;
 
     controls.target.set(centerLon, centerLat, tileZ);

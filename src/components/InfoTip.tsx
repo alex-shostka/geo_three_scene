@@ -29,10 +29,7 @@ export function InfoTip({ text }: InfoTipProps) {
       Math.max(centerX, VIEWPORT_MARGIN + half),
       window.innerWidth - VIEWPORT_MARGIN - half,
     );
-    const arrowLeft = Math.min(
-      Math.max(centerX - clampedCenterX + half, ARROW_MARGIN),
-      BUBBLE_WIDTH - ARROW_MARGIN,
-    );
+    const arrowLeft = Math.min(Math.max(centerX - clampedCenterX + half, ARROW_MARGIN), BUBBLE_WIDTH - ARROW_MARGIN);
 
     setPos({ left: clampedCenterX, top: rect.top, arrowLeft });
   };
@@ -55,22 +52,25 @@ export function InfoTip({ text }: InfoTipProps) {
     >
       <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
         <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" strokeWidth="1.3" />
-        <text x="8" y="11.3" textAnchor="middle" fontSize="9" fill="currentColor">?</text>
+        <text x="8" y="11.3" textAnchor="middle" fontSize="9" fill="currentColor">
+          ?
+        </text>
       </svg>
-      {pos && createPortal(
-        <span
-          className="info-tip-bubble"
-          role="tooltip"
-          style={{
-            left: pos.left,
-            top: pos.top,
-            '--arrow-left': `${pos.arrowLeft}px`,
-          }}
-        >
-          {text}
-        </span>,
-        document.body,
-      )}
+      {pos &&
+        createPortal(
+          <span
+            className="info-tip-bubble"
+            role="tooltip"
+            style={{
+              left: pos.left,
+              top: pos.top,
+              '--arrow-left': `${pos.arrowLeft}px`,
+            }}
+          >
+            {text}
+          </span>,
+          document.body,
+        )}
     </span>
   );
 }

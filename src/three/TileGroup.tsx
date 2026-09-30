@@ -9,11 +9,13 @@ export function TileGroup() {
 
   return (
     <group>
-      {records.map((record) => (
-        record.type === ERROR_TILE
-          ? <ErrorTileMesh key={record.key} record={record} />
-          : <ActiveTileMesh key={record.key} record={record} />
-      ))}
+      {records.map((record) =>
+        record.type === ERROR_TILE ? (
+          <ErrorTileMesh key={record.key} record={record} />
+        ) : (
+          <ActiveTileMesh key={record.key} record={record} />
+        ),
+      )}
     </group>
   );
 }

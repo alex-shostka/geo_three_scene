@@ -46,7 +46,9 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
 
       isHovering = lon >= bounds.west && lon <= bounds.east && lat >= bounds.south && lat <= bounds.north;
     };
-    const handleMouseLeave = () => { isHovering = false; };
+    const handleMouseLeave = () => {
+      isHovering = false;
+    };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isHovering || !ci) {

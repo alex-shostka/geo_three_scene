@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Viewer, Cartesian3, Cartesian2, Cartographic,
-  ImageryLayer, TileCoordinatesImageryProvider,
-  Rectangle, Color, ConstantProperty, PolylineGraphics, type Entity, type TileProviderError,
+  Viewer,
+  Cartesian3,
+  Cartesian2,
+  Cartographic,
+  ImageryLayer,
+  TileCoordinatesImageryProvider,
+  Rectangle,
+  Color,
+  ConstantProperty,
+  PolylineGraphics,
+  type Entity,
+  type TileProviderError,
 } from 'cesium';
 import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig';
 import { GLB_TILE_INFO_KEY, useGlbTiles, type GlbEntry } from './useGlbTiles';
@@ -17,12 +26,14 @@ import { buildTileUrl } from '../lib/tileUrl';
 import { ACTIVE_TILE, ERROR_TILE } from '../constants';
 import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
 import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
-import {
-  selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe,
-} from '../store/settingsSlice';
+import { selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe } from '../store/settingsSlice';
 import { openTileCard } from '../store/uiSlice';
 import {
-  addActiveTiles, addErrorTile, selectFirstActiveTile, selectHoveredRecord, setFocusBounds,
+  addActiveTiles,
+  addErrorTile,
+  selectFirstActiveTile,
+  selectHoveredRecord,
+  setFocusBounds,
 } from '../store/tilesSlice';
 
 const NO_GLB_MESSAGE = 'No GLB loaded for this point';
@@ -116,9 +127,20 @@ export function CesiumGlobe() {
 
       const r = hit.rectangle;
 
-      glbHoverPolyline.positions = new ConstantProperty(Cartesian3.fromRadiansArray([
-        r.west, r.south, r.east, r.south, r.east, r.north, r.west, r.north, r.west, r.south,
-      ]));
+      glbHoverPolyline.positions = new ConstantProperty(
+        Cartesian3.fromRadiansArray([
+          r.west,
+          r.south,
+          r.east,
+          r.south,
+          r.east,
+          r.north,
+          r.west,
+          r.north,
+          r.west,
+          r.south,
+        ]),
+      );
       glbHoverOutline.show = true;
     };
     const handleGlbHoverLeave = () => {
@@ -172,17 +194,20 @@ export function CesiumGlobe() {
       }
 
       const best = matchingGlbs.reduce((a, b) =>
-        Math.abs(a.info.z - hit.level) <= Math.abs(b.info.z - hit.level) ? a : b);
+        Math.abs(a.info.z - hit.level) <= Math.abs(b.info.z - hit.level) ? a : b,
+      );
 
-      const sections: TileCardSection[] = [{
-        rows: [
-          ['url', best.info.url],
-          ['west', String(best.info.west)],
-          ['east', String(best.info.east)],
-          ['south', String(best.info.south)],
-          ['north', String(best.info.north)],
-        ],
-      }];
+      const sections: TileCardSection[] = [
+        {
+          rows: [
+            ['url', best.info.url],
+            ['west', String(best.info.west)],
+            ['east', String(best.info.east)],
+            ['south', String(best.info.south)],
+            ['north', String(best.info.north)],
+          ],
+        },
+      ];
 
       if (best.metadata) {
         sections.push({
@@ -236,7 +261,21 @@ export function CesiumGlobe() {
       const tileUrl = buildTileUrl(localTiles.url, err.level, err.x, err.y);
       const errorMsg = formatTileError(err.error);
 
-      dispatch(addErrorTile({ type: ERROR_TILE, key, level: err.level, x: err.x, y: err.y, west, east, south, north, tileUrl, errorMsg }));
+      dispatch(
+        addErrorTile({
+          type: ERROR_TILE,
+          key,
+          level: err.level,
+          x: err.x,
+          y: err.y,
+          west,
+          east,
+          south,
+          north,
+          tileUrl,
+          errorMsg,
+        }),
+      );
     });
 
     viewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength: number) => {
@@ -256,8 +295,13 @@ export function CesiumGlobe() {
         return {
           type: ACTIVE_TILE,
           key: tileKey(tile.level, tile.x, tile.y),
-          level: tile.level, x: tile.x, y: tile.y,
-          west, east, south, north,
+          level: tile.level,
+          x: tile.x,
+          y: tile.y,
+          west,
+          east,
+          south,
+          north,
           baseColor: levelColor(tile.level),
         };
       });
@@ -325,9 +369,9 @@ export function CesiumGlobe() {
       return;
     }
 
-    hoverEntity.rectangle.coordinates = new ConstantProperty(Rectangle.fromDegrees(
-      hoveredRecord.west, hoveredRecord.south, hoveredRecord.east, hoveredRecord.north,
-    ));
+    hoverEntity.rectangle.coordinates = new ConstantProperty(
+      Rectangle.fromDegrees(hoveredRecord.west, hoveredRecord.south, hoveredRecord.east, hoveredRecord.north),
+    );
     hoverEntity.show = true;
   }, [hoveredRecord]);
 

@@ -73,8 +73,7 @@ export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata |
 
         result[propName] = table.count === 1 ? floats[0] : Array.from(floats);
       }
-    } catch {
-    }
+    } catch {}
   }
 
   return Object.keys(result).length ? result : null;

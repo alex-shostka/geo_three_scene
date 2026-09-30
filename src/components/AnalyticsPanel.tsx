@@ -24,8 +24,10 @@ export function AnalyticsPanel() {
 
     viewer.camera.flyTo({
       destination: Rectangle.fromDegrees(
-        centerLon - halfLon, centerLat - halfLat,
-        centerLon + halfLon, centerLat + halfLat,
+        centerLon - halfLon,
+        centerLat - halfLat,
+        centerLon + halfLon,
+        centerLat + halfLat,
       ),
       duration: 1.2,
     });
@@ -48,7 +50,9 @@ export function AnalyticsPanel() {
           <tbody>
             {levelStats.length === 0 ? (
               <tr>
-                <td className="stats-table-empty" colSpan={3}>No tiles loaded yet</td>
+                <td className="stats-table-empty" colSpan={3}>
+                  No tiles loaded yet
+                </td>
               </tr>
             ) : (
               levelStats.map((stats) => (

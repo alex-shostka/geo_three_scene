@@ -6,7 +6,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const TRANSPARENT_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-  'base64'
+  'base64',
 );
 
 /**
@@ -21,10 +21,7 @@ const TRANSPARENT_PNG = Buffer.from(
  *   z=6: Амстердам ~ 6/32/21
  *   z=7: Амстердам ~ 7/65/42
  */
-const ERROR_TILES = new Set([
-  '10/525/336',
-  '10/527/337'
-]);
+const ERROR_TILES = new Set(['10/525/336', '10/527/337']);
 
 export default defineConfig({
   define: {

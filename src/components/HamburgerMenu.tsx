@@ -8,7 +8,9 @@ export function HamburgerMenu() {
 
   return (
     <button id="menu-btn" aria-label="Menu" aria-expanded={menuOpen} onClick={() => dispatch(togglePanel(MENU_PANEL))}>
-      <span></span><span></span><span></span>
+      <span></span>
+      <span></span>
+      <span></span>
     </button>
   );
 }

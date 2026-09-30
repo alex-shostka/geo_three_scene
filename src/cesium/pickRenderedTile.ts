@@ -26,10 +26,7 @@ export function getRenderedTiles(viewer: Viewer): QuadtreeTileLike[] {
 }
 
 export function pickRenderedTile(viewer: Viewer, offsetX: number, offsetY: number): QuadtreeTileLike | null {
-  const carto = viewer.camera.pickEllipsoid(
-    new Cartesian2(offsetX, offsetY),
-    viewer.scene.globe.ellipsoid,
-  );
+  const carto = viewer.camera.pickEllipsoid(new Cartesian2(offsetX, offsetY), viewer.scene.globe.ellipsoid);
 
   if (!carto) {
     return null;
@@ -38,10 +35,16 @@ export function pickRenderedTile(viewer: Viewer, offsetX: number, offsetY: numbe
   const cartographic = Cartographic.fromCartesian(carto);
   const tiles = getRenderedTiles(viewer);
 
-  return tiles.find((t) => {
-    const r = t.rectangle;
+  return (
+    tiles.find((t) => {
+      const r = t.rectangle;
 
-    return cartographic.longitude >= r.west && cartographic.longitude <= r.east &&
-           cartographic.latitude >= r.south && cartographic.latitude <= r.north;
-  }) ?? null;
+      return (
+        cartographic.longitude >= r.west &&
+        cartographic.longitude <= r.east &&
+        cartographic.latitude >= r.south &&
+        cartographic.latitude <= r.north
+      );
+    }) ?? null
+  );
 }

@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { makeStore } from './index';
 import {
-  selectFlyToTile, selectGlbMetadata,
-  setActiveTilesOnScene, setFlyToTile, setGlbMetadata, setGlbTiles,
+  selectFlyToTile,
+  selectGlbMetadata,
+  setActiveTilesOnScene,
+  setFlyToTile,
+  setGlbMetadata,
+  setGlbTiles,
 } from './settingsSlice';
 
 describe('settings', () => {

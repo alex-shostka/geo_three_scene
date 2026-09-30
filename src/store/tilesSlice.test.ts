@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { makeStore } from './index';
 import { setActiveTilesOnScene } from './settingsSlice';
 import {
-  addActiveTiles, addErrorTile, selectAllTiles, selectErrorCount, selectHoveredTile, selectLevelCounts, selectLevelStats,
+  addActiveTiles,
+  addErrorTile,
+  selectAllTiles,
+  selectErrorCount,
+  selectHoveredTile,
+  selectLevelCounts,
+  selectLevelStats,
   setHoveredTile,
 } from './tilesSlice';
 import type { ActiveTileRecord, ErrorTileRecord } from '../types';
@@ -10,11 +16,24 @@ import type { ActiveTileRecord, ErrorTileRecord } from '../types';
 const bounds = { west: 0, east: 1, south: 0, north: 1 };
 
 const errorTile = (key: string, level = 10): ErrorTileRecord => ({
-  type: 'error', key, level, x: 1, y: 1, ...bounds, tileUrl: '/tiles/10/1/1.png', errorMsg: '404',
+  type: 'error',
+  key,
+  level,
+  x: 1,
+  y: 1,
+  ...bounds,
+  tileUrl: '/tiles/10/1/1.png',
+  errorMsg: '404',
 });
 
 const activeTile = (key: string, level = 10): ActiveTileRecord => ({
-  type: 'active', key, level, x: 1, y: 1, ...bounds, baseColor: 0xffffff,
+  type: 'active',
+  key,
+  level,
+  x: 1,
+  y: 1,
+  ...bounds,
+  baseColor: 0xffffff,
 });
 
 describe('tiles', () => {
@@ -62,10 +81,12 @@ describe('tiles', () => {
   it('computes per-level stats with counts and extent', () => {
     const store = makeStore();
 
-    store.dispatch(addActiveTiles([
-      { ...activeTile('10/1/1'), west: 0, east: 1, south: 0, north: 1 },
-      { ...activeTile('10/2/1'), west: 1, east: 2, south: 0, north: 1 },
-    ]));
+    store.dispatch(
+      addActiveTiles([
+        { ...activeTile('10/1/1'), west: 0, east: 1, south: 0, north: 1 },
+        { ...activeTile('10/2/1'), west: 1, east: 2, south: 0, north: 1 },
+      ]),
+    );
     store.dispatch(addErrorTile({ ...errorTile('err:10/1/2'), west: 0, east: 1, south: -1, north: 0 }));
     store.dispatch(addActiveTiles([activeTile('12/1/1', 12)]));
 

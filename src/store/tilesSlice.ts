@@ -29,8 +29,10 @@ export interface LevelStats {
   north: number;
 }
 
-const countErrorTiles = createSelector([adapterSelectors.selectAll], (tiles) =>
-  tiles.filter((tile) => tile.type === ERROR_TILE).length);
+const countErrorTiles = createSelector(
+  [adapterSelectors.selectAll],
+  (tiles) => tiles.filter((tile) => tile.type === ERROR_TILE).length,
+);
 
 const countTilesByLevel = createSelector([adapterSelectors.selectAll], (tiles) => {
   const counts = new Map<number, number>();
@@ -47,8 +49,12 @@ const computeLevelStats = createSelector([adapterSelectors.selectAll], (tiles): 
 
   tiles.forEach((tile) => {
     const entry = stats.get(tile.level) ?? {
-      loaded: 0, errors: 0,
-      west: Infinity, east: -Infinity, south: Infinity, north: -Infinity,
+      loaded: 0,
+      errors: 0,
+      west: Infinity,
+      east: -Infinity,
+      south: Infinity,
+      north: -Infinity,
     };
 
     if (tile.type === ACTIVE_TILE) {
@@ -109,6 +115,14 @@ export const tilesSlice = createSlice({
 export const { addErrorTile, addActiveTiles, setHoveredTile, setFocusBounds } = tilesSlice.actions;
 
 export const {
-  selectAllTiles, selectTileById, selectHoveredTile, selectFocusBounds, selectIsTileHovered,
-  selectHoveredRecord, selectFirstActiveTile, selectErrorCount, selectLevelCounts, selectLevelStats,
+  selectAllTiles,
+  selectTileById,
+  selectHoveredTile,
+  selectFocusBounds,
+  selectIsTileHovered,
+  selectHoveredRecord,
+  selectFirstActiveTile,
+  selectErrorCount,
+  selectLevelCounts,
+  selectLevelStats,
 } = tilesSlice.selectors;

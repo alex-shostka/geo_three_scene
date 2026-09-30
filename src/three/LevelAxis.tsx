@@ -20,7 +20,10 @@ export function LevelAxis() {
       return null;
     }
 
-    let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
+    let west = Infinity,
+      east = -Infinity,
+      south = Infinity,
+      north = -Infinity;
     const levels = new Set<number>();
 
     tiles.forEach((tile) => {
@@ -58,19 +61,21 @@ export function LevelAxis() {
       new THREE.LineBasicMaterial({ color: 0x8888aa }),
     );
 
-    const ticks: Tick[] = Array.from(levels).sort((a, b) => a - b).map((level) => {
-      const z = -level * LEVEL_DEPTH;
-      const color = levelColor(level);
-      const line = new THREE.Line(
-        new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(axisX, axisY, z),
-          new THREE.Vector3(axisX + tickLength, axisY, z),
-        ]),
-        new THREE.LineBasicMaterial({ color }),
-      );
+    const ticks: Tick[] = Array.from(levels)
+      .sort((a, b) => a - b)
+      .map((level) => {
+        const z = -level * LEVEL_DEPTH;
+        const color = levelColor(level);
+        const line = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(axisX, axisY, z),
+            new THREE.Vector3(axisX + tickLength, axisY, z),
+          ]),
+          new THREE.LineBasicMaterial({ color }),
+        );
 
-      return { level, z, color, line };
-    });
+        return { level, z, color, line };
+      });
 
     return { axisX, axisY, tickLength, spine, ticks };
   }, [tiles]);

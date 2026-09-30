@@ -34,7 +34,9 @@ export function NetworkPanel() {
           <tbody>
             {metrics.length === 0 ? (
               <tr>
-                <td className="stats-table-empty" colSpan={3}>Collecting metrics...</td>
+                <td className="stats-table-empty" colSpan={3}>
+                  Collecting metrics...
+                </td>
               </tr>
             ) : (
               metrics.map((metric) => {

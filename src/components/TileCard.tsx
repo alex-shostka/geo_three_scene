@@ -9,12 +9,12 @@ export function TileCard() {
     <div id="tile-card" className={tileCard.open ? 'open' : ''}>
       <div id="tile-card-header">
         <span id="tile-card-title">{tileCard.title}</span>
-        <button id="tile-card-close" aria-label="Close" onClick={() => dispatch(closeTileCard())}>&times;</button>
+        <button id="tile-card-close" aria-label="Close" onClick={() => dispatch(closeTileCard())}>
+          &times;
+        </button>
       </div>
       <div id="tile-card-body">
-        {tileCard.sections.length === 0 && tileCard.message && (
-          <span className="tc-empty">{tileCard.message}</span>
-        )}
+        {tileCard.sections.length === 0 && tileCard.message && <span className="tc-empty">{tileCard.message}</span>}
         {tileCard.sections.map((section, i) => (
           <div className="tc-mesh" key={i}>
             <table className="tc-table">
