@@ -1,9 +1,13 @@
 import { Ion, UrlTemplateImageryProvider } from 'cesium';
 import { LOCAL_TILES_URL_TEMPLATE } from '../lib/tileUrl';
 
+const ionToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
+
 window.CESIUM_BASE_URL = '/cesium';
-Ion.defaultAccessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZDg4NGM2Yy04ZGI2LTRiMmQtODYzMi0zN2FiNjk2OGZhNTUiLCJpZCI6MjQ3OTkxLCJpYXQiOjE3Mjg4OTk4NDR9.BCXMjcfaozkXi39xo656RKTNAYKHrgw3ARreKCN9i4A';
+
+if (ionToken) {
+  Ion.defaultAccessToken = ionToken;
+}
 
 export const AMSTERDAM = { lon: 4.9041, lat: 52.3676 };
 export const HOME_HEIGHT = 50000;
