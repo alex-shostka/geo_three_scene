@@ -7,8 +7,22 @@ export interface QuadtreeTileLike {
   rectangle: { west: number; east: number; south: number; north: number };
 }
 
+interface GlobeInternals {
+  _surface?: { _tilesToRender?: QuadtreeTileLike[] };
+}
+
+function hasSurface(globe: object): globe is GlobeInternals {
+  return '_surface' in globe;
+}
+
 export function getRenderedTiles(viewer: Viewer): QuadtreeTileLike[] {
-  return (viewer.scene.globe as any)._surface?._tilesToRender ?? [];
+  const globe = viewer.scene.globe;
+
+  if (!hasSurface(globe)) {
+    return [];
+  }
+
+  return globe._surface?._tilesToRender ?? [];
 }
 
 export function pickRenderedTile(viewer: Viewer, offsetX: number, offsetY: number): QuadtreeTileLike | null {

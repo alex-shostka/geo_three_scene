@@ -1,20 +1,11 @@
-import type { Metric } from 'web-vitals';
+import type { CLSMetric } from 'web-vitals';
 
-interface LayoutShiftAttribution {
-  node?: Node | null;
-  previousRect: DOMRectReadOnly;
-  currentRect: DOMRectReadOnly;
-}
+export function getClsElement(metric: CLSMetric): Element | null {
+  let worstEntry: LayoutShift | undefined;
+  let worstSource: LayoutShiftAttribution | undefined;
+  let worstArea = -1;
 
-interface LayoutShiftEntry extends PerformanceEntry {
-  value: number;
-  sources: LayoutShiftAttribution[];
-}
-
-export function getClsElement(metric: Metric): Element | null {
-  let worstEntry: LayoutShiftEntry | undefined;
-
-  for (const entry of metric.entries as LayoutShiftEntry[]) {
+  for (const entry of metric.entries) {
     if (!worstEntry || entry.value > worstEntry.value) {
       worstEntry = entry;
     }
@@ -23,9 +14,6 @@ export function getClsElement(metric: Metric): Element | null {
   if (!worstEntry?.sources?.length) {
     return null;
   }
-
-  let worstSource: LayoutShiftAttribution | undefined;
-  let worstArea = -1;
 
   for (const source of worstEntry.sources) {
     const area = Math.max(

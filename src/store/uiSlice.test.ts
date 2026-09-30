@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { makeStore } from './index';
+import type { TileCardSection } from '../types';
 import { closeTileCard, openTileCard, selectIsPanelOpen, selectTileCard, togglePanel } from './uiSlice';
 
 describe('ui', () => {
@@ -24,7 +25,7 @@ describe('ui', () => {
 
   it('closing the tile card keeps its content', () => {
     const store = makeStore();
-    const sections = [{ rows: [['url', '/tiles_glb/10/1/1.glb']] as [string, string][] }];
+    const sections: TileCardSection[] = [{ rows: [['url', '/tiles_glb/10/1/1.glb']] }];
 
     store.dispatch(openTileCard({ title: '10 / 1 / 1', sections }));
 

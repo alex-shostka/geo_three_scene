@@ -31,7 +31,7 @@ export function LevelList() {
           <button
             type="button"
             className="level-list-item"
-            style={{ '--lvl-color': toCssColor(levelColor(level)) } as CSSProperties}
+            style={{ '--lvl-color': toCssColor(levelColor(level)) }}
             onClick={() => handleJump(level)}
           >
             <span className="level-list-swatch" />

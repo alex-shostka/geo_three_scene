@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Viewer, Cartesian3, Cartesian2, Cartographic,
   ImageryLayer, TileCoordinatesImageryProvider,
-  Rectangle, Color, type Entity,
+  Rectangle, Color, ConstantProperty, PolylineGraphics, type Entity, type TileProviderError,
 } from 'cesium';
 import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig';
 import { useGlbTiles, type GlbEntry } from './useGlbTiles';
@@ -74,15 +74,13 @@ export function CesiumGlobe() {
         height: 0,
       },
     });
-    const glbHoverOutline = viewer.entities.add({
-      show: false,
-      polyline: {
-        positions: [],
-        width: 4,
-        material: Color.CYAN.withAlpha(0.9),
-        clampToGround: true,
-      },
+    const glbHoverPolyline = new PolylineGraphics({
+      positions: [],
+      width: 4,
+      material: Color.CYAN.withAlpha(0.9),
+      clampToGround: true,
     });
+    const glbHoverOutline = viewer.entities.add({ show: false });
     let lastHoveredCesiumTileKey: string | null = null;
     const handleGlbHoverMove = (event: MouseEvent) => {
       if (!selectGlbMetadata(store.getState())) {
@@ -113,9 +111,9 @@ export function CesiumGlobe() {
 
       const r = hit.rectangle;
 
-      glbHoverOutline.polyline!.positions = Cartesian3.fromRadiansArray([
+      glbHoverPolyline.positions = new ConstantProperty(Cartesian3.fromRadiansArray([
         r.west, r.south, r.east, r.south, r.east, r.north, r.west, r.north, r.west, r.south,
-      ]) as any;
+      ]));
       glbHoverOutline.show = true;
     };
     const handleGlbHoverLeave = () => {
@@ -209,9 +207,10 @@ export function CesiumGlobe() {
       dispatch(openTileCard({ title, sections }));
     };
 
+    glbHoverOutline.polyline = glbHoverPolyline;
     viewerRef.current = viewer;
     hoverEntityRef.current = hoverEntity;
-    (window as unknown as { geoThreeScene: unknown }).geoThreeScene = { cesiumViewer: viewer };
+    window.geoThreeScene = { cesiumViewer: viewer };
 
     viewer.camera.setView({
       destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, HOME_HEIGHT),
@@ -219,7 +218,7 @@ export function CesiumGlobe() {
 
     setViewer(viewer);
 
-    localTiles.errorEvent.addEventListener((err: any) => {
+    localTiles.errorEvent.addEventListener((err: TileProviderError) => {
       if (err.x == null || err.y == null || err.level == null) {
         return;
       }
@@ -322,9 +321,9 @@ export function CesiumGlobe() {
       return;
     }
 
-    hoverEntity.rectangle.coordinates = Rectangle.fromDegrees(
+    hoverEntity.rectangle.coordinates = new ConstantProperty(Rectangle.fromDegrees(
       hoveredRecord.west, hoveredRecord.south, hoveredRecord.east, hoveredRecord.north,
-    ) as any;
+    ));
     hoverEntity.show = true;
   }, [hoveredRecord]);
 

@@ -1,7 +1,7 @@
-import type { Metric } from 'web-vitals';
+import type { LCPMetric } from 'web-vitals';
 
-export function getLcpElement(metric: Metric): Element | null {
-  const entry = metric.entries[metric.entries.length - 1] as (PerformanceEntry & { element?: Element }) | undefined;
+export function getLcpElement(metric: LCPMetric): Element | null {
+  const entry: LargestContentfulPaint | undefined = metric.entries[metric.entries.length - 1];
 
   return entry?.element ?? null;
 }

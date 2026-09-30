@@ -1,3 +1,4 @@
+import type { MetricType } from 'web-vitals';
 import { useWebVitals } from '../hooks/useWebVitals';
 import { formatWebVitalValue } from '../lib/formatWebVitalValue';
 import { getLcpElement } from '../lib/getLcpElement';
@@ -7,11 +8,12 @@ import { highlightElement } from '../lib/highlightElement';
 import { useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen } from '../store/uiSlice';
 
-const WEB_VITALS_ORDER = ['FCP', 'LCP', 'INP', 'CLS', 'TTFB'] as const;
+const WEB_VITALS_ORDER: MetricType['name'][] = ['FCP', 'LCP', 'INP', 'CLS', 'TTFB'];
 
 export function NetworkPanel() {
   const networkOpen = useAppSelector((s) => selectIsPanelOpen(s, 'network'));
   const webVitals = useWebVitals();
+  const metrics = WEB_VITALS_ORDER.flatMap((name) => webVitals[name] ?? []);
 
   return (
     <aside id="network-panel" className={networkOpen ? 'open' : ''}>
@@ -29,29 +31,28 @@ export function NetworkPanel() {
             </tr>
           </thead>
           <tbody>
-            {WEB_VITALS_ORDER.every((name) => !webVitals[name]) ? (
+            {metrics.length === 0 ? (
               <tr>
                 <td className="stats-table-empty" colSpan={3}>Collecting metrics...</td>
               </tr>
             ) : (
-              WEB_VITALS_ORDER.filter((name) => webVitals[name]).map((name) => {
-                const metric = webVitals[name]!;
+              metrics.map((metric) => {
                 const targetElement =
-                  name === 'LCP'
+                  metric.name === 'LCP'
                     ? getLcpElement(metric)
-                    : name === 'INP'
+                    : metric.name === 'INP'
                       ? getInpElement(metric)
-                      : name === 'CLS'
+                      : metric.name === 'CLS'
                         ? getClsElement(metric)
                         : null;
 
                 return (
                   <tr
-                    key={name}
+                    key={metric.name}
                     className={targetElement ? 'stats-table-row' : ''}
                     onClick={targetElement ? () => highlightElement(targetElement) : undefined}
                   >
-                    <td>{name}</td>
+                    <td>{metric.name}</td>
                     <td>{formatWebVitalValue(metric)}</td>
                     <td className={`vitals-rating-${metric.rating}`}>{metric.rating}</td>
                   </tr>

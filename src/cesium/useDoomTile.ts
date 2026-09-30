@@ -83,14 +83,15 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
     video.playsInline = true;
 
     loadEmulators()
-      .then(() => fetch(DOOM_BUNDLE_URL))
-      .then((res) => res.arrayBuffer())
-      .then(async (buf) => {
+      .then(async (emulators) => {
+        const response = await fetch(DOOM_BUNDLE_URL);
+        const buf = await response.arrayBuffer();
+
         if (cancelled) {
           return;
         }
 
-        ci = await window.emulators!.dosboxWorker(new Uint8Array(buf));
+        ci = await emulators.dosboxWorker(new Uint8Array(buf));
 
         if (cancelled) {
           ci.exit();

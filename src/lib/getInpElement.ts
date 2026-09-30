@@ -1,9 +1,9 @@
-import type { Metric } from 'web-vitals';
+import type { INPMetric } from 'web-vitals';
 
-export function getInpElement(metric: Metric): Element | null {
-  let worst: (PerformanceEntry & { target?: Node | null; duration: number }) | undefined;
+export function getInpElement(metric: INPMetric): Element | null {
+  let worst: PerformanceEventTiming | undefined;
 
-  for (const entry of metric.entries as (PerformanceEntry & { target?: Node | null; duration: number })[]) {
+  for (const entry of metric.entries) {
     if (!worst || entry.duration > worst.duration) {
       worst = entry;
     }

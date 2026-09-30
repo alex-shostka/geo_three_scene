@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type MetricType } from 'web-vitals';
 
-export type WebVitalsState = Partial<Record<Metric['name'], Metric>>;
+export type WebVitalsState = {
+  [Name in MetricType['name']]?: Extract<MetricType, { name: Name }>;
+};
 
 export function useWebVitals(): WebVitalsState {
   const [metrics, setMetrics] = useState<WebVitalsState>({});
 
   useEffect(() => {
-    const record = (metric: Metric) => {
+    const record = (metric: MetricType) => {
       setMetrics((prev) => ({ ...prev, [metric.name]: metric }));
     };
 

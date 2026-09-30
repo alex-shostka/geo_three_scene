@@ -6,11 +6,16 @@ import { useAppSelector, useAppStore } from '../store/hooks';
 import { selectAllTiles, selectFocusBounds } from '../store/tilesSlice';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
 
+function isOrbitControls(controls: THREE.EventDispatcher | null): controls is OrbitControlsImpl {
+  return controls !== null && 'target' in controls && 'update' in controls;
+}
+
 export function CameraRig() {
   const focusBounds = useAppSelector(selectFocusBounds);
   const store = useAppStore();
   const camera = useThree((state) => state.camera);
-  const controls = useThree((state) => state.controls) as OrbitControlsImpl | null;
+  const controlsState = useThree((state) => state.controls);
+  const controls = isOrbitControls(controlsState) ? controlsState : null;
 
   const userTouchedRef = useRef(false);
 
@@ -44,7 +49,7 @@ export function CameraRig() {
   }, [controls, store]);
 
   useEffect(() => {
-    if (!focusBounds || !controls) {
+    if (!focusBounds || !controls || !(camera instanceof THREE.PerspectiveCamera)) {
       return;
     }
 
@@ -53,7 +58,7 @@ export function CameraRig() {
     }
 
     const { centerLon, centerLat, span, tileZ, zRange } = focusBounds;
-    const fovRad = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 180;
+    const fovRad = (camera.fov * Math.PI) / 180;
     const xyDist = ((span / 2) / Math.tan(fovRad / 2)) * 1.4;
     const dist = xyDist + zRange;
 

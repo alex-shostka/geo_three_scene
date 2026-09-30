@@ -1,13 +1,11 @@
 export function formatTileError(rawError: unknown): string {
   if (rawError && typeof rawError === 'object') {
-    const err = rawError as { statusCode?: number; message?: string };
-
-    if (typeof err.statusCode === 'number') {
-      return `HTTP ${err.statusCode}`;
+    if ('statusCode' in rawError && typeof rawError.statusCode === 'number') {
+      return `HTTP ${rawError.statusCode}`;
     }
 
-    if (typeof err.message === 'string' && err.message) {
-      return err.message;
+    if ('message' in rawError && typeof rawError.message === 'string' && rawError.message) {
+      return rawError.message;
     }
   }
 

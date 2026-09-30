@@ -65,7 +65,7 @@ export function InfoTip({ text }: InfoTipProps) {
             left: pos.left,
             top: pos.top,
             '--arrow-left': `${pos.arrowLeft}px`,
-          } as CSSProperties}
+          }}
         >
           {text}
         </span>,
