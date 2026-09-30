@@ -7,7 +7,6 @@ function toCssColor(color: number): string {
   return `#${color.toString(16).padStart(6, '0')}`;
 }
 
-/** Floating legend over the Three.js scene: one entry per rendered zoom level, click to fly there. */
 export function LevelList() {
   const levels = useAppSelector(selectLevelCounts);
   const store = useAppStore();
@@ -18,7 +17,6 @@ export function LevelList() {
   }
 
   const handleJump = (level: number) => {
-    // Tiles are read only at click time, so the list doesn't re-render on every tile load.
     const bounds = computeLevelFocusBounds(selectAllTiles(store.getState()), level);
 
     if (bounds) {

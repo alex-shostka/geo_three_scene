@@ -1,7 +1,6 @@
 import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import type { GlbMetadata } from '../types';
 
-/** Reads property values from EXT_structural_metadata binary buffers via gltf.parser. */
 export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata | null> {
   const ext = (gltf.parser.json.extensions as Record<string, any> | undefined)?.EXT_structural_metadata;
 
@@ -43,7 +42,6 @@ export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata |
         result[propName] = table.count === 1 ? floats[0] : Array.from(floats);
       }
     } catch {
-      // skip property on parse error
     }
   }
 

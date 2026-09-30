@@ -1,7 +1,3 @@
-// js-dos's `emulators` package expects its own internal key-code enum (values
-// pulled from its bundled player, e.g. KBD_up = 265), not a browser keyCode or a
-// PC scancode — this maps the DOM KeyboardEvent.code strings DOOM's default
-// controls actually use onto that enum.
 export const DOM_KEY_TO_DOS_KEY: Record<string, number> = {
   ArrowUp: 265,
   ArrowDown: 264,

@@ -12,7 +12,6 @@ export function levelColor(level: number): number {
   return LEVEL_COLORS[level % LEVEL_COLORS.length];
 }
 
-/** Converts geographic coordinates (lon/lat) and tile level into a Three.js position. */
 export function geoToScene(lon: number, lat: number, level: number): THREE.Vector3 {
   return new THREE.Vector3(lon, lat, -level * LEVEL_DEPTH);
 }
@@ -24,7 +23,6 @@ interface RadiansRectangle {
   north: number;
 }
 
-/** Converts a Cesium Rectangle (radians) into a TileBounds (degrees). */
 export function rectRadiansToDegrees(rect: RadiansRectangle): TileBounds {
   return {
     west: (rect.west * 180) / Math.PI,
@@ -39,12 +37,6 @@ interface CesiumTileLike {
   rectangle: RadiansRectangle;
 }
 
-/**
- * Computes the camera-focus target for a set of Cesium quadtree tiles.
- * Mirrors the bounds-gathering half of the original focusCameraOnTiles —
- * the distance/fov math stays with the camera (CameraRig), since it needs
- * the live camera.fov.
- */
 export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null {
   if (!tiles.length) {
     return null;
@@ -82,12 +74,6 @@ export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null 
     }
   });
 
-  // Each zoom level sits on its own Z-plane (see geoToScene), and OrbitControls
-  // can only dolly up to its target — never past it. Targeting the shallowest
-  // level (as before) left every deeper, more distant level permanently out of
-  // scroll reach, so we target the deepest rendered level instead; zRange lets
-  // CameraRig still start the camera in front of the shallowest level, keeping
-  // the initial "see everything" framing unchanged.
   return {
     centerLon: (minLon + maxLon) / 2,
     centerLat: (minLat + maxLat) / 2,
@@ -97,11 +83,6 @@ export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null 
   };
 }
 
-/**
- * Focus bounds for jumping straight to one specific rendered level (level-list
- * click). Unlike computeFocusBounds, target IS that level's own plane, so
- * zRange is 0 — the camera settles right in front of just that level's tiles.
- */
 export function computeLevelFocusBounds(
   tiles: Iterable<TileBounds & { level: number }>,
   level: number,

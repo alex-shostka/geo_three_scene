@@ -1,5 +1,3 @@
-// emulators.js only ships as a browser <script> global (see js-dos.com/browser.html),
-// so it's loaded from their CDN at runtime rather than bundled as an npm dependency.
 const EMULATORS_SCRIPT_URL = 'https://v8.js-dos.com/latest/emulators/emulators.js';
 const EMULATORS_PATH_PREFIX = 'https://v8.js-dos.com/latest/emulators/';
 

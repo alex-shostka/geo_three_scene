@@ -9,10 +9,6 @@ export function AnalyticsPanel() {
   const levelStats = useAppSelector(selectLevelStats);
   const viewer = useViewer();
 
-  // Fitting the camera exactly to the tiles' bounding box puts it right at the
-  // boundary distance where Cesium's screen-space-error check backs off to the
-  // next coarser level. Flying to a tighter rectangle around the same center
-  // keeps the camera close enough that the intended level actually renders.
   const FIT_SHRINK = 0.5;
 
   const flyToLevel = (stats: LevelStats) => {

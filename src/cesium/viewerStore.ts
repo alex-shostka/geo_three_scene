@@ -2,10 +2,6 @@ import { useSyncExternalStore } from 'react';
 import { Cartesian3, type Viewer } from 'cesium';
 import type { TileBounds } from '../types';
 
-/**
- * Holds the live Cesium Viewer outside Redux: it's a mutable WebGL object, not
- * serializable state. React components subscribe to it via useViewer().
- */
 let viewer: Viewer | null = null;
 const listeners = new Set<() => void>();
 
@@ -26,12 +22,10 @@ function subscribe(listener: () => void): () => void {
   };
 }
 
-/** Re-renders the component when the Viewer is created or destroyed. */
 export function useViewer(): Viewer | null {
   return useSyncExternalStore(subscribe, getViewer);
 }
 
-// Keeps the current camera height so zooming out to fly doesn't rebuild the tile grid.
 export function flyCameraToTile(bounds: TileBounds): void {
   if (!viewer) {
     return;

@@ -6,28 +6,9 @@ import type { TileBounds } from '../types';
 
 const DOOM_BUNDLE_URL = 'https://v8.js-dos.com/bundles/doom.jsdos';
 
-// DOS switches video modes during boot (text mode, then VGA graphics), so DOOM's
-// reported frame size isn't stable from the first frame. Cesium locks its GPU
-// texture to the <video>'s size the first time it sees a frame and never resizes
-// it afterward, so if the source canvas later shrank, the leftover texture area
-// stayed permanently black. Frames are scaled into this fixed-size output canvas
-// instead, so the captured stream's resolution — and Cesium's texture — never drifts.
 const OUTPUT_WIDTH = 320;
 const OUTPUT_HEIGHT = 200;
 
-/**
- * Proof-of-concept: drapes a live DOOM feed (via js-dos's `emulators` package) onto
- * one tile's rectangle on the Cesium globe, in place of its imagery.
- *
- * Cesium's material system only re-uploads a texture every frame for
- * HTMLVideoElement sources — a canvas source gets uploaded once and then ignored —
- * so the DOS screen is drawn into an offscreen canvas and piped into a hidden
- * <video> via canvas.captureStream(), and that video is what Cesium is given.
- *
- * Keyboard input is forwarded to DOOM only while the cursor is hovering this
- * tile's rectangle on the globe, so it doesn't steal keystrokes from the rest
- * of the page.
- */
 export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
   useEffect(() => {
     if (!viewer || !bounds) {
@@ -110,7 +91,6 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
       })
       .catch((err) => console.error('DOOM tile failed to start', err));
 
-    // ── keyboard input, forwarded only while the cursor is over this tile ────
     let isHovering = false;
     const heldKeys = new Set<number>();
 

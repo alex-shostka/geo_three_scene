@@ -6,18 +6,12 @@ import { useAppSelector, useAppStore } from '../store/hooks';
 import { selectAllTiles, selectFocusBounds } from '../store/tilesSlice';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
 
-/** Positions the Three.js camera so that all currently-rendered tiles fit in the frame. */
 export function CameraRig() {
   const focusBounds = useAppSelector(selectFocusBounds);
   const store = useAppStore();
   const camera = useThree((state) => state.camera);
   const controls = useThree((state) => state.controls) as OrbitControlsImpl | null;
 
-  // Cesium's tileLoadProgressEvent fires focusBounds updates ambiently (on every
-  // globe tile load, unrelated to this scene). Once the user has taken manual
-  // control of OrbitControls, those ambient updates must stop re-centering the
-  // camera mid-scroll — only an explicit navigation (level-list click, tagged
-  // `manual`) should still move it.
   const userTouchedRef = useRef(false);
 
   useEffect(() => {
@@ -25,11 +19,6 @@ export function CameraRig() {
       return;
     }
 
-    // Re-pivot onto the deepest currently-rendered level at the start of every
-    // user gesture (drag or wheel tick), so a level-list jump to a shallower
-    // level doesn't leave OrbitControls' target — and thus its dolly-in limit —
-    // stuck short of tiles that have since loaded deeper. Only target.z moves;
-    // camera.position is untouched, so nothing visually jumps.
     const onStart = () => {
       userTouchedRef.current = true;
       let maxLevel = -Infinity;
@@ -63,8 +52,6 @@ export function CameraRig() {
     const { centerLon, centerLat, span, tileZ, zRange } = focusBounds;
     const fovRad = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 180;
     const xyDist = ((span / 2) / Math.tan(fovRad / 2)) * 1.4;
-    // tileZ now targets the deepest rendered level; add zRange so the camera
-    // still starts out in front of the shallowest level, matching the old framing.
     const dist = xyDist + zRange;
 
     controls.target.set(centerLon, centerLat, tileZ);

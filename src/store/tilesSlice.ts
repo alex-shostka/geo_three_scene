@@ -6,7 +6,6 @@ const tilesAdapter = createEntityAdapter({
   selectId: (tile: TileRecord) => tile.key,
 });
 
-// Adapter selectors that take the slice state (no argument = "local" selectors).
 const adapterSelectors = tilesAdapter.getSelectors();
 
 const initialState = tilesAdapter.getInitialState<{
@@ -29,7 +28,6 @@ export interface LevelStats {
   north: number;
 }
 
-// Memoized: these return new arrays/numbers derived from the tile list.
 const countErrorTiles = createSelector([adapterSelectors.selectAll], (tiles) =>
   tiles.filter((tile) => tile.type === 'error').length);
 
@@ -42,7 +40,6 @@ const countTilesByLevel = createSelector([adapterSelectors.selectAll], (tiles) =
     .map(([level, count]) => ({ level, count }));
 });
 
-// Per-level loaded/error counts and the geographic extent of each level, sorted by level.
 const computeLevelStats = createSelector([adapterSelectors.selectAll], (tiles): LevelStats[] => {
   const stats = new Map<number, Omit<LevelStats, 'level'>>();
   tiles.forEach((tile) => {
@@ -73,7 +70,6 @@ export const tilesSlice = createSlice({
   name: 'tiles',
   initialState,
   reducers: {
-    // addOne/addMany skip keys that are already stored.
     addErrorTile: tilesAdapter.addOne,
     addActiveTiles: tilesAdapter.addMany,
     setHoveredTile(state, action: PayloadAction<HoveredTile | null>) {
@@ -83,7 +79,6 @@ export const tilesSlice = createSlice({
       state.focusBounds = action.payload;
     },
   },
-  // Turning off "active tiles" clears any active-tile hover highlight.
   extraReducers: (builder) => {
     builder.addCase(setActiveTilesOnScene, (state, action) => {
       if (!action.payload && state.hoveredTile?.type === 'active') {

@@ -7,8 +7,6 @@ export interface QuadtreeTileLike {
   rectangle: { west: number; east: number; south: number; north: number };
 }
 
-/** Cesium doesn't expose rendered-tile lookup publicly — `_surface._tilesToRender` is the same
- *  private field the original implementation relied on. */
 export function getRenderedTiles(viewer: Viewer): QuadtreeTileLike[] {
   return (viewer.scene.globe as any)._surface?._tilesToRender ?? [];
 }

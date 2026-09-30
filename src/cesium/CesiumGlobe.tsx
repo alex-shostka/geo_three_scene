@@ -28,7 +28,6 @@ export function CesiumGlobe() {
   const hoverEntityRef = useRef<Entity | null>(null);
   const tileGridLayerRef = useRef<ImageryLayer | null>(null);
 
-  // Cesium handlers are registered once, so they read settings via store.getState() at event time.
   const store = useAppStore();
   const tileGridOnGlobe = useAppSelector(selectTileGridOnGlobe);
   const glbTiles = useAppSelector(selectGlbTiles);
@@ -43,7 +42,6 @@ export function CesiumGlobe() {
   const localTiles = localTilesRef.current;
   const { loadedGlbsRef, loadGlbForViewport } = useGlbTiles(localTiles);
 
-  // ── one-time Cesium viewer setup ────────────────────────────────────────────
   useEffect(() => {
     if (!containerRef.current) {
       return;
@@ -73,7 +71,7 @@ export function CesiumGlobe() {
     const hoverEntity = viewer.entities.add({
       show: false,
       rectangle: {
-        coordinates: Rectangle.fromDegrees(0, 0, 1, 1), // placeholder
+        coordinates: Rectangle.fromDegrees(0, 0, 1, 1),
         material: Color.YELLOW.withAlpha(0.3),
         outline: true,
         outlineColor: Color.YELLOW,
@@ -95,7 +93,6 @@ export function CesiumGlobe() {
 
     setViewer(viewer);
 
-    // ── error tiles → Three-side error grid (via the tiles slice) ───────────────
     localTiles.errorEvent.addEventListener((err: any) => {
       if (err.x == null || err.y == null || err.level == null) {
         return;
@@ -113,7 +110,6 @@ export function CesiumGlobe() {
       dispatch(addErrorTile({ type: 'error', key, level: err.level, x: err.x, y: err.y, west, east, south, north, tileUrl, errorMsg }));
     });
 
-    // ── active tile grid + camera focus + GLB viewport loading ───────────────
     viewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength: number) => {
       if (queueLength !== 0) {
         return;
@@ -144,7 +140,6 @@ export function CesiumGlobe() {
       }
     });
 
-    // ── GLB metadata hover outline (cyan) ─────────────────────────────────────
     let lastHoveredCesiumTileKey: string | null = null;
     const handleGlbHoverMove = (event: MouseEvent) => {
       if (!selectGlbMetadata(store.getState())) {
@@ -186,7 +181,6 @@ export function CesiumGlobe() {
     viewer.canvas.addEventListener('mousemove', handleGlbHoverMove);
     viewer.canvas.addEventListener('mouseleave', handleGlbHoverLeave);
 
-    // ── tile card click (GLB metadata lookup) ─────────────────────────────────
     const handleClick = (event: MouseEvent) => {
       if (!selectGlbMetadata(store.getState())) {
         return;
@@ -213,8 +207,6 @@ export function CesiumGlobe() {
 
       const title = `${hit.level} / ${hit.x} / ${hit.y}`;
 
-      // GLBs use WebMercator coords — different scheme from Cesium globe tiles,
-      // so we match by geographic position, not by key.
       const matchingGlbs: GlbEntry[] = [];
       loadedGlbsRef.current.forEach((entry) => {
         if (!entry) {
@@ -234,7 +226,6 @@ export function CesiumGlobe() {
         return;
       }
 
-      // Pick the GLB whose zoom level is closest to the current camera level.
       const best = matchingGlbs.reduce((a, b) =>
         Math.abs(a.info.z - hit.level) <= Math.abs(b.info.z - hit.level) ? a : b);
 
@@ -249,12 +240,10 @@ export function CesiumGlobe() {
       }];
 
       if (best.metadata) {
-        // Primary: EXT_structural_metadata parsed from binary buffers.
         sections.push({
           rows: Object.entries(best.metadata).map(([k, v]) => [k, formatMetadataValue(k, v)]),
         });
       } else {
-        // Fallback: mesh.extras / node.extras via userData, deduped by content.
         const seen = new Set<string>();
         best.model.traverse((obj) => {
           const entries = Object.entries(obj.userData).filter(([k]) => k !== 'glbTileInfo');
@@ -286,10 +275,8 @@ export function CesiumGlobe() {
       viewer.destroy();
       viewerRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── "Tile grid on globe" toggle ─────────────────────────────────────────────
   useEffect(() => {
     const viewer = viewerRef.current;
 
@@ -310,7 +297,6 @@ export function CesiumGlobe() {
     }
   }, [tileGridOnGlobe]);
 
-  // ── "GLB tiles" toggled on → load immediately for the current viewport ─────
   useEffect(() => {
     const viewer = viewerRef.current;
 
@@ -319,7 +305,6 @@ export function CesiumGlobe() {
     }
   }, [glbTiles, loadGlbForViewport]);
 
-  // ── Sync R3F hover state → Cesium hover rectangle ───────────────────────────
   useEffect(() => {
     const hoverEntity = hoverEntityRef.current;
 
@@ -339,8 +324,6 @@ export function CesiumGlobe() {
     hoverEntity.show = true;
   }, [hoveredRecord]);
 
-  // ── "Play DOOM" toggle: while on, drape it over whichever active tile loads
-  // first; turning it off tears the whole thing down (see useDoomTile cleanup).
   const [doomTileBounds, setDoomTileBounds] = useState<TileBounds | null>(null);
   useEffect(() => {
     if (!playDoom) {

@@ -14,11 +14,6 @@ export interface GlbEntry {
 
 const GLB_LEVELS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
-/**
- * Loads GLB tiles purely as a metadata source (data-only — nothing is added
- * to the Three.js scene). Kept in a ref rather than React state since no
- * component needs to re-render when a GLB finishes loading.
- */
 export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
   const loaderRef = useRef<GLTFLoader | null>(null);
 
@@ -36,7 +31,7 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
       return;
     }
 
-    loadedGlbs.set(key, null); // reserve slot to prevent duplicate fetches
+    loadedGlbs.set(key, null);
 
     const rect = localTiles.tilingScheme.tileXYToRectangle(x, y, z);
     const info: GlbTileInfo = {
@@ -60,10 +55,6 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
     );
   }, [localTiles]);
 
-  /**
-   * Loads GLB tiles for all GLB_LEVELS that cover the current camera viewport.
-   * Skips any level where the viewport spans more than 200 tiles (too many to load at once).
-   */
   const loadGlbForViewport = useCallback((viewer: Viewer) => {
     const rect = viewer.camera.computeViewRectangle();
 

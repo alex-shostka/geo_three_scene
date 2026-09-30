@@ -29,8 +29,6 @@ export function InfoTip({ text }: InfoTipProps) {
       Math.max(centerX, VIEWPORT_MARGIN + half),
       window.innerWidth - VIEWPORT_MARGIN - half,
     );
-    // Keep the little arrow pointing at the trigger even when the bubble
-    // itself gets clamped to stay on-screen.
     const arrowLeft = Math.min(
       Math.max(centerX - clampedCenterX + half, ARROW_MARGIN),
       BUBBLE_WIDTH - ARROW_MARGIN,

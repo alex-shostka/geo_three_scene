@@ -11,9 +11,6 @@ if (!container) {
 
 const store = makeStore();
 
-// No StrictMode: Cesium's Viewer isn't safe to mount/destroy/remount rapidly
-// (WebGL context + worker setup), which is what StrictMode's double-invoked
-// effects would do to it in development.
 createRoot(container).render(
   <Provider store={store}>
     <App />

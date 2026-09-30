@@ -12,11 +12,6 @@ interface Tick {
   line: THREE.Line;
 }
 
-/**
- * Vertical scale ruler next to the rendered tile stack: one tick + label per
- * zoom level currently present in `tiles`, positioned at that level's own
- * Z-plane (see geoToScene) so it reads as a depth axis for the stack.
- */
 export function LevelAxis() {
   const tiles = useAppSelector(selectAllTiles);
 
