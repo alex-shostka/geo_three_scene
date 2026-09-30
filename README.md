@@ -38,7 +38,7 @@ The overlay stacks tiles by zoom level. Each level sits on its own plane, and a 
 
 The dev server always returns 404 for a few tiles, so there are failed tiles to inspect. You can change the list in `ERROR_TILES` in [vite.config.mjs](vite.config.mjs). The deployed build doesn't do this. There, only tiles missing from `public/tiles` fail.
 
-**Stack:** React, TypeScript, Vite, Cesium, Three.js, React Three Fiber, drei.
+**Stack:** React, TypeScript, Vite, Redux Toolkit, Cesium, Three.js, React Three Fiber, drei, Vitest.
 
 ## Posts on LinkedIn
 
@@ -82,6 +82,12 @@ The map tiles, GLB tiles and Cesium static assets are already in `public/`, so y
 
 ```bash
 npm run dev       # dev server at http://localhost:5173
+```
+
+### Test
+
+```bash
+npm test          # unit tests for the Redux slices (Vitest, watch mode)
 ```
 
 ### Build
@@ -134,7 +140,7 @@ DOOM and its emulator load from the js-dos CDN when the game starts, so that fea
 
 ## Future steps
 
-1. **Move state to Redux Toolkit.** Replace the nested React Context providers with a Redux Toolkit store split into slices, so components read state directly instead of through layers of context.
+1. ✅ **Move state to Redux Toolkit.** Done: the nested React Context providers were replaced with a Redux Toolkit store split into `settings`, `tiles` and `ui` slices, and the Cesium viewer moved to a small external store read with `useSyncExternalStore`.
 2. **Add a real backend.** One option is Firebase for the API and tile storage. The other is a custom geo server built with PostGIS and Python.
 3. **Explore 3D spatial data.** Try spatial meshes, point clouds and LIDAR data.
 4. **Go deeper into Three.js and React Three Fiber.**
