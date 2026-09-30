@@ -1,12 +1,12 @@
 import { Cartesian3 } from 'cesium';
-import { useCesium } from '../state/CesiumContext';
+import { useViewer } from '../cesium/viewerStore';
 import { AMSTERDAM, HOME_HEIGHT } from '../cesium/cesiumConfig';
 
 const ZOOM_IN_FACTOR = 0.5;
 const ZOOM_OUT_FACTOR = 2;
 
 export function MapControls() {
-  const { viewer } = useCesium();
+  const viewer = useViewer();
 
   const resetView = () => {
     if (!viewer) {

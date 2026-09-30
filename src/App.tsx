@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { CesiumProvider } from './state/CesiumContext';
 import { CesiumGlobe } from './cesium/CesiumGlobe';
 import { ThreeOverlay } from './three/ThreeOverlay';
 import { HamburgerMenu } from './components/HamburgerMenu';
@@ -17,20 +16,18 @@ import { MapControls } from './components/MapControls';
 export function App() {
   return (
     <>
-      <CesiumProvider>
-        <CesiumGlobe />
-        <ThreeOverlay />
-        <HamburgerMenu />
-        <SidePanel />
-        <AnalyticsButton />
-        <AnalyticsPanel />
-        <NetworkButton />
-        <NetworkPanel />
-        <TileTooltip />
-        <TileCard />
-        <MapControls />
-        <Footer />
-      </CesiumProvider>
+      <CesiumGlobe />
+      <ThreeOverlay />
+      <HamburgerMenu />
+      <SidePanel />
+      <AnalyticsButton />
+      <AnalyticsPanel />
+      <NetworkButton />
+      <NetworkPanel />
+      <TileTooltip />
+      <TileCard />
+      <MapControls />
+      <Footer />
       <Analytics />
       <SpeedInsights />
     </>

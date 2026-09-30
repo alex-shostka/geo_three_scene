@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Rectangle } from 'cesium';
-import { useCesium } from '../state/CesiumContext';
+import { useViewer } from '../cesium/viewerStore';
 import { useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen } from '../store/uiSlice';
 import { selectAllTiles } from '../store/tilesSlice';
@@ -18,7 +18,7 @@ interface LevelStats {
 export function AnalyticsPanel() {
   const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, 'analytics'));
   const tiles = useAppSelector(selectAllTiles);
-  const { viewer } = useCesium();
+  const viewer = useViewer();
 
   const levelStats = useMemo(() => {
     const stats = new Map<number, Omit<LevelStats, 'level'>>();

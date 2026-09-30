@@ -8,7 +8,7 @@ import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig
 import { useGlbTiles, type GlbEntry } from './useGlbTiles';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useDoomTile } from './useDoomTile';
-import { useCesium } from '../state/CesiumContext';
+import { setViewer } from './viewerStore';
 import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/tileGeometry';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
@@ -37,7 +37,6 @@ export function CesiumGlobe() {
   const hoveredRecord = useAppSelector(selectHoveredRecord);
   const firstActiveTile = useAppSelector(selectFirstActiveTile);
 
-  const { setCesiumHandles } = useCesium();
   const dispatch = useAppDispatch();
 
   const localTilesRef = useRef(createLocalTilesProvider());
@@ -94,7 +93,7 @@ export function CesiumGlobe() {
       },
     });
 
-    setCesiumHandles({ viewer, hoverEntity });
+    setViewer(viewer);
 
     // ── error tiles → Three-side error grid (via the tiles slice) ───────────────
     localTiles.errorEvent.addEventListener((err: any) => {
@@ -283,6 +282,7 @@ export function CesiumGlobe() {
       viewer.canvas.removeEventListener('mousemove', handleGlbHoverMove);
       viewer.canvas.removeEventListener('mouseleave', handleGlbHoverLeave);
       viewer.canvas.removeEventListener('click', handleClick);
+      setViewer(null);
       viewer.destroy();
       viewerRef.current = null;
     };

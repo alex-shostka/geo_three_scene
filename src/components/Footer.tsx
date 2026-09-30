@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useCesium } from '../state/CesiumContext';
+import { useViewer } from '../cesium/viewerStore';
 import { useAppSelector } from '../store/hooks';
 import { selectErrorCount, selectFocusBounds } from '../store/tilesSlice';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
@@ -11,7 +11,7 @@ const LOD_TIP = 'Tile detail level — higher means more zoomed in.';
 
 export function Footer() {
   const [open, setOpen] = useState(false);
-  const { viewer } = useCesium();
+  const viewer = useViewer();
   const errorCount = useAppSelector(selectErrorCount);
   const focusBounds = useAppSelector(selectFocusBounds);
   const [pose, setPose] = useState<CameraPose | null>(null);

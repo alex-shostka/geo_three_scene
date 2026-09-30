@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
-import { useCesium } from '../state/CesiumContext';
+import { flyCameraToTile } from '../cesium/viewerStore';
 import type { ActiveTileRecord } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectActiveTilesOnScene, selectFlyToTile } from '../store/settingsSlice';
@@ -11,8 +11,6 @@ import { selectIsTileHovered, setHoveredTile } from '../store/tilesSlice';
 export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
   const activeTilesOnScene = useAppSelector(selectActiveTilesOnScene);
   const flyToTile = useAppSelector(selectFlyToTile);
-
-  const { flyToTileData } = useCesium();
   const dispatch = useAppDispatch();
 
   const { west, east, south, north, level, baseColor, key } = record;
@@ -53,7 +51,7 @@ export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
     event.stopPropagation();
 
     if (activeTilesOnScene && flyToTile) {
-      flyToTileData({ west, east, south, north });
+      flyCameraToTile({ west, east, south, north });
     }
   };
 

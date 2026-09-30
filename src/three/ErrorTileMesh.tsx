@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
-import { useCesium } from '../state/CesiumContext';
+import { flyCameraToTile } from '../cesium/viewerStore';
 import type { ErrorTileRecord } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectFlyToTile } from '../store/settingsSlice';
@@ -14,7 +14,6 @@ const MAT_HOVER = { color: 0xff8800, opacity: 0.8 };
 
 export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   const flyToTile = useAppSelector(selectFlyToTile);
-  const { flyToTileData } = useCesium();
   const dispatch = useAppDispatch();
 
   const { west, east, south, north, level, key } = record;
@@ -56,7 +55,7 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   };
   const handleClick = () => {
     if (flyToTile) {
-      flyToTileData({ west, east, south, north });
+      flyCameraToTile({ west, east, south, north });
     }
   };
 
