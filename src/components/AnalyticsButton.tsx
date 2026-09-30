@@ -1,6 +1,6 @@
+import { ANALYTICS_PANEL } from '../constants';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen, togglePanel } from '../store/uiSlice';
-import { ANALYTICS_PANEL } from '../constants';
 
 export function AnalyticsButton() {
   const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));

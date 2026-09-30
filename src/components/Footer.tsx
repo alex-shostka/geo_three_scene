@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useViewer } from '../cesium/viewerStore';
+import { EMPTY_VALUE } from '../constants';
+import { LEVEL_DEPTH } from '../lib/tileGeometry';
 import { useAppSelector } from '../store/hooks';
 import { selectErrorCount, selectFocusBounds } from '../store/tilesSlice';
-import { LEVEL_DEPTH } from '../lib/tileGeometry';
 import { CameraPoseGauges, type CameraPose } from './CameraPoseGauges';
 import { InfoTip } from './InfoTip';
-import { EMPTY_VALUE } from '../constants';
 
 const HEIGHT_TIP = 'Camera altitude above the ground.';
 const LOD_TIP = 'Tile detail level — higher means more zoomed in.';

@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { useThree } from '@react-three/fiber';
+import { useEffect } from 'react';
 import type { SetCanvasSizeRef } from './useCornerResize';
 
 export function CanvasResizeBridge({ setSizeRef }: { setSizeRef: SetCanvasSizeRef }) {

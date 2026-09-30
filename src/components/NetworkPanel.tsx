@@ -1,13 +1,13 @@
 import type { MetricType } from 'web-vitals';
+import { NETWORK_PANEL } from '../constants';
 import { useWebVitals } from '../hooks/useWebVitals';
 import { formatWebVitalValue } from '../lib/formatWebVitalValue';
-import { getLcpElement } from '../lib/getLcpElement';
-import { getInpElement } from '../lib/getInpElement';
 import { getClsElement } from '../lib/getClsElement';
+import { getInpElement } from '../lib/getInpElement';
+import { getLcpElement } from '../lib/getLcpElement';
 import { highlightElement } from '../lib/highlightElement';
 import { useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen } from '../store/uiSlice';
-import { NETWORK_PANEL } from '../constants';
 
 const WEB_VITALS_ORDER: MetricType['name'][] = ['FCP', 'LCP', 'INP', 'CLS', 'TTFB'];
 

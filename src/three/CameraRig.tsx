@@ -1,10 +1,10 @@
+import { useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { useThree } from '@react-three/fiber';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { LEVEL_DEPTH } from '../lib/tileGeometry';
 import { useAppSelector, useAppStore } from '../store/hooks';
 import { selectAllTiles, selectFocusBounds } from '../store/tilesSlice';
-import { LEVEL_DEPTH } from '../lib/tileGeometry';
 
 function isOrbitControls(controls: THREE.EventDispatcher | null): controls is OrbitControlsImpl {
   return controls !== null && 'target' in controls && 'update' in controls;

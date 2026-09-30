@@ -1,5 +1,5 @@
-import { InfoTip } from './InfoTip';
 import { EMPTY_VALUE } from '../constants';
+import { InfoTip } from './InfoTip';
 
 export interface CameraPose {
   height: number;

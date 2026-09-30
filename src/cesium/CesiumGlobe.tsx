@@ -1,33 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
 import {
-  Viewer,
-  Cartesian3,
   Cartesian2,
+  Cartesian3,
   Cartographic,
-  ImageryLayer,
-  TileCoordinatesImageryProvider,
-  Rectangle,
   Color,
   ConstantProperty,
+  ImageryLayer,
   PolylineGraphics,
+  Rectangle,
+  TileCoordinatesImageryProvider,
+  Viewer,
   type Entity,
   type TileProviderError,
 } from 'cesium';
-import { AMSTERDAM, HOME_HEIGHT, createLocalTilesProvider } from './cesiumConfig';
-import { GLB_TILE_INFO_KEY, useGlbTiles, type GlbEntry } from './useGlbTiles';
-import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
-import { useDoomTile } from './useDoomTile';
-import { setViewer } from './viewerStore';
-import { levelColor, rectRadiansToDegrees, computeFocusBounds } from '../lib/tileGeometry';
+import { useEffect, useRef, useState } from 'react';
+import { ACTIVE_TILE, ERROR_TILE } from '../constants';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
+import { computeFocusBounds, levelColor, rectRadiansToDegrees } from '../lib/tileGeometry';
 import { errorTileKey, tileKey } from '../lib/tileKey';
 import { buildTileUrl } from '../lib/tileUrl';
-import { ACTIVE_TILE, ERROR_TILE } from '../constants';
-import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
 import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
 import { selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe } from '../store/settingsSlice';
-import { openTileCard } from '../store/uiSlice';
 import {
   addActiveTiles,
   addErrorTile,
@@ -35,6 +28,13 @@ import {
   selectHoveredRecord,
   setFocusBounds,
 } from '../store/tilesSlice';
+import { openTileCard } from '../store/uiSlice';
+import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
+import { AMSTERDAM, createLocalTilesProvider, HOME_HEIGHT } from './cesiumConfig';
+import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
+import { useDoomTile } from './useDoomTile';
+import { GLB_TILE_INFO_KEY, useGlbTiles, type GlbEntry } from './useGlbTiles';
+import { setViewer } from './viewerStore';
 
 const NO_GLB_MESSAGE = 'No GLB loaded for this point';
 

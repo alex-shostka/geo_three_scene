@@ -1,8 +1,8 @@
+import { ERROR_TILE } from '../constants';
 import { useAppSelector } from '../store/hooks';
 import { selectAllTiles } from '../store/tilesSlice';
-import { ErrorTileMesh } from './ErrorTileMesh';
 import { ActiveTileMesh } from './ActiveTileMesh';
-import { ERROR_TILE } from '../constants';
+import { ErrorTileMesh } from './ErrorTileMesh';
 
 export function TileGroup() {
   const records = useAppSelector(selectAllTiles);

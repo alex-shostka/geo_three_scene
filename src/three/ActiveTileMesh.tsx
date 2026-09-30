@@ -1,13 +1,13 @@
+import type { ThreeEvent } from '@react-three/fiber';
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import type { ThreeEvent } from '@react-three/fiber';
-import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
 import { flyCameraToTile } from '../cesium/viewerStore';
-import type { ActiveTileRecord } from '../types';
+import { ACTIVE_TILE } from '../constants';
+import { geoToScene, LEVEL_DEPTH } from '../lib/tileGeometry';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectActiveTilesOnScene, selectFlyToTile } from '../store/settingsSlice';
 import { selectIsTileHovered, setHoveredTile } from '../store/tilesSlice';
-import { ACTIVE_TILE } from '../constants';
+import type { ActiveTileRecord } from '../types';
 
 export function ActiveTileMesh({ record }: { record: ActiveTileRecord }) {
   const activeTilesOnScene = useAppSelector(selectActiveTilesOnScene);

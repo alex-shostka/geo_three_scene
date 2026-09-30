@@ -1,9 +1,9 @@
 import { Rectangle } from 'cesium';
 import { useViewer } from '../cesium/viewerStore';
-import { useAppSelector } from '../store/hooks';
-import { selectIsPanelOpen } from '../store/uiSlice';
-import { selectLevelStats, type LevelStats } from '../store/tilesSlice';
 import { ANALYTICS_PANEL } from '../constants';
+import { useAppSelector } from '../store/hooks';
+import { selectLevelStats, type LevelStats } from '../store/tilesSlice';
+import { selectIsPanelOpen } from '../store/uiSlice';
 
 export function AnalyticsPanel() {
   const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));

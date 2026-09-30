@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { makeStore } from './index';
-import type { TileCardSection } from '../types';
 import { ANALYTICS_PANEL, MENU_PANEL, NETWORK_PANEL } from '../constants';
+import type { TileCardSection } from '../types';
+import { makeStore } from './index';
 import { closeTileCard, openTileCard, selectIsPanelOpen, selectTileCard, togglePanel } from './uiSlice';
 
 describe('ui', () => {

@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import { Cartesian2, Cartographic, ImageMaterialProperty, Rectangle, type Entity, type Viewer } from 'cesium';
-import { loadEmulators, type CommandInterface } from '../lib/loadEmulators';
+import { useEffect } from 'react';
 import { DOM_KEY_TO_DOS_KEY } from '../lib/domKeyToDosKey';
+import { loadEmulators, type CommandInterface } from '../lib/loadEmulators';
 import type { TileBounds } from '../types';
 
 const DOOM_BUNDLE_URL = 'https://v8.js-dos.com/bundles/doom.jsdos';

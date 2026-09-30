@@ -1,9 +1,9 @@
+import { Text } from '@react-three/drei';
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { Text } from '@react-three/drei';
+import { LEVEL_DEPTH, levelColor } from '../lib/tileGeometry';
 import { useAppSelector } from '../store/hooks';
 import { selectAllTiles } from '../store/tilesSlice';
-import { LEVEL_DEPTH, levelColor } from '../lib/tileGeometry';
 
 interface Tick {
   level: number;

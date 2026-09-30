@@ -1,7 +1,7 @@
 import { combineSlices, configureStore } from '@reduxjs/toolkit';
 import { settingsSlice } from './settingsSlice';
-import { uiSlice } from './uiSlice';
 import { tilesSlice } from './tilesSlice';
+import { uiSlice } from './uiSlice';
 
 const rootReducer = combineSlices(settingsSlice, uiSlice, tilesSlice);
 

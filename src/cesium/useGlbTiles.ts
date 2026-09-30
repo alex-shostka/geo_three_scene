@@ -1,10 +1,10 @@
+import { Cartographic, type UrlTemplateImageryProvider, type Viewer } from 'cesium';
 import { useCallback, useRef, useState } from 'react';
 import type { Group } from 'three';
 import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
-import { Cartographic, type UrlTemplateImageryProvider, type Viewer } from 'cesium';
 import { parseStructuralMetadata } from '../lib/parseStructuralMetadata';
 import { tileKey } from '../lib/tileKey';
-import { GLB_TILES_URL_TEMPLATE, buildTileUrl } from '../lib/tileUrl';
+import { buildTileUrl, GLB_TILES_URL_TEMPLATE } from '../lib/tileUrl';
 import type { GlbMetadata, GlbTileInfo } from '../types';
 
 export interface GlbEntry {

@@ -1,5 +1,5 @@
-import { useSyncExternalStore } from 'react';
 import { Cartesian3, type Viewer } from 'cesium';
+import { useSyncExternalStore } from 'react';
 import type { TileBounds } from '../types';
 
 let viewer: Viewer | null = null;

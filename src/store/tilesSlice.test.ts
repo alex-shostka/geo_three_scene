@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { ActiveTileRecord, ErrorTileRecord } from '../types';
 import { makeStore } from './index';
 import { setActiveTilesOnScene } from './settingsSlice';
 import {
@@ -11,7 +12,6 @@ import {
   selectLevelStats,
   setHoveredTile,
 } from './tilesSlice';
-import type { ActiveTileRecord, ErrorTileRecord } from '../types';
 
 const bounds = { west: 0, east: 1, south: 0, north: 1 };
 

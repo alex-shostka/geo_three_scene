@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ErrorTileRecord, TileCardSection } from '../types';
 import type { ANALYTICS_PANEL, MENU_PANEL, NETWORK_PANEL } from '../constants';
+import type { ErrorTileRecord, TileCardSection } from '../types';
 
 export type PanelId = typeof MENU_PANEL | typeof ANALYTICS_PANEL | typeof NETWORK_PANEL;
 

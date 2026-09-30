@@ -1,6 +1,6 @@
 import { Cartesian3 } from 'cesium';
-import { useViewer } from '../cesium/viewerStore';
 import { AMSTERDAM, HOME_HEIGHT } from '../cesium/cesiumConfig';
+import { useViewer } from '../cesium/viewerStore';
 
 const ZOOM_IN_FACTOR = 0.5;
 const ZOOM_OUT_FACTOR = 2;

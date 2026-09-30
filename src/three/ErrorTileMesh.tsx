@@ -1,14 +1,14 @@
+import type { ThreeEvent } from '@react-three/fiber';
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import type { ThreeEvent } from '@react-three/fiber';
-import { LEVEL_DEPTH, geoToScene } from '../lib/tileGeometry';
 import { flyCameraToTile } from '../cesium/viewerStore';
-import type { ErrorTileRecord } from '../types';
+import { ERROR_TILE } from '../constants';
+import { geoToScene, LEVEL_DEPTH } from '../lib/tileGeometry';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectFlyToTile } from '../store/settingsSlice';
-import { setTooltip } from '../store/uiSlice';
 import { selectIsTileHovered, setHoveredTile } from '../store/tilesSlice';
-import { ERROR_TILE } from '../constants';
+import { setTooltip } from '../store/uiSlice';
+import type { ErrorTileRecord } from '../types';
 
 const MAT_NORMAL = { color: 0xff2222, opacity: 0.55 };
 const MAT_HOVER = { color: 0xff8800, opacity: 0.8 };

@@ -1,17 +1,17 @@
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { CesiumGlobe } from './cesium/CesiumGlobe';
-import { ThreeOverlay } from './three/ThreeOverlay';
-import { HamburgerMenu } from './components/HamburgerMenu';
-import { SidePanel } from './components/SidePanel';
 import { AnalyticsButton } from './components/AnalyticsButton';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
+import { Footer } from './components/Footer';
+import { HamburgerMenu } from './components/HamburgerMenu';
+import { MapControls } from './components/MapControls';
 import { NetworkButton } from './components/NetworkButton';
 import { NetworkPanel } from './components/NetworkPanel';
-import { TileTooltip } from './components/TileTooltip';
+import { SidePanel } from './components/SidePanel';
 import { TileCard } from './components/TileCard';
-import { Footer } from './components/Footer';
-import { MapControls } from './components/MapControls';
+import { TileTooltip } from './components/TileTooltip';
+import { ThreeOverlay } from './three/ThreeOverlay';
 
 export function App() {
   return (

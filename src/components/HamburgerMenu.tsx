@@ -1,6 +1,6 @@
+import { MENU_PANEL } from '../constants';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen, togglePanel } from '../store/uiSlice';
-import { MENU_PANEL } from '../constants';
 
 export function HamburgerMenu() {
   const menuOpen = useAppSelector((s) => selectIsPanelOpen(s, MENU_PANEL));

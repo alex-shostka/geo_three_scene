@@ -1,7 +1,7 @@
 import { createEntityAdapter, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { setActiveTilesOnScene } from './settingsSlice';
-import type { FocusBounds, HoveredTile, TileRecord } from '../types';
 import { ACTIVE_TILE, ERROR_TILE } from '../constants';
+import type { FocusBounds, HoveredTile, TileRecord } from '../types';
+import { setActiveTilesOnScene } from './settingsSlice';
 
 const tilesAdapter = createEntityAdapter({
   selectId: (tile: TileRecord) => tile.key,

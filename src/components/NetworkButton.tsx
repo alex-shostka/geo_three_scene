@@ -1,6 +1,6 @@
+import { NETWORK_PANEL } from '../constants';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectIsPanelOpen, togglePanel } from '../store/uiSlice';
-import { NETWORK_PANEL } from '../constants';
 
 export function NetworkButton() {
   const networkOpen = useAppSelector((s) => selectIsPanelOpen(s, NETWORK_PANEL));
