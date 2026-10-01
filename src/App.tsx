@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { CesiumGlobe } from './cesium/CesiumGlobe';
 import { AnalyticsButton } from './components/AnalyticsButton';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Footer } from './components/Footer';
 import { HamburgerMenu } from './components/HamburgerMenu';
 import { MapControls } from './components/MapControls';
@@ -17,7 +18,9 @@ export function App() {
   return (
     <>
       <CesiumGlobe />
-      <ThreeOverlay />
+      <ErrorBoundary fallback={() => null}>
+        <ThreeOverlay />
+      </ErrorBoundary>
       <HamburgerMenu />
       <SidePanel />
       <AnalyticsButton />
