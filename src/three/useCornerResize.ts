@@ -1,5 +1,6 @@
 import { useCallback, type RefObject } from 'react';
 import { EDGE_MARGIN } from './overlayEdgeMargin';
+import { startPointerDrag } from './startPointerDrag';
 
 const MIN_WIDTH = 320;
 const MIN_HEIGHT = 220;
@@ -32,10 +33,6 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
       const startRect = container.getBoundingClientRect();
       const startX = event.clientX;
       const startY = event.clientY;
-      const prevUserSelect = document.body.style.userSelect;
-      let rafId = 0;
-      let pendingX = startX;
-      let pendingY = startY;
       let finalBox: Box = {
         width: startRect.width,
         height: startRect.height,
@@ -50,9 +47,9 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
       const startFreeX = growsRight ? startRect.right : startRect.left;
       const startFreeY = growsDown ? startRect.bottom : startRect.top;
 
-      const computeBox = (): Box => {
-        const dx = applyDeadZone(pendingX - startX);
-        const dy = applyDeadZone(pendingY - startY);
+      const computeBox = (clientX: number, clientY: number): Box => {
+        const dx = applyDeadZone(clientX - startX);
+        const dy = applyDeadZone(clientY - startY);
 
         let freeX = startFreeX + dx;
         let freeY = startFreeY + dy;
@@ -72,10 +69,8 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
         };
       };
 
-      const applyPreview = () => {
-        rafId = 0;
-
-        const box = computeBox();
+      const applyPreview = (clientX: number, clientY: number) => {
+        const box = computeBox(clientX, clientY);
 
         finalBox = box;
 
@@ -87,24 +82,7 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
         container.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`;
       };
 
-      const onPointerMove = (moveEvent: PointerEvent) => {
-        pendingX = moveEvent.clientX;
-        pendingY = moveEvent.clientY;
-
-        if (!rafId) {
-          rafId = requestAnimationFrame(applyPreview);
-        }
-      };
-
-      const onPointerUp = () => {
-        if (rafId) {
-          cancelAnimationFrame(rafId);
-        }
-
-        document.body.style.userSelect = prevUserSelect;
-        window.removeEventListener('pointermove', onPointerMove);
-        window.removeEventListener('pointerup', onPointerUp);
-
+      const commitSize = () => {
         Object.assign(container.style, {
           width: `${finalBox.width}px`,
           height: `${finalBox.height}px`,
@@ -116,11 +94,8 @@ export function useCornerResize(containerRef: RefObject<HTMLDivElement | null>, 
         container.style.transform = 'none';
       };
 
-      event.preventDefault();
-      document.body.style.userSelect = 'none';
       container.style.transformOrigin = '0 0';
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
+      startPointerDrag(event, applyPreview, commitSize);
     },
     [containerRef, setSizeRef],
   );

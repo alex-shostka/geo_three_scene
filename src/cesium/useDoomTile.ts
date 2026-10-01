@@ -1,5 +1,14 @@
-import { Cartesian2, Cartographic, ImageMaterialProperty, Rectangle, type Entity, type Viewer } from 'cesium';
+import {
+  Cartesian2,
+  Cartographic,
+  Math as CesiumMath,
+  ImageMaterialProperty,
+  Rectangle,
+  type Entity,
+  type Viewer,
+} from 'cesium';
 import { useEffect } from 'react';
+import { containsPoint } from '../lib/containsPoint';
 import { DOM_KEY_TO_DOS_KEY } from '../lib/domKeyToDosKey';
 import { loadEmulators, type CommandInterface } from '../lib/loadEmulators';
 import type { TileBounds } from '../types';
@@ -41,10 +50,8 @@ export function useDoomTile(viewer: Viewer | null, bounds: TileBounds | null) {
       }
 
       const { longitude, latitude } = Cartographic.fromCartesian(carto);
-      const lon = (longitude * 180) / Math.PI;
-      const lat = (latitude * 180) / Math.PI;
 
-      isHovering = lon >= bounds.west && lon <= bounds.east && lat >= bounds.south && lat <= bounds.north;
+      isHovering = containsPoint(bounds, CesiumMath.toDegrees(longitude), CesiumMath.toDegrees(latitude));
     };
     const handleMouseLeave = () => {
       isHovering = false;

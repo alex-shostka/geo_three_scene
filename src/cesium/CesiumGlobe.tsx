@@ -2,6 +2,7 @@ import {
   Cartesian2,
   Cartesian3,
   Cartographic,
+  Math as CesiumMath,
   Color,
   ConstantProperty,
   ImageryLayer,
@@ -14,6 +15,7 @@ import {
 } from 'cesium';
 import { useEffect, useRef, useState } from 'react';
 import { ACTIVE_TILE, ERROR_TILE } from '../constants';
+import { containsPoint } from '../lib/containsPoint';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
 import { computeFocusBounds, levelColor, rectRadiansToDegrees } from '../lib/tileGeometry';
@@ -162,8 +164,8 @@ export function CesiumGlobe() {
       }
 
       const cartographic = Cartographic.fromCartesian(carto);
-      const lon = (cartographic.longitude * 180) / Math.PI;
-      const lat = (cartographic.latitude * 180) / Math.PI;
+      const lon = CesiumMath.toDegrees(cartographic.longitude);
+      const lat = CesiumMath.toDegrees(cartographic.latitude);
 
       const hit = pickRenderedTile(viewer, event.offsetX, event.offsetY);
 
@@ -180,9 +182,7 @@ export function CesiumGlobe() {
           return;
         }
 
-        const { info } = entry;
-
-        if (lon >= info.west && lon <= info.east && lat >= info.south && lat <= info.north) {
+        if (containsPoint(entry.info, lon, lat)) {
           matchingGlbs.push(entry);
         }
       });

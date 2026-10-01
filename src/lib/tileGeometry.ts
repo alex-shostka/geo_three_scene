@@ -22,10 +22,10 @@ interface RadiansRectangle {
 
 export function rectRadiansToDegrees(rect: RadiansRectangle): TileBounds {
   return {
-    west: (rect.west * 180) / Math.PI,
-    east: (rect.east * 180) / Math.PI,
-    south: (rect.south * 180) / Math.PI,
-    north: (rect.north * 180) / Math.PI,
+    west: THREE.MathUtils.radToDeg(rect.west),
+    east: THREE.MathUtils.radToDeg(rect.east),
+    south: THREE.MathUtils.radToDeg(rect.south),
+    north: THREE.MathUtils.radToDeg(rect.north),
   };
 }
 

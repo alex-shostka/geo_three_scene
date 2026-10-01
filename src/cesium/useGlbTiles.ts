@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import type { Group } from 'three';
 import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { parseStructuralMetadata } from '../lib/parseStructuralMetadata';
+import { rectRadiansToDegrees } from '../lib/tileGeometry';
 import { tileKey } from '../lib/tileKey';
 import { buildTileUrl, GLB_TILES_URL_TEMPLATE } from '../lib/tileUrl';
 import type { GlbMetadata, GlbTileInfo } from '../types';
@@ -38,10 +39,7 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
         z,
         x,
         y,
-        west: (rect.west * 180) / Math.PI,
-        east: (rect.east * 180) / Math.PI,
-        south: (rect.south * 180) / Math.PI,
-        north: (rect.north * 180) / Math.PI,
+        ...rectRadiansToDegrees(rect),
         url: buildTileUrl(GLB_TILES_URL_TEMPLATE, z, x, y),
       };
 

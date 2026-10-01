@@ -1,3 +1,4 @@
+import { Math as CesiumMath } from 'cesium';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useAppSelector } from '../store/hooks';
 import { selectTooltip } from '../store/uiSlice';
@@ -34,7 +35,7 @@ export function TileTooltip() {
   }
 
   const { record } = tooltip;
-  const widthKm = (record.east - record.west) * 111 * Math.cos((((record.south + record.north) / 2) * Math.PI) / 180);
+  const widthKm = (record.east - record.west) * 111 * Math.cos(CesiumMath.toRadians((record.south + record.north) / 2));
   const heightKm = (record.north - record.south) * 111;
   const centerLon = ((record.west + record.east) / 2).toFixed(4);
   const centerLat = ((record.south + record.north) / 2).toFixed(4);

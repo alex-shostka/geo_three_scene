@@ -1,5 +1,6 @@
 import { useCallback, type RefObject } from 'react';
 import { EDGE_MARGIN } from './overlayEdgeMargin';
+import { startPointerDrag } from './startPointerDrag';
 
 export function useDragMove(containerRef: RefObject<HTMLDivElement | null>) {
   return useCallback(
@@ -13,16 +14,10 @@ export function useDragMove(containerRef: RefObject<HTMLDivElement | null>) {
       const startRect = container.getBoundingClientRect();
       const startX = event.clientX;
       const startY = event.clientY;
-      const prevUserSelect = document.body.style.userSelect;
-      let rafId = 0;
-      let pendingX = startX;
-      let pendingY = startY;
 
-      const applyMove = () => {
-        rafId = 0;
-
-        const dx = pendingX - startX;
-        const dy = pendingY - startY;
+      const applyMove = (clientX: number, clientY: number) => {
+        const dx = clientX - startX;
+        const dy = clientY - startY;
 
         const minTop = EDGE_MARGIN;
         const maxTop = Math.max(EDGE_MARGIN, window.innerHeight - EDGE_MARGIN - startRect.height);
@@ -39,29 +34,7 @@ export function useDragMove(containerRef: RefObject<HTMLDivElement | null>) {
         });
       };
 
-      const onPointerMove = (moveEvent: PointerEvent) => {
-        pendingX = moveEvent.clientX;
-        pendingY = moveEvent.clientY;
-
-        if (!rafId) {
-          rafId = requestAnimationFrame(applyMove);
-        }
-      };
-
-      const onPointerUp = () => {
-        if (rafId) {
-          cancelAnimationFrame(rafId);
-        }
-
-        document.body.style.userSelect = prevUserSelect;
-        window.removeEventListener('pointermove', onPointerMove);
-        window.removeEventListener('pointerup', onPointerUp);
-      };
-
-      event.preventDefault();
-      document.body.style.userSelect = 'none';
-      window.addEventListener('pointermove', onPointerMove);
-      window.addEventListener('pointerup', onPointerUp);
+      startPointerDrag(event, applyMove);
     },
     [containerRef],
   );

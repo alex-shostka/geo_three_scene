@@ -1,42 +1,25 @@
 import type { ThreeEvent } from '@react-three/fiber';
-import { useMemo } from 'react';
-import * as THREE from 'three';
 import { flyCameraToTile } from '../cesium/viewerStore';
 import { ERROR_TILE } from '../constants';
-import { geoToScene, LEVEL_DEPTH } from '../lib/tileGeometry';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectFlyToTile } from '../store/settingsSlice';
 import { selectIsTileHovered, setHoveredTile } from '../store/tilesSlice';
 import { setTooltip } from '../store/uiSlice';
 import type { ErrorTileRecord } from '../types';
+import { useTileShape } from './useTileShape';
 
 const MAT_NORMAL = { color: 0xff2222, opacity: 0.55 };
 const MAT_HOVER = { color: 0xff8800, opacity: 0.8 };
+const OUTLINE_COLOR = 0xff0000;
 
 export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   const flyToTile = useAppSelector(selectFlyToTile);
   const dispatch = useAppDispatch();
 
-  const { west, east, south, north, level, key } = record;
+  const { west, east, south, north, key } = record;
   const isHovered = useAppSelector((state) => selectIsTileHovered(state, ERROR_TILE, key));
-  const z = -level * LEVEL_DEPTH;
-  const w = east - west;
-  const h = north - south;
-  const cx = (west + east) / 2;
-  const cy = (south + north) / 2;
+  const { outline, center, size } = useTileShape(record, OUTLINE_COLOR);
   const mat = isHovered ? MAT_HOVER : MAT_NORMAL;
-
-  const outline = useMemo(() => {
-    const geometry = new THREE.BufferGeometry().setFromPoints([
-      geoToScene(west, south, level),
-      geoToScene(east, south, level),
-      geoToScene(east, north, level),
-      geoToScene(west, north, level),
-      geoToScene(west, south, level),
-    ]);
-
-    return new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0xff0000 }));
-  }, [west, east, south, north, level]);
 
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();
@@ -63,13 +46,13 @@ export function ErrorTileMesh({ record }: { record: ErrorTileRecord }) {
   return (
     <group>
       <mesh
-        position={[cx, cy, z]}
+        position={[center.x, center.y, center.z]}
         onPointerOver={handlePointerOver}
         onPointerMove={handlePointerMove}
         onPointerOut={handlePointerOut}
         onClick={handleClick}
       >
-        <planeGeometry args={[w, h]} />
+        <planeGeometry args={size} />
         <meshBasicMaterial color={mat.color} transparent opacity={mat.opacity} depthWrite={false} />
       </mesh>
       <primitive object={outline} />

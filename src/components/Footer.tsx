@@ -1,3 +1,4 @@
+import { Math as CesiumMath } from 'cesium';
 import { useEffect, useState } from 'react';
 import { useViewer } from '../cesium/viewerStore';
 import { EMPTY_VALUE } from '../constants';
@@ -32,7 +33,7 @@ export function Footer() {
       }
 
       const carto = viewer.camera.positionCartographic;
-      let rollDeg = (viewer.camera.roll * 180) / Math.PI;
+      let rollDeg = CesiumMath.toDegrees(viewer.camera.roll);
 
       lastUpdate = now;
 
@@ -42,10 +43,10 @@ export function Footer() {
 
       setPose({
         height: carto.height,
-        lon: (carto.longitude * 180) / Math.PI,
-        lat: (carto.latitude * 180) / Math.PI,
-        heading: (viewer.camera.heading * 180) / Math.PI,
-        pitch: (viewer.camera.pitch * 180) / Math.PI,
+        lon: CesiumMath.toDegrees(carto.longitude),
+        lat: CesiumMath.toDegrees(carto.latitude),
+        heading: CesiumMath.toDegrees(viewer.camera.heading),
+        pitch: CesiumMath.toDegrees(viewer.camera.pitch),
         roll: rollDeg,
       });
     };
