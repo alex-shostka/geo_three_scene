@@ -1,7 +1,8 @@
 import { Cartographic, type UrlTemplateImageryProvider, type Viewer } from 'cesium';
 import { useCallback, useRef, useState } from 'react';
-import type { Group } from 'three';
-import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { collectUserData, type UserDataEntry } from '../lib/collectUserData';
+import { disposeGltf } from '../lib/disposeGltf';
 import { parseStructuralMetadata } from '../lib/parseStructuralMetadata';
 import { rectRadiansToDegrees } from '../lib/tileGeometry';
 import { tileKey } from '../lib/tileKey';
@@ -9,13 +10,10 @@ import { buildTileUrl, GLB_TILES_URL_TEMPLATE } from '../lib/tileUrl';
 import type { GlbMetadata, GlbTileInfo } from '../types';
 
 export interface GlbEntry {
-  gltf: GLTF;
-  model: Group;
   info: GlbTileInfo;
   metadata: GlbMetadata | null;
+  userData: UserDataEntry[];
 }
-
-export const GLB_TILE_INFO_KEY = 'glbTileInfo';
 
 const GLB_LEVELS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 
@@ -46,12 +44,13 @@ export function useGlbTiles(localTiles: UrlTemplateImageryProvider) {
       loader.load(
         info.url,
         async (gltf) => {
-          gltf.scene.userData[GLB_TILE_INFO_KEY] = info;
-
           const metadata = await parseStructuralMetadata(gltf);
+          const userData = metadata ? [] : collectUserData(gltf.scene);
 
-          loadedGlbs.set(key, { gltf, model: gltf.scene, info, metadata });
+          disposeGltf(gltf);
+          loadedGlbs.set(key, { info, metadata, userData });
         },
+
         undefined,
         () => {
           loadedGlbs.delete(key);

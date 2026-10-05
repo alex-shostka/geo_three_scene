@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { geoToScene, LEVEL_DEPTH } from '../lib/tileGeometry';
 import type { TileBounds } from '../types';
@@ -18,6 +18,13 @@ export function useTileShape(
 
     return new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: outlineColor }));
   }, [west, east, south, north, level, outlineColor]);
+
+  useEffect(() => {
+    return () => {
+      outline.geometry.dispose();
+      outline.material.dispose();
+    };
+  }, [outline]);
 
   return {
     outline,

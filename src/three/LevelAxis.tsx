@@ -1,5 +1,5 @@
 import { Text } from '@react-three/drei';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { LEVEL_DEPTH, levelColor } from '../lib/tileGeometry';
 import { useAppSelector } from '../store/hooks';
@@ -9,7 +9,7 @@ interface Tick {
   level: number;
   z: number;
   color: number;
-  line: THREE.Line;
+  line: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
 }
 
 export function LevelAxis() {
@@ -79,6 +79,19 @@ export function LevelAxis() {
 
     return { axisX, axisY, tickLength, spine, ticks };
   }, [tiles]);
+
+  useEffect(() => {
+    if (!layout) {
+      return;
+    }
+
+    return () => {
+      [layout.spine, ...layout.ticks.map((tick) => tick.line)].forEach((line) => {
+        line.geometry.dispose();
+        line.material.dispose();
+      });
+    };
+  }, [layout]);
 
   if (!layout) {
     return null;

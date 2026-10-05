@@ -24,8 +24,8 @@ import { buildTileUrl } from '../lib/tileUrl';
 import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
 import { selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe } from '../store/settingsSlice';
 import {
-  addActiveTiles,
   addErrorTile,
+  replaceActiveTiles,
   selectFirstActiveTile,
   selectHoveredRecord,
   setFocusBounds,
@@ -35,7 +35,7 @@ import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
 import { AMSTERDAM, createLocalTilesProvider, HOME_HEIGHT } from './cesiumConfig';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useDoomTile } from './useDoomTile';
-import { GLB_TILE_INFO_KEY, useGlbTiles, type GlbEntry } from './useGlbTiles';
+import { useGlbTiles, type GlbEntry } from './useGlbTiles';
 import { setViewer } from './viewerStore';
 
 const NO_GLB_MESSAGE = 'No GLB loaded for this point';
@@ -214,23 +214,8 @@ export function CesiumGlobe() {
           rows: Object.entries(best.metadata).map(([k, v]) => [k, formatMetadataValue(k, v)]),
         });
       } else {
-        const seen = new Set<string>();
-
-        best.model.traverse((obj) => {
-          const entries = Object.entries(obj.userData).filter(([k]) => k !== GLB_TILE_INFO_KEY);
-
-          if (!entries.length) {
-            return;
-          }
-
-          const dedupeKey = JSON.stringify(obj.userData);
-
-          if (seen.has(dedupeKey)) {
-            return;
-          }
-
-          seen.add(dedupeKey);
-          sections.push({ rows: entries.map(([k, v]) => [k, formatMetadataValue(k, v)]) });
+        best.userData.forEach((entry) => {
+          sections.push({ rows: Object.entries(entry).map(([k, v]) => [k, formatMetadataValue(k, v)]) });
         });
       }
 
@@ -306,7 +291,7 @@ export function CesiumGlobe() {
         };
       });
 
-      dispatch(addActiveTiles(records));
+      dispatch(replaceActiveTiles(records));
       dispatch(setFocusBounds(computeFocusBounds(renderedTiles)));
 
       if (selectGlbTiles(store.getState())) {

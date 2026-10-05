@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { ACTIVE_TILE, ERROR_TILE } from '../constants';
-import type { FocusBounds, HoveredTile, TileRecord } from '../types';
+import type { ActiveTileRecord, FocusBounds, HoveredTile, TileRecord } from '../types';
 import { setActiveTilesOnScene } from './settingsSlice';
 
 const tilesAdapter = createEntityAdapter({
@@ -80,7 +80,18 @@ export const tilesSlice = createSlice({
   initialState,
   reducers: {
     addErrorTile: tilesAdapter.addOne,
-    addActiveTiles: tilesAdapter.addMany,
+    replaceActiveTiles(state, action: PayloadAction<ActiveTileRecord[]>) {
+      const nextKeys = new Set(action.payload.map((tile) => tile.key));
+      const staleKeys = state.ids.filter((key) => state.entities[key].type === ACTIVE_TILE && !nextKeys.has(key));
+
+      tilesAdapter.removeMany(state, staleKeys);
+      tilesAdapter.addMany(state, action.payload);
+
+      if (state.hoveredTile?.type === ACTIVE_TILE && !nextKeys.has(state.hoveredTile.key)) {
+        state.hoveredTile = null;
+      }
+    },
+
     setHoveredTile(state, action: PayloadAction<HoveredTile | null>) {
       state.hoveredTile = action.payload;
     },
@@ -112,7 +123,7 @@ export const tilesSlice = createSlice({
   },
 });
 
-export const { addErrorTile, addActiveTiles, setHoveredTile, setFocusBounds } = tilesSlice.actions;
+export const { addErrorTile, replaceActiveTiles, setHoveredTile, setFocusBounds } = tilesSlice.actions;
 
 export const {
   selectAllTiles,

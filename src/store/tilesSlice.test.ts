@@ -3,8 +3,8 @@ import type { ActiveTileRecord, ErrorTileRecord } from '../types';
 import { makeStore } from './index';
 import { setActiveTilesOnScene } from './settingsSlice';
 import {
-  addActiveTiles,
   addErrorTile,
+  replaceActiveTiles,
   selectAllTiles,
   selectErrorCount,
   selectHoveredTile,
@@ -37,23 +37,43 @@ const activeTile = (key: string, level = 10): ActiveTileRecord => ({
 });
 
 describe('tiles', () => {
-  it('ignores tiles that are already stored', () => {
+  it('replaces active tiles with the current view', () => {
     const store = makeStore();
 
-    store.dispatch(addActiveTiles([activeTile('10/1/1'), activeTile('10/1/2')]));
-    store.dispatch(addActiveTiles([activeTile('10/1/1')]));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/1'), activeTile('10/1/2')]));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/2'), activeTile('10/1/3')]));
 
-    expect(selectAllTiles(store.getState())).toHaveLength(2);
+    expect(selectAllTiles(store.getState()).map((tile) => tile.key)).toEqual(['10/1/2', '10/1/3']);
+  });
+
+  it('keeps error tiles when active tiles are replaced', () => {
+    const store = makeStore();
+
+    store.dispatch(addErrorTile(errorTile('err:10/1/1')));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/1')]));
+    store.dispatch(replaceActiveTiles([]));
+
+    expect(selectAllTiles(store.getState()).map((tile) => tile.key)).toEqual(['err:10/1/1']);
+  });
+
+  it('clears hover when the hovered active tile leaves the view', () => {
+    const store = makeStore();
+
+    store.dispatch(replaceActiveTiles([activeTile('10/1/1')]));
+    store.dispatch(setHoveredTile({ type: 'active', key: '10/1/1' }));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/2')]));
+
+    expect(selectHoveredTile(store.getState())).toBeNull();
   });
 
   it('keeps state identity when nothing new is added', () => {
     const store = makeStore();
 
-    store.dispatch(addActiveTiles([activeTile('10/1/1')]));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/1')]));
 
     const before = store.getState().tiles;
 
-    store.dispatch(addActiveTiles([activeTile('10/1/1')]));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/1')]));
 
     expect(store.getState().tiles).toBe(before);
   });
@@ -62,7 +82,7 @@ describe('tiles', () => {
     const store = makeStore();
 
     store.dispatch(addErrorTile(errorTile('err:10/1/1')));
-    store.dispatch(addActiveTiles([activeTile('10/1/1')]));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/1')]));
 
     expect(selectErrorCount(store.getState())).toBe(1);
   });
@@ -70,7 +90,7 @@ describe('tiles', () => {
   it('counts tiles per level, sorted by level', () => {
     const store = makeStore();
 
-    store.dispatch(addActiveTiles([activeTile('12/1/1', 12), activeTile('10/1/1', 10), activeTile('12/1/2', 12)]));
+    store.dispatch(replaceActiveTiles([activeTile('12/1/1', 12), activeTile('10/1/1', 10), activeTile('12/1/2', 12)]));
 
     expect(selectLevelCounts(store.getState())).toEqual([
       { level: 10, count: 1 },
@@ -82,13 +102,13 @@ describe('tiles', () => {
     const store = makeStore();
 
     store.dispatch(
-      addActiveTiles([
+      replaceActiveTiles([
         { ...activeTile('10/1/1'), west: 0, east: 1, south: 0, north: 1 },
         { ...activeTile('10/2/1'), west: 1, east: 2, south: 0, north: 1 },
+        activeTile('12/1/1', 12),
       ]),
     );
     store.dispatch(addErrorTile({ ...errorTile('err:10/1/2'), west: 0, east: 1, south: -1, north: 0 }));
-    store.dispatch(addActiveTiles([activeTile('12/1/1', 12)]));
 
     expect(selectLevelStats(store.getState())).toEqual([
       { level: 10, loaded: 2, errors: 1, west: 0, east: 2, south: -1, north: 1 },
@@ -99,7 +119,7 @@ describe('tiles', () => {
   it('returns the same stats array while tiles are unchanged', () => {
     const store = makeStore();
 
-    store.dispatch(addActiveTiles([activeTile('10/1/1')]));
+    store.dispatch(replaceActiveTiles([activeTile('10/1/1')]));
 
     expect(selectLevelStats(store.getState())).toBe(selectLevelStats(store.getState()));
   });
