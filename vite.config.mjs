@@ -24,6 +24,22 @@ const TRANSPARENT_PNG = Buffer.from(
 const ERROR_TILES = new Set(['10/525/336', '10/527/337']);
 
 export default defineConfig({
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: 'cesium', test: /node_modules[\\/]@?cesium/ },
+            { name: 'three', test: /node_modules[\\/](three|@react-three)/ },
+            {
+              name: 'react',
+              test: /node_modules[\\/](react|react-dom|scheduler|react-redux|@reduxjs|redux|immer|reselect)[\\/]/,
+            },
+          ],
+        },
+      },
+    },
+  },
   define: {
     CESIUM_BASE_URL: JSON.stringify('/cesium'),
   },
@@ -31,10 +47,11 @@ export default defineConfig({
     react(),
     viteStaticCopy({
       targets: [
-        { src: 'node_modules/cesium/Build/CesiumUnminified/Assets', dest: 'cesium' },
-        { src: 'node_modules/cesium/Build/CesiumUnminified/Workers', dest: 'cesium' },
-        { src: 'node_modules/cesium/Build/CesiumUnminified/ThirdParty', dest: 'cesium' },
-        { src: 'node_modules/cesium/Build/CesiumUnminified/Widgets', dest: 'cesium' },
+        {
+          src: 'node_modules/cesium/Build/Cesium/{Assets,ThirdParty,Widgets,Workers}',
+          dest: 'cesium',
+          rename: { stripBase: 4 },
+        },
       ],
     }),
     {

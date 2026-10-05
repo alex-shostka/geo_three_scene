@@ -3,8 +3,6 @@ import { LOCAL_TILES_URL_TEMPLATE } from '../lib/tileUrl';
 
 const ionToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
 
-window.CESIUM_BASE_URL = '/cesium';
-
 if (ionToken) {
   Ion.defaultAccessToken = ionToken;
 }
