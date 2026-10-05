@@ -145,29 +145,29 @@ DOOM and its emulator load from the js-dos CDN when the game starts, so that fea
 - ✅ **Move state to Redux Toolkit.** The nested React Context providers were replaced with a Redux Toolkit store split into `settings`, `tiles` and `ui` slices, and the Cesium viewer moved to a small external store read with `useSyncExternalStore`.
 - ✅ **Set up code quality tooling.** Prettier with import and CSS property sorting, Stylelint, and a pre-commit hook with husky and lint-staged. `npm run madge` checks for circular imports and `npm run jscpd` finds copy-paste.
 - ✅ **Handle failures gracefully.** An error boundary shows a full-screen message with a reload button, with a separate message when WebGL is unavailable. The Three.js overlay has its own boundary, so a crash there leaves the globe running.
+- ✅ **Split the bundle.** Cesium, Three.js and React are built into separate chunks, so a UI change only invalidates the small app chunk. Cesium workers and assets are copied from the minified build of the installed package instead of a stale committed copy.
 
 ### Stability and performance
 
 1. **Keep memory flat in long sessions.** Today every tile ever loaded stays in the store and in the overlay, and GLB tiles keep their full geometry. Replace active tiles on each load cycle instead of accumulating them, and keep only the parsed metadata of GLB tiles.
 2. **Reduce reliance on Cesium internals.** The list of rendered tiles comes from a private Cesium field. Pin the exact Cesium version and add a smoke test that fails if an upgrade breaks it.
-3. **Split the bundle.** Move Cesium and Three.js into separate chunks, lazy-load the overlay and panels, and ship the minified Cesium build instead of the unminified one.
-4. **Self-host the DOOM emulator.** Serve js-dos and the game bundle from the app instead of loading the latest version from a third-party CDN.
+3. **Self-host the DOOM emulator.** Serve js-dos and the game bundle from the app instead of loading the latest version from a third-party CDN.
 
 ### Code quality
 
-5. **Break up `CesiumGlobe`.** Split the single large effect into focused hooks for the viewer, tile tracking, GLB hover and the tile card.
-6. **Add linting.** Add Oxlint with React hooks rules now. ESLint with typescript-eslint can follow once it supports TypeScript 7.
-7. **Extend test coverage.** Add unit tests for the pure helpers in `src/lib` and a Playwright smoke test that checks the globe loads tiles.
-8. **Add CI.** Run type-checking, tests, formatting, Stylelint, circular import checks and the build on every push with GitHub Actions.
+4. **Break up `CesiumGlobe`.** Split the single large effect into focused hooks for the viewer, tile tracking, GLB hover and the tile card.
+5. **Add linting.** Add Oxlint with React hooks rules now. ESLint with typescript-eslint can follow once it supports TypeScript 7.
+6. **Extend test coverage.** Add unit tests for the pure helpers in `src/lib` and a Playwright smoke test that checks the globe loads tiles.
+7. **Add CI.** Run type-checking, tests, formatting, Stylelint, circular import checks and the build on every push with GitHub Actions.
 
 ### Features and infrastructure
 
-9. **Move tiles out of git.** Store the map and GLB tiles in Git LFS or object storage to keep the repository small.
-10. **Simulate errors in production.** Let the deployed build fail chosen tiles too, for example through a `?errorTiles=` URL parameter, so the demo behaves the same as the dev server.
-11. **Share views by URL.** Keep the camera position in the URL so a link opens the same view.
-12. **Add a real backend.** One option is Firebase for the API and tile storage. The other is a custom geo server built with PostGIS and Python.
-13. **Explore 3D spatial data.** Try spatial meshes, point clouds and LIDAR data.
-14. **Go deeper into Three.js and React Three Fiber.**
+8. **Move tiles out of git.** Store the map and GLB tiles in Git LFS or object storage to keep the repository small.
+9. **Simulate errors in production.** Let the deployed build fail chosen tiles too, for example through a `?errorTiles=` URL parameter, so the demo behaves the same as the dev server.
+10. **Share views by URL.** Keep the camera position in the URL so a link opens the same view.
+11. **Add a real backend.** One option is Firebase for the API and tile storage. The other is a custom geo server built with PostGIS and Python.
+12. **Explore 3D spatial data.** Try spatial meshes, point clouds and LIDAR data.
+13. **Go deeper into Three.js and React Three Fiber.**
 
 ## Disclaimer
 
