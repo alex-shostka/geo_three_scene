@@ -142,9 +142,11 @@ It shows a progress bar with counts of downloaded (`✓`), skipped (`↷`) and f
 
 - ✅ **Move state to Redux Toolkit.** The nested React Context providers were replaced with a Redux Toolkit store split into `settings`, `tiles` and `ui` slices, and the Cesium viewer moved to a small external store read with `useSyncExternalStore`.
 - ✅ **Set up code quality tooling.** Prettier with import and CSS property sorting, Stylelint, and a pre-commit hook with husky and lint-staged. `npm run madge` checks for circular imports and `npm run jscpd` finds copy-paste.
+- ✅ **Remove duplicated code.** Degree conversions use Cesium and Three.js helpers, the point-in-bounds check and tile/drag logic are shared, and `npm run jscpd` reports no clones.
 - ✅ **Handle failures gracefully.** An error boundary shows a full-screen message with a reload button, with a separate message when WebGL is unavailable. The Three.js overlay has its own boundary, so a crash there leaves the globe running.
 - ✅ **Split the bundle.** Cesium, Three.js and React are built into separate chunks, so a UI change only invalidates the small app chunk. Cesium workers and assets are copied from the minified build of the installed package instead of a stale committed copy.
 - ✅ **Keep memory flat in long sessions.** The store keeps only the tiles currently on screen instead of every tile ever loaded, and failed tiles stay as a session log. GLB tiles keep only their parsed metadata, and their decoded textures are released right after loading. The overlay disposes the Three.js geometry of tiles that leave the view.
+- ✅ **Remove Cesium Ion.** The app never used Ion services, so the access token and its env variable were removed. The globe needs no account or API key.
 - ✅ **Self-host DOOM.** The js-dos emulator is installed from npm at a pinned version and copied into the build, and the game bundle is served from `public/doom`. Nothing loads from a third-party CDN, so the game also works offline.
 - ✅ **Drop Google Analytics.** Visits are counted only by Vercel Analytics, which uses no cookies. Vercel Analytics and Speed Insights load only in the production build, so local development sends nothing.
 
