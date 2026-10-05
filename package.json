@@ -30,6 +30,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "cesium": "^1.141.0",
+    "emulators": "8.5.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-redux": "^9.3.0",

@@ -52,6 +52,11 @@ export default defineConfig({
           dest: 'cesium',
           rename: { stripBase: 4 },
         },
+        {
+          src: 'node_modules/emulators/dist/{emulators.js,wdosbox.js,wdosbox.wasm}',
+          dest: 'emulators',
+          rename: { stripBase: 3 },
+        },
       ],
     }),
     {

@@ -1,5 +1,5 @@
-const EMULATORS_SCRIPT_URL = 'https://v8.js-dos.com/latest/emulators/emulators.js';
-const EMULATORS_PATH_PREFIX = 'https://v8.js-dos.com/latest/emulators/';
+const EMULATORS_SCRIPT_URL = '/emulators/emulators.js';
+const EMULATORS_PATH_PREFIX = '/emulators/';
 
 export interface CommandInterfaceEvents {
   onFrameSize: (consumer: (width: number, height: number) => void) => void;
