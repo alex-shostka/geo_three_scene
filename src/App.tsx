@@ -31,8 +31,12 @@ export function App() {
       <TileCard />
       <MapControls />
       <Footer />
-      <Analytics />
-      <SpeedInsights />
+      {import.meta.env.PROD && (
+        <>
+          <Analytics />
+          <SpeedInsights />
+        </>
+      )}
     </>
   );
 }
