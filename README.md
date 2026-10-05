@@ -22,7 +22,7 @@ The overlay stacks tiles by zoom level. Each level sits on its own plane, and a 
 ### Globe tools
 
 - **Tile grid on globe** draws Cesium's tile boundaries and `z/x/y` labels on top of the map.
-- **GLB tiles (3D)** loads matching glTF tiles from `public/tiles_glb`. They're used only as a data source and are never rendered. With **Enable GLB metadata** on, clicking the globe opens a card with the tile's properties, read from the glTF `EXT_structural_metadata` extension.
+- **GLB tiles (3D)** loads matching glTF tiles from `public/tiles_glb_meta_ext`. They're used only as a data source and are never rendered. With **Enable GLB metadata** on, clicking the globe opens a card with the tile's properties, read from the glTF `EXT_structural_metadata` extension.
 - **Map controls** in the corner reset the view and zoom in or out. Gauges show the camera's heading, pitch, roll, longitude and latitude. The footer shows the camera height, the current level of detail and the number of error tiles.
 
 ### Panels
@@ -76,7 +76,7 @@ cd GEO_THREE_SCENE
 npm install
 ```
 
-The map tiles, GLB tiles and Cesium static assets are already in `public/`, so you don't need to download anything else.
+The map tiles, GLB tiles and the DOOM bundle are already in `public/`, so you don't need to download anything else.
 
 ### Run
 
@@ -87,7 +87,7 @@ npm run dev       # dev server at http://localhost:5173
 ### Test
 
 ```bash
-npm test          # unit tests for the Redux slices (Vitest, watch mode)
+npm test          # unit tests for the Redux slices and helpers (Vitest, watch mode)
 ```
 
 ### Build
