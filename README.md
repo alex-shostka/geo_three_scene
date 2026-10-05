@@ -12,7 +12,7 @@ The main view is a Cesium globe centered on Amsterdam. It draws OpenStreetMap ra
 
 ### Tile overlay
 
-The overlay stacks tiles by zoom level. Each level sits on its own plane, and a labeled depth axis marks the zoom level of each plane. Tiles that failed to load are always shown. Successfully loaded tiles are shown when **Active tiles in scene** is on.
+The overlay stacks tiles by zoom level. Each level sits on its own plane, and a labeled depth axis marks the zoom level of each plane. Successfully loaded tiles reflect what the globe is drawing right now and are shown when **Active tiles in scene** is on. Tiles that failed to load are kept for the whole session and are always shown.
 
 - **Hover** a tile in the overlay to highlight the same area on the globe. A tooltip shows the tile's `z/x/y`, URL, error message, bounds and size in kilometers.
 - **Click** a tile to fly the camera to it, if **Fly to tile on click** is on.
@@ -27,7 +27,7 @@ The overlay stacks tiles by zoom level. Each level sits on its own plane, and a 
 
 ### Panels
 
-- **Analytics** lists loaded and failed tiles for each zoom level. Click a row to fly to the area covered by that level.
+- **Analytics** lists the tiles currently on screen and all failed tiles for each zoom level. Click a row to fly to the area covered by that level.
 - **Network** shows Core Web Vitals for the page (FCP, LCP, INP, CLS, TTFB) with their ratings. For LCP, INP and CLS it can point to the page element that caused the value.
 
 ### DOOM on a tile
@@ -146,28 +146,28 @@ DOOM and its emulator load from the js-dos CDN when the game starts, so that fea
 - ✅ **Set up code quality tooling.** Prettier with import and CSS property sorting, Stylelint, and a pre-commit hook with husky and lint-staged. `npm run madge` checks for circular imports and `npm run jscpd` finds copy-paste.
 - ✅ **Handle failures gracefully.** An error boundary shows a full-screen message with a reload button, with a separate message when WebGL is unavailable. The Three.js overlay has its own boundary, so a crash there leaves the globe running.
 - ✅ **Split the bundle.** Cesium, Three.js and React are built into separate chunks, so a UI change only invalidates the small app chunk. Cesium workers and assets are copied from the minified build of the installed package instead of a stale committed copy.
+- ✅ **Keep memory flat in long sessions.** The store keeps only the tiles currently on screen instead of every tile ever loaded, and failed tiles stay as a session log. GLB tiles keep only their parsed metadata, and their decoded textures are released right after loading. The overlay disposes the Three.js geometry of tiles that leave the view.
 
 ### Stability and performance
 
-1. **Keep memory flat in long sessions.** Today every tile ever loaded stays in the store and in the overlay, and GLB tiles keep their full geometry. Replace active tiles on each load cycle instead of accumulating them, and keep only the parsed metadata of GLB tiles.
-2. **Reduce reliance on Cesium internals.** The list of rendered tiles comes from a private Cesium field. Pin the exact Cesium version and add a smoke test that fails if an upgrade breaks it.
-3. **Self-host the DOOM emulator.** Serve js-dos and the game bundle from the app instead of loading the latest version from a third-party CDN.
+1. **Reduce reliance on Cesium internals.** The list of rendered tiles comes from a private Cesium field. Pin the exact Cesium version and add a smoke test that fails if an upgrade breaks it.
+2. **Self-host the DOOM emulator.** Serve js-dos and the game bundle from the app instead of loading the latest version from a third-party CDN.
 
 ### Code quality
 
-4. **Break up `CesiumGlobe`.** Split the single large effect into focused hooks for the viewer, tile tracking, GLB hover and the tile card.
-5. **Add linting.** Add Oxlint with React hooks rules now. ESLint with typescript-eslint can follow once it supports TypeScript 7.
-6. **Extend test coverage.** Add unit tests for the pure helpers in `src/lib` and a Playwright smoke test that checks the globe loads tiles.
-7. **Add CI.** Run type-checking, tests, formatting, Stylelint, circular import checks and the build on every push with GitHub Actions.
+3. **Break up `CesiumGlobe`.** Split the single large effect into focused hooks for the viewer, tile tracking, GLB hover and the tile card.
+4. **Add linting.** Add Oxlint with React hooks rules now. ESLint with typescript-eslint can follow once it supports TypeScript 7.
+5. **Extend test coverage.** Add unit tests for the pure helpers in `src/lib` and a Playwright smoke test that checks the globe loads tiles.
+6. **Add CI.** Run type-checking, tests, formatting, Stylelint, circular import checks and the build on every push with GitHub Actions.
 
 ### Features and infrastructure
 
-8. **Move tiles out of git.** Store the map and GLB tiles in Git LFS or object storage to keep the repository small.
-9. **Simulate errors in production.** Let the deployed build fail chosen tiles too, for example through a `?errorTiles=` URL parameter, so the demo behaves the same as the dev server.
-10. **Share views by URL.** Keep the camera position in the URL so a link opens the same view.
-11. **Add a real backend.** One option is Firebase for the API and tile storage. The other is a custom geo server built with PostGIS and Python.
-12. **Explore 3D spatial data.** Try spatial meshes, point clouds and LIDAR data.
-13. **Go deeper into Three.js and React Three Fiber.**
+7. **Move tiles out of git.** Store the map and GLB tiles in Git LFS or object storage to keep the repository small.
+8. **Simulate errors in production.** Let the deployed build fail chosen tiles too, for example through a `?errorTiles=` URL parameter, so the demo behaves the same as the dev server.
+9. **Share views by URL.** Keep the camera position in the URL so a link opens the same view.
+10. **Add a real backend.** One option is Firebase for the API and tile storage. The other is a custom geo server built with PostGIS and Python.
+11. **Explore 3D spatial data.** Try spatial meshes, point clouds and LIDAR data.
+12. **Go deeper into Three.js and React Three Fiber.**
 
 ## Disclaimer
 
