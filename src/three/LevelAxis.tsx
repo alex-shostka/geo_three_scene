@@ -20,10 +20,10 @@ export function LevelAxis() {
       return null;
     }
 
-    let west = Infinity,
-      east = -Infinity,
-      south = Infinity,
-      north = -Infinity;
+    let west = Infinity;
+    let east = -Infinity;
+    let south = Infinity;
+    let north = -Infinity;
     const levels = new Set<number>();
 
     tiles.forEach((tile) => {

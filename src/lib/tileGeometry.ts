@@ -39,12 +39,12 @@ export function computeFocusBounds(tiles: CesiumTileLike[]): FocusBounds | null 
     return null;
   }
 
-  let minLon = Infinity,
-    maxLon = -Infinity;
-  let minLat = Infinity,
-    maxLat = -Infinity;
-  let minLevel = Infinity,
-    maxLevel = -Infinity;
+  let minLon = Infinity;
+  let maxLon = -Infinity;
+  let minLat = Infinity;
+  let maxLat = -Infinity;
+  let minLevel = Infinity;
+  let maxLevel = -Infinity;
 
   tiles.forEach((tile) => {
     const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
@@ -87,10 +87,10 @@ export function computeLevelFocusBounds(
   tiles: Iterable<TileBounds & { level: number }>,
   level: number,
 ): FocusBounds | null {
-  let west = Infinity,
-    east = -Infinity;
-  let south = Infinity,
-    north = -Infinity;
+  let west = Infinity;
+  let east = -Infinity;
+  let south = Infinity;
+  let north = -Infinity;
   let found = false;
 
   for (const tile of tiles) {
