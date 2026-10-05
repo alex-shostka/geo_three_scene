@@ -146,6 +146,7 @@ It shows a progress bar with counts of downloaded (`✓`), skipped (`↷`) and f
 - ✅ **Split the bundle.** Cesium, Three.js and React are built into separate chunks, so a UI change only invalidates the small app chunk. Cesium workers and assets are copied from the minified build of the installed package instead of a stale committed copy.
 - ✅ **Keep memory flat in long sessions.** The store keeps only the tiles currently on screen instead of every tile ever loaded, and failed tiles stay as a session log. GLB tiles keep only their parsed metadata, and their decoded textures are released right after loading. The overlay disposes the Three.js geometry of tiles that leave the view.
 - ✅ **Self-host DOOM.** The js-dos emulator is installed from npm at a pinned version and copied into the build, and the game bundle is served from `public/doom`. Nothing loads from a third-party CDN, so the game also works offline.
+- ✅ **Drop Google Analytics.** Visits are counted only by Vercel Analytics, which uses no cookies. Vercel Analytics and Speed Insights load only in the production build, so local development sends nothing.
 
 ### Stability and performance
 
