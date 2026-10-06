@@ -6,3 +6,12 @@ export const ERROR_TILE = 'error';
 export const ACTIVE_TILE = 'active';
 
 export const EMPTY_VALUE = '—';
+
+export const DOOM_PHASE = {
+  IDLE: 'idle',
+  LOADING_EMULATOR: 'loadingEmulator',
+  DOWNLOADING: 'downloading',
+  STARTING: 'starting',
+  RUNNING: 'running',
+  ERROR: 'error',
+} as const;

@@ -12,6 +12,7 @@ import {
   setTileGridOnGlobe,
 } from '../store/settingsSlice';
 import { selectIsPanelOpen } from '../store/uiSlice';
+import { DoomStatusHint } from './DoomStatusHint';
 import { SettingsToggleItem } from './SettingsToggleItem';
 import { Panel } from './ui/Panel';
 
@@ -58,6 +59,7 @@ export function SidePanel() {
           onChange={(v) => dispatch(setShowTooltips(v))}
         />
         <SettingsToggleItem label="Play DOOM" checked={settings.playDoom} onChange={(v) => dispatch(setPlayDoom(v))} />
+        <DoomStatusHint />
       </ul>
     </Panel>
   );

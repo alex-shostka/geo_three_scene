@@ -13,7 +13,7 @@ import {
   type Entity,
   type TileProviderError,
 } from 'cesium';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ACTIVE_TILE, ERROR_TILE } from '../constants';
 import { containsPoint } from '../lib/containsPoint';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
@@ -22,16 +22,10 @@ import { computeFocusBounds, levelColor, rectRadiansToDegrees } from '../lib/til
 import { errorTileKey, tileKey } from '../lib/tileKey';
 import { buildTileUrl } from '../lib/tileUrl';
 import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
-import { selectGlbMetadata, selectGlbTiles, selectPlayDoom, selectTileGridOnGlobe } from '../store/settingsSlice';
-import {
-  addErrorTile,
-  replaceActiveTiles,
-  selectFirstActiveTile,
-  selectHoveredRecord,
-  setFocusBounds,
-} from '../store/tilesSlice';
+import { selectGlbMetadata, selectGlbTiles, selectTileGridOnGlobe } from '../store/settingsSlice';
+import { addErrorTile, replaceActiveTiles, selectHoveredRecord, setFocusBounds } from '../store/tilesSlice';
 import { openTileCard } from '../store/uiSlice';
-import type { ActiveTileRecord, TileBounds, TileCardSection } from '../types';
+import type { ActiveTileRecord, TileCardSection } from '../types';
 import { AMSTERDAM, createLocalTilesProvider, HOME_HEIGHT } from './cesiumConfig';
 import { getRenderedTiles, pickRenderedTile } from './pickRenderedTile';
 import { useDoomTile } from './useDoomTile';
@@ -49,11 +43,8 @@ export function CesiumGlobe() {
   const store = useAppStore();
   const tileGridOnGlobe = useAppSelector(selectTileGridOnGlobe);
   const glbTiles = useAppSelector(selectGlbTiles);
-  const playDoom = useAppSelector(selectPlayDoom);
 
   const hoveredRecord = useAppSelector(selectHoveredRecord);
-  const firstActiveTile = useAppSelector(selectFirstActiveTile);
-  const [doomTileBounds, setDoomTileBounds] = useState<TileBounds | null>(null);
 
   const dispatch = useAppDispatch();
 
@@ -360,22 +351,7 @@ export function CesiumGlobe() {
     hoverEntity.show = true;
   }, [hoveredRecord]);
 
-  useEffect(() => {
-    if (!playDoom) {
-      setDoomTileBounds(null);
-
-      return;
-    }
-
-    if (doomTileBounds) {
-      return;
-    }
-
-    if (firstActiveTile) {
-      setDoomTileBounds(firstActiveTile);
-    }
-  }, [playDoom, firstActiveTile, doomTileBounds]);
-  useDoomTile(viewerRef.current, doomTileBounds);
+  useDoomTile();
 
   return <div id="cesium-container" ref={containerRef} />;
 }

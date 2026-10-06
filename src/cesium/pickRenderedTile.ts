@@ -1,5 +1,7 @@
 import { Cartesian2, Cartographic, type Viewer } from 'cesium';
 import { containsPoint } from '../lib/containsPoint';
+import { rectRadiansToDegrees } from '../lib/tileGeometry';
+import type { TileBounds } from '../types';
 
 export interface QuadtreeTileLike {
   level: number;
@@ -37,4 +39,11 @@ export function pickRenderedTile(viewer: Viewer, offsetX: number, offsetY: numbe
   const tiles = getRenderedTiles(viewer);
 
   return tiles.find((tile) => containsPoint(tile.rectangle, cartographic.longitude, cartographic.latitude)) ?? null;
+}
+
+export function pickCenterTile(viewer: Viewer): TileBounds | null {
+  const { clientWidth, clientHeight } = viewer.canvas;
+  const tile = pickRenderedTile(viewer, clientWidth / 2, clientHeight / 2);
+
+  return tile ? rectRadiansToDegrees(tile.rectangle) : null;
 }

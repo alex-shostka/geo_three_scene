@@ -1,4 +1,4 @@
-import type { ACTIVE_TILE, ERROR_TILE } from './constants';
+import type { ACTIVE_TILE, DOOM_PHASE, ERROR_TILE } from './constants';
 
 export interface TileBounds {
   west: number;
@@ -53,4 +53,11 @@ export type GlbMetadata = Record<string, string | number | (string | number)[]>;
 
 export interface TileCardSection {
   rows: [string, string][];
+}
+
+export type DoomPhase = (typeof DOOM_PHASE)[keyof typeof DOOM_PHASE];
+
+export interface DoomStatus {
+  phase: DoomPhase;
+  progress: number | null;
 }
