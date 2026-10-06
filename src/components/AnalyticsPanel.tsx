@@ -6,6 +6,7 @@ import { useAppSelector } from '../store/hooks';
 import { selectLevelStats, type LevelStats } from '../store/tilesSlice';
 import { selectIsPanelOpen } from '../store/uiSlice';
 import { Panel } from './ui/Panel';
+import { StatsTable } from './ui/StatsTable';
 
 export function AnalyticsPanel() {
   const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));
@@ -37,32 +38,18 @@ export function AnalyticsPanel() {
 
   return (
     <Panel id={panelElementId(ANALYTICS_PANEL)} title="Analytics" open={analyticsOpen}>
-      <table className="stats-table">
-        <thead>
-          <tr>
-            <th>Level</th>
-            <th>Tiles loaded</th>
-            <th>Errors</th>
+      <StatsTable
+        columns={['Level', 'Tiles loaded', 'Errors']}
+        rows={levelStats}
+        emptyText="No tiles loaded yet"
+        renderRow={(stats) => (
+          <tr key={stats.level} className="stats-table-row" onClick={() => flyToLevel(stats)}>
+            <td>{stats.level}</td>
+            <td>{stats.loaded}</td>
+            <td className={stats.errors > 0 ? 'stats-table-error' : ''}>{stats.errors}</td>
           </tr>
-        </thead>
-        <tbody>
-          {levelStats.length === 0 ? (
-            <tr>
-              <td className="stats-table-empty" colSpan={3}>
-                No tiles loaded yet
-              </td>
-            </tr>
-          ) : (
-            levelStats.map((stats) => (
-              <tr key={stats.level} className="stats-table-row" onClick={() => flyToLevel(stats)}>
-                <td>{stats.level}</td>
-                <td>{stats.loaded}</td>
-                <td className={stats.errors > 0 ? 'stats-table-error' : ''}>{stats.errors}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+        )}
+      />
     </Panel>
   );
 }
