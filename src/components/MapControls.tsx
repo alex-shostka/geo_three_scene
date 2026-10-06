@@ -1,4 +1,7 @@
 import { Cartesian3 } from 'cesium';
+import HomeIcon from '../assets/icons/home.svg?react';
+import MinusIcon from '../assets/icons/minus.svg?react';
+import PlusIcon from '../assets/icons/plus.svg?react';
 import { AMSTERDAM, HOME_HEIGHT } from '../cesium/cesiumConfig';
 import { useViewer } from '../cesium/viewerStore';
 
@@ -37,28 +40,15 @@ export function MapControls() {
   return (
     <div id="map-controls">
       <button id="map-reset" aria-label="Reset view" onClick={resetView}>
-        <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true">
-          <path
-            d="M10 3 L17 9 V17 H12 V12 H8 V17 H3 V9 Z"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-        </svg>
+        <HomeIcon aria-hidden="true" />
       </button>
       <div id="map-zoom">
         <button className="map-zoom-btn" aria-label="Zoom in" onClick={() => zoomBy(ZOOM_IN_FACTOR)}>
-          <svg viewBox="0 0 20 20" width="13" height="13" aria-hidden="true">
-            <path d="M10 4 V16 M4 10 H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
+          <PlusIcon aria-hidden="true" />
         </button>
         <div className="map-zoom-divider" />
         <button className="map-zoom-btn" aria-label="Zoom out" onClick={() => zoomBy(ZOOM_OUT_FACTOR)}>
-          <svg viewBox="0 0 20 20" width="13" height="13" aria-hidden="true">
-            <path d="M4 10 H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
+          <MinusIcon aria-hidden="true" />
         </button>
       </div>
     </div>

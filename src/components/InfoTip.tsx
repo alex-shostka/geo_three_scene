@@ -1,5 +1,6 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
+import QuestionIcon from '../assets/icons/question.svg?react';
 import { useAppSelector } from '../store/hooks';
 import { selectShowTooltips } from '../store/settingsSlice';
 
@@ -50,12 +51,7 @@ export function InfoTip({ text }: InfoTipProps) {
       onFocus={show}
       onBlur={hide}
     >
-      <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
-        <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" strokeWidth="1.3" />
-        <text x="8" y="11.3" textAnchor="middle" fontSize="9" fill="currentColor">
-          ?
-        </text>
-      </svg>
+      <QuestionIcon aria-hidden="true" />
       {pos &&
         createPortal(
           <span

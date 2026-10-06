@@ -1,5 +1,6 @@
 import { Math as CesiumMath } from 'cesium';
 import { useEffect, useState } from 'react';
+import ChevronUpIcon from '../assets/icons/chevron-up.svg?react';
 import { useViewer } from '../cesium/viewerStore';
 import { EMPTY_VALUE } from '../constants';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
@@ -89,16 +90,7 @@ export function Footer() {
           aria-label={open ? 'Collapse footer' : 'Expand footer'}
           onClick={() => setOpen((v) => !v)}
         >
-          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
-            <path
-              d="M2 10 L8 4 L14 10"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ChevronUpIcon aria-hidden="true" />
         </button>
       </div>
       <div id="footer-content">
