@@ -1,20 +1,11 @@
 import AnalyticsIcon from '../assets/icons/analytics.svg?react';
 import { ANALYTICS_PANEL } from '../constants';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectIsPanelOpen, togglePanel } from '../store/uiSlice';
+import { PanelToggleButton } from './PanelToggleButton';
 
 export function AnalyticsButton() {
-  const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));
-  const dispatch = useAppDispatch();
-
   return (
-    <button
-      id="analytics-btn"
-      aria-label="Analytics"
-      aria-expanded={analyticsOpen}
-      onClick={() => dispatch(togglePanel(ANALYTICS_PANEL))}
-    >
+    <PanelToggleButton id="analytics-btn" panel={ANALYTICS_PANEL} label="Analytics">
       <AnalyticsIcon aria-hidden="true" />
-    </button>
+    </PanelToggleButton>
   );
 }

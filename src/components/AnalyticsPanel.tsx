@@ -1,9 +1,11 @@
 import { Rectangle } from 'cesium';
 import { useViewer } from '../cesium/viewerStore';
 import { ANALYTICS_PANEL } from '../constants';
+import { panelElementId } from '../lib/panelElementId';
 import { useAppSelector } from '../store/hooks';
 import { selectLevelStats, type LevelStats } from '../store/tilesSlice';
 import { selectIsPanelOpen } from '../store/uiSlice';
+import { Panel } from './ui/Panel';
 
 export function AnalyticsPanel() {
   const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));
@@ -34,38 +36,33 @@ export function AnalyticsPanel() {
   };
 
   return (
-    <aside id="analytics-panel" className={analyticsOpen ? 'open' : ''}>
-      <div id="analytics-panel-header">
-        <span id="analytics-panel-title">Analytics</span>
-      </div>
-      <div id="analytics-panel-content">
-        <table className="stats-table">
-          <thead>
+    <Panel id={panelElementId(ANALYTICS_PANEL)} title="Analytics" open={analyticsOpen}>
+      <table className="stats-table">
+        <thead>
+          <tr>
+            <th>Level</th>
+            <th>Tiles loaded</th>
+            <th>Errors</th>
+          </tr>
+        </thead>
+        <tbody>
+          {levelStats.length === 0 ? (
             <tr>
-              <th>Level</th>
-              <th>Tiles loaded</th>
-              <th>Errors</th>
+              <td className="stats-table-empty" colSpan={3}>
+                No tiles loaded yet
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {levelStats.length === 0 ? (
-              <tr>
-                <td className="stats-table-empty" colSpan={3}>
-                  No tiles loaded yet
-                </td>
+          ) : (
+            levelStats.map((stats) => (
+              <tr key={stats.level} className="stats-table-row" onClick={() => flyToLevel(stats)}>
+                <td>{stats.level}</td>
+                <td>{stats.loaded}</td>
+                <td className={stats.errors > 0 ? 'stats-table-error' : ''}>{stats.errors}</td>
               </tr>
-            ) : (
-              levelStats.map((stats) => (
-                <tr key={stats.level} className="stats-table-row" onClick={() => flyToLevel(stats)}>
-                  <td>{stats.level}</td>
-                  <td>{stats.loaded}</td>
-                  <td className={stats.errors > 0 ? 'stats-table-error' : ''}>{stats.errors}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </aside>
+            ))
+          )}
+        </tbody>
+      </table>
+    </Panel>
   );
 }

@@ -39,10 +39,10 @@ export function MapControls() {
 
   return (
     <div id="map-controls">
-      <button id="map-reset" aria-label="Reset view" onClick={resetView}>
+      <button id="map-reset" className="glass" aria-label="Reset view" onClick={resetView}>
         <HomeIcon aria-hidden="true" />
       </button>
-      <div id="map-zoom">
+      <div id="map-zoom" className="glass">
         <button className="map-zoom-btn" aria-label="Zoom in" onClick={() => zoomBy(ZOOM_IN_FACTOR)}>
           <PlusIcon aria-hidden="true" />
         </button>

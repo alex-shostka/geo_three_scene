@@ -174,35 +174,57 @@ body {
   color: #888;
 }
 
-/* ── Hamburger button ── */
-#menu-btn {
+/* ── Glass surface (floating buttons, map controls) ── */
+.glass {
+  backdrop-filter: blur(8px);
+  background: #fffffff2;
+  box-shadow: 0 2px 12px #0000002e;
+}
+
+/* ── Floating panel buttons (menu, analytics, network) ── */
+.float-btn {
   display: flex;
   z-index: 1100;
   position: fixed;
-  top: 16px;
   left: 16px;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
-  gap: 5px;
   border: none;
   border-radius: 10px;
-  backdrop-filter: blur(8px);
-  background: #fffffff2;
-  box-shadow: 0 2px 12px #0000002e;
+  color: #1a1a2e;
   cursor: pointer;
   transition:
     background 0.15s,
-    box-shadow 0.15s;
+    box-shadow 0.15s,
+    color 0.15s;
 }
 
-#menu-btn:hover {
+.float-btn:hover {
   background: #fff;
   box-shadow: 0 4px 20px #0000003d;
 }
 
+.float-btn[aria-expanded='true'] {
+  color: #3b82f6;
+}
+
+#menu-btn {
+  top: 16px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#analytics-btn {
+  top: 68px;
+}
+
+#network-btn {
+  top: 120px;
+}
+
+/* ── Hamburger lines ── */
 #menu-btn span {
   display: block;
   width: 20px;
@@ -226,172 +248,6 @@ body {
 
 #menu-btn[aria-expanded='true'] span:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
-}
-
-/* ── Analytics button ── */
-#analytics-btn {
-  display: flex;
-  z-index: 1100;
-  position: fixed;
-  top: 68px;
-  left: 16px;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 10px;
-  backdrop-filter: blur(8px);
-  background: #fffffff2;
-  box-shadow: 0 2px 12px #0000002e;
-  color: #1a1a2e;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    box-shadow 0.15s,
-    color 0.15s;
-}
-
-#analytics-btn:hover {
-  background: #fff;
-  box-shadow: 0 4px 20px #0000003d;
-}
-
-#analytics-btn[aria-expanded='true'] {
-  color: #3b82f6;
-}
-
-/* ── Network button ── */
-#network-btn {
-  display: flex;
-  z-index: 1100;
-  position: fixed;
-  top: 120px;
-  left: 16px;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: none;
-  border-radius: 10px;
-  backdrop-filter: blur(8px);
-  background: #fffffff2;
-  box-shadow: 0 2px 12px #0000002e;
-  color: #1a1a2e;
-  cursor: pointer;
-  transition:
-    background 0.15s,
-    box-shadow 0.15s,
-    color 0.15s;
-}
-
-#network-btn:hover {
-  background: #fff;
-  box-shadow: 0 4px 20px #0000003d;
-}
-
-#network-btn[aria-expanded='true'] {
-  color: #3b82f6;
-}
-
-/* ── Analytics panel ── */
-#analytics-panel {
-  display: flex;
-  z-index: 1099;
-  position: fixed;
-  top: 12px;
-  bottom: 46px;
-  left: 68px;
-  flex-direction: column;
-  width: 500px;
-  border: 1px solid #ffffffe5;
-  border-radius: 16px;
-  background: linear-gradient(160deg, #f5f6f8 0%, #eceef2 100%);
-  box-shadow:
-    0 2px 0 #fffc inset,
-    0 12px 48px #0000002e,
-    0 2px 8px #00000014;
-  clip-path: inset(0 0 100% 0 round 16px);
-  pointer-events: none;
-  transition: clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#analytics-panel.open {
-  clip-path: inset(0 0 0% 0 round 16px);
-  pointer-events: auto;
-}
-
-#analytics-panel-header {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  padding: 18px 20px;
-  border-bottom: 1px solid #00000012;
-}
-
-#analytics-panel-title {
-  color: #6b7280;
-  font-weight: 600;
-  font-size: 13px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-#analytics-panel-content {
-  flex: 1;
-  padding: 16px 12px;
-  overflow-y: auto;
-}
-
-/* ── Network panel ── */
-#network-panel {
-  display: flex;
-  z-index: 1099;
-  position: fixed;
-  top: 12px;
-  bottom: 46px;
-  left: 68px;
-  flex-direction: column;
-  width: 500px;
-  border: 1px solid #ffffffe5;
-  border-radius: 16px;
-  background: linear-gradient(160deg, #f5f6f8 0%, #eceef2 100%);
-  box-shadow:
-    0 2px 0 #fffc inset,
-    0 12px 48px #0000002e,
-    0 2px 8px #00000014;
-  clip-path: inset(0 0 100% 0 round 16px);
-  pointer-events: none;
-  transition: clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#network-panel.open {
-  clip-path: inset(0 0 0% 0 round 16px);
-  pointer-events: auto;
-}
-
-#network-panel-header {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  padding: 18px 20px;
-  border-bottom: 1px solid #00000012;
-}
-
-#network-panel-title {
-  color: #6b7280;
-  font-weight: 600;
-  font-size: 13px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-#network-panel-content {
-  flex: 1;
-  padding: 16px 12px;
-  overflow-y: auto;
 }
 
 /* ── Stats table ── */
@@ -491,9 +347,6 @@ body {
   height: 32px;
   border: none;
   border-radius: 8px;
-  backdrop-filter: blur(8px);
-  background: #fffffff2;
-  box-shadow: 0 2px 12px #0000002e;
   color: #1a1a2e;
   cursor: pointer;
   transition:
@@ -512,9 +365,6 @@ body {
   width: 32px;
   overflow: hidden;
   border-radius: 8px;
-  backdrop-filter: blur(8px);
-  background: #fffffff2;
-  box-shadow: 0 2px 12px #0000002e;
 }
 
 .map-zoom-btn {
@@ -540,8 +390,8 @@ body {
   background: #00000014;
 }
 
-/* ── Side panel ── */
-#side-panel {
+/* ── Panel (menu, analytics, network) ── */
+.panel {
   display: flex;
   z-index: 1099;
   position: fixed;
@@ -558,16 +408,14 @@ body {
     0 12px 48px #0000002e,
     0 2px 8px #00000014;
   clip-path: inset(0 0 100% 0 round 16px);
-  pointer-events: none;
   transition: clip-path 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#side-panel.open {
+.panel.open {
   clip-path: inset(0 0 0% 0 round 16px);
-  pointer-events: auto;
 }
 
-#side-panel-header {
+.panel-header {
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -575,7 +423,7 @@ body {
   border-bottom: 1px solid #00000012;
 }
 
-#side-panel-title {
+.panel-title {
   color: #6b7280;
   font-weight: 600;
   font-size: 13px;
@@ -584,7 +432,7 @@ body {
   text-transform: uppercase;
 }
 
-#side-panel-content {
+.panel-content {
   flex: 1;
   padding: 16px 12px;
   overflow-y: auto;
