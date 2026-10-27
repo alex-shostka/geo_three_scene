@@ -1,8 +1,8 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ANALYTICS_PANEL, MENU_PANEL, NETWORK_PANEL } from '../constants';
+import type { ANALYTICS_PANEL, BENCHMARK_PANEL, MENU_PANEL, NETWORK_PANEL } from '../constants';
 import type { ErrorTileRecord, TileCardSection } from '../types';
 
-export type PanelId = typeof MENU_PANEL | typeof ANALYTICS_PANEL | typeof NETWORK_PANEL;
+export type PanelId = typeof MENU_PANEL | typeof ANALYTICS_PANEL | typeof NETWORK_PANEL | typeof BENCHMARK_PANEL;
 
 export interface TileCardState {
   open: boolean;

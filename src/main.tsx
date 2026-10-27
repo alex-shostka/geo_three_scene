@@ -4,7 +4,9 @@ import { Provider } from 'react-redux';
 import { App } from './App';
 import { AppFallback } from './components/AppFallback';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { BENCHMARK_PANEL } from './constants';
 import { makeStore } from './store';
+import { togglePanel } from './store/uiSlice';
 
 const container = document.getElementById('root');
 
@@ -13,6 +15,10 @@ if (!container) {
 }
 
 const store = makeStore();
+
+if (new URLSearchParams(window.location.search).has('bench')) {
+  store.dispatch(togglePanel(BENCHMARK_PANEL));
+}
 
 createRoot(container).render(
   <Provider store={store}>

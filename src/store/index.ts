@@ -1,10 +1,11 @@
 import { combineSlices, configureStore } from '@reduxjs/toolkit';
+import { benchmarkSlice } from './benchmarkSlice';
 import { doomSlice } from './doomSlice';
 import { settingsSlice } from './settingsSlice';
 import { tilesSlice } from './tilesSlice';
 import { uiSlice } from './uiSlice';
 
-const rootReducer = combineSlices(settingsSlice, uiSlice, tilesSlice, doomSlice);
+const rootReducer = combineSlices(settingsSlice, uiSlice, tilesSlice, doomSlice, benchmarkSlice);
 
 export type RootState = ReturnType<typeof rootReducer>;
 

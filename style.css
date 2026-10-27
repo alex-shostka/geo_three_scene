@@ -224,6 +224,10 @@ body {
   top: 120px;
 }
 
+#benchmark-btn {
+  top: 172px;
+}
+
 /* ── Hamburger lines ── */
 #menu-btn span {
   display: block;
@@ -325,6 +329,68 @@ body {
   color: #f55;
   font-weight: 600;
   text-transform: capitalize;
+}
+
+.benchmark-text {
+  margin: 0 12px 14px;
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.benchmark-actions {
+  display: flex;
+  align-items: center;
+  margin: 0 12px;
+  gap: 12px;
+}
+
+.benchmark-start {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.benchmark-start:hover {
+  background: #2563eb;
+}
+
+.benchmark-start:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.benchmark-conditions {
+  color: #6b7280;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.benchmark-note {
+  margin: 8px 12px 0;
+  color: #6b7280;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.benchmark-warning {
+  color: #d97706;
+}
+
+.benchmark-error {
+  margin: 12px 12px 0;
+  color: #f55;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ── Map controls (reset + zoom) ── */

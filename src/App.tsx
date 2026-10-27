@@ -3,6 +3,8 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { CesiumGlobe } from './cesium/CesiumGlobe';
 import { AnalyticsButton } from './components/AnalyticsButton';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
+import { BenchmarkButton } from './components/BenchmarkButton';
+import { BenchmarkPanel } from './components/BenchmarkPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Footer } from './components/Footer';
 import { HamburgerMenu } from './components/HamburgerMenu';
@@ -27,6 +29,8 @@ export function App() {
       <AnalyticsPanel />
       <NetworkButton />
       <NetworkPanel />
+      <BenchmarkButton />
+      <BenchmarkPanel />
       <TileTooltip />
       <TileCard />
       <MapControls />

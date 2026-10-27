@@ -29,6 +29,7 @@ The overlay stacks tiles by zoom level. Each level sits on its own plane, and a 
 
 - **Analytics** lists the tiles currently on screen and all failed tiles for each zoom level. Click a row to fly to the area covered by that level.
 - **Network** shows Core Web Vitals for the page (FCP, LCP, INP, CLS, TTFB) with their ratings. For LCP, INP and CLS it can point to the page element that caused the value.
+- **Benchmark** measures how long the map takes to fully load: from opening the page, and at 5 km and 500 m above Amsterdam after pressing Start. Each step also appears on a "Benchmark" track in DevTools → Performance. Add `?bench` to the URL to open the panel right away.
 
 ### DOOM on a tile
 
