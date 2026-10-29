@@ -1,6 +1,7 @@
 import { EMPTY_VALUE } from '../constants';
 import type { CameraPose } from '../types';
 import { InfoTip } from './InfoTip';
+import { Stat } from './ui/Stat';
 
 const HORIZON_RADIUS = 28;
 
@@ -16,7 +17,7 @@ export function CameraPoseGauges({ pose }: CameraPoseGaugesProps) {
 
   return (
     <div id="pose-instruments">
-      <div className="gauge-block">
+      <Stat variant="gauge">
         <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
           <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
           <circle cx="32" cy="32" r="22" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
@@ -38,14 +39,15 @@ export function CameraPoseGauges({ pose }: CameraPoseGaugesProps) {
           </g>
           <circle cx="32" cy="32" r="2.5" fill="#e8e8ec" />
         </svg>
-        <span className="label-row">
-          <span className="gauge-label">Heading</span>
-          <InfoTip text={HEADING_TIP} />
-        </span>
-        <span className="gauge-value">{pose ? `${pose.heading.toFixed(1)}°` : EMPTY_VALUE}</span>
-      </div>
 
-      <div className="gauge-block">
+        <Stat.Heading>
+          <Stat.Label>Heading</Stat.Label>
+          <InfoTip text={HEADING_TIP} />
+        </Stat.Heading>
+        <Stat.Value>{pose ? `${pose.heading.toFixed(1)}°` : EMPTY_VALUE}</Stat.Value>
+      </Stat>
+
+      <Stat variant="gauge">
         <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
           <defs>
             <clipPath id="footer-horizon-clip">
@@ -63,24 +65,23 @@ export function CameraPoseGauges({ pose }: CameraPoseGaugesProps) {
           <line x1="20" y1="32" x2="44" y2="32" stroke="#e8e8ec" strokeWidth="2" />
           <circle cx="32" cy="32" r="1.5" fill="#e8e8ec" />
         </svg>
-        <span className="label-row">
-          <span className="gauge-label">Pitch / Roll</span>
+
+        <Stat.Heading>
+          <Stat.Label>Pitch / Roll</Stat.Label>
           <InfoTip text={PITCH_ROLL_TIP} />
-        </span>
-        <span className="gauge-value">
-          {pose ? `${pose.pitch.toFixed(1)}° / ${pose.roll.toFixed(1)}°` : EMPTY_VALUE}
-        </span>
-      </div>
+        </Stat.Heading>
+        <Stat.Value>{pose ? `${pose.pitch.toFixed(1)}° / ${pose.roll.toFixed(1)}°` : EMPTY_VALUE}</Stat.Value>
+      </Stat>
 
       <div id="pose-coords">
-        <div className="footer-stat">
-          <span className="fs-label">Lon</span>
-          <span className="fs-value">{pose ? `${pose.lon.toFixed(5)}°` : EMPTY_VALUE}</span>
-        </div>
-        <div className="footer-stat">
-          <span className="fs-label">Lat</span>
-          <span className="fs-value">{pose ? `${pose.lat.toFixed(5)}°` : EMPTY_VALUE}</span>
-        </div>
+        <Stat>
+          <Stat.Label>Lon</Stat.Label>
+          <Stat.Value>{pose ? `${pose.lon.toFixed(5)}°` : EMPTY_VALUE}</Stat.Value>
+        </Stat>
+        <Stat>
+          <Stat.Label>Lat</Stat.Label>
+          <Stat.Value>{pose ? `${pose.lat.toFixed(5)}°` : EMPTY_VALUE}</Stat.Value>
+        </Stat>
       </div>
     </div>
   );

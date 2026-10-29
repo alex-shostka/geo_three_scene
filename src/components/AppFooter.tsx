@@ -7,6 +7,7 @@ import { selectErrorCount, selectFocusBounds } from '../store/tilesSlice';
 import { CameraPoseGauges } from './CameraPoseGauges';
 import { Footer } from './Footer';
 import { InfoTip } from './InfoTip';
+import { Stat } from './ui/Stat';
 
 const HEIGHT_TIP = 'Camera altitude above the ground.';
 const LOD_TIP = 'Tile detail level — higher means more zoomed in.';
@@ -21,26 +22,27 @@ export function AppFooter() {
     <Footer>
       <Footer.Bar>
         <div id="camera-info">
-          <div className="footer-stat">
-            <span className="label-row">
+          <Stat>
+            <Stat.Heading>
               <InfoTip text={HEIGHT_TIP} />
-              <span className="fs-label">Height</span>
-            </span>
-            <span className="fs-value">{pose ? `${Math.round(pose.height).toLocaleString()} m` : EMPTY_VALUE}</span>
-          </div>
-          <div className="footer-stat">
-            <span className="label-row">
+              <Stat.Label>Height</Stat.Label>
+            </Stat.Heading>
+            <Stat.Value>{pose ? `${Math.round(pose.height).toLocaleString()} m` : EMPTY_VALUE}</Stat.Value>
+          </Stat>
+          <Stat>
+            <Stat.Heading>
               <InfoTip text={LOD_TIP} />
-              <span className="fs-label">LOD</span>
-            </span>
-            <span className="fs-value">{lod ?? EMPTY_VALUE}</span>
-          </div>
+              <Stat.Label>LOD</Stat.Label>
+            </Stat.Heading>
+            <Stat.Value>{lod ?? EMPTY_VALUE}</Stat.Value>
+          </Stat>
         </div>
         <div id="tile-hud" className={errorCount > 0 ? 'has-errors' : ''}>
           <span className="fs-icon">⚠</span>
           <span className="fs-value">{errorCount}</span>
           <span className="fs-label">error tiles</span>
         </div>
+
         <Footer.Toggle>
           <ChevronUpIcon aria-hidden="true" />
         </Footer.Toggle>
