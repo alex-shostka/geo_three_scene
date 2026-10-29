@@ -8,7 +8,7 @@ interface PanelSectionProps {
 export function PanelSection({ title, children }: PanelSectionProps) {
   return (
     <section>
-      <div className="analytics-section-title">{title}</div>
+      <div className="panel-section-title">{title}</div>
       {children}
     </section>
   );
