@@ -2,9 +2,9 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { CesiumGlobe } from './cesium/CesiumGlobe';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
+import { AppFooter } from './components/AppFooter';
 import { BenchmarkPanel } from './components/BenchmarkPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { Footer } from './components/Footer';
 import { MapControls } from './components/MapControls';
 import { NetworkPanel } from './components/NetworkPanel';
 import { SidePanel } from './components/SidePanel';
@@ -26,7 +26,7 @@ export function App() {
       <TileTooltip />
       <TileCard />
       <MapControls />
-      <Footer />
+      <AppFooter />
       {import.meta.env.PROD && (
         <>
           <Analytics />

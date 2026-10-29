@@ -7,13 +7,13 @@ import { LEVEL_DEPTH } from '../lib/tileGeometry';
 import { useAppSelector } from '../store/hooks';
 import { selectErrorCount, selectFocusBounds } from '../store/tilesSlice';
 import { CameraPoseGauges, type CameraPose } from './CameraPoseGauges';
+import { Footer } from './Footer';
 import { InfoTip } from './InfoTip';
 
 const HEIGHT_TIP = 'Camera altitude above the ground.';
 const LOD_TIP = 'Tile detail level — higher means more zoomed in.';
 
-export function Footer() {
-  const [open, setOpen] = useState(false);
+export function AppFooter() {
   const viewer = useViewer();
   const errorCount = useAppSelector(selectErrorCount);
   const focusBounds = useAppSelector(selectFocusBounds);
@@ -61,8 +61,8 @@ export function Footer() {
   }, [viewer]);
 
   return (
-    <footer id="app-footer" className={open ? 'open' : ''}>
-      <div id="footer-bar">
+    <Footer>
+      <Footer.Bar>
         <div id="camera-info">
           <div className="footer-stat">
             <span className="label-row">
@@ -84,18 +84,13 @@ export function Footer() {
           <span className="fs-value">{errorCount}</span>
           <span className="fs-label">error tiles</span>
         </div>
-        <button
-          id="footer-toggle"
-          aria-expanded={open}
-          aria-label={open ? 'Collapse footer' : 'Expand footer'}
-          onClick={() => setOpen((v) => !v)}
-        >
+        <Footer.Toggle>
           <ChevronUpIcon aria-hidden="true" />
-        </button>
-      </div>
-      <div id="footer-content">
+        </Footer.Toggle>
+      </Footer.Bar>
+      <Footer.Content>
         <CameraPoseGauges pose={pose} />
-      </div>
-    </footer>
+      </Footer.Content>
+    </Footer>
   );
 }
