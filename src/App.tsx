@@ -1,15 +1,11 @@
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { CesiumGlobe } from './cesium/CesiumGlobe';
-import { AnalyticsButton } from './components/AnalyticsButton';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
-import { BenchmarkButton } from './components/BenchmarkButton';
 import { BenchmarkPanel } from './components/BenchmarkPanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Footer } from './components/Footer';
-import { HamburgerMenu } from './components/HamburgerMenu';
 import { MapControls } from './components/MapControls';
-import { NetworkButton } from './components/NetworkButton';
 import { NetworkPanel } from './components/NetworkPanel';
 import { SidePanel } from './components/SidePanel';
 import { TileCard } from './components/TileCard';
@@ -23,13 +19,9 @@ export function App() {
       <ErrorBoundary fallback={() => null}>
         <ThreeOverlay />
       </ErrorBoundary>
-      <HamburgerMenu />
       <SidePanel />
-      <AnalyticsButton />
       <AnalyticsPanel />
-      <NetworkButton />
       <NetworkPanel />
-      <BenchmarkButton />
       <BenchmarkPanel />
       <TileTooltip />
       <TileCard />

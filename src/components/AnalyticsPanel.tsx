@@ -1,15 +1,15 @@
 import { Rectangle } from 'cesium';
+import AnalyticsIcon from '../assets/icons/analytics.svg?react';
 import { useViewer } from '../cesium/viewerStore';
 import { ANALYTICS_PANEL } from '../constants';
-import { panelElementId } from '../lib/panelElementId';
 import { useAppSelector } from '../store/hooks';
 import { selectLevelStats, type LevelStats } from '../store/tilesSlice';
-import { selectIsPanelOpen } from '../store/uiSlice';
 import { Panel } from './ui/Panel';
 import { StatsTable } from './ui/StatsTable';
+import { usePanel } from './usePanel';
 
 export function AnalyticsPanel() {
-  const analyticsOpen = useAppSelector((s) => selectIsPanelOpen(s, ANALYTICS_PANEL));
+  const panel = usePanel(ANALYTICS_PANEL);
   const levelStats = useAppSelector(selectLevelStats);
   const viewer = useViewer();
 
@@ -37,19 +37,24 @@ export function AnalyticsPanel() {
   };
 
   return (
-    <Panel id={panelElementId(ANALYTICS_PANEL)} title="Analytics" open={analyticsOpen}>
-      <StatsTable
-        columns={['Level', 'Tiles loaded', 'Errors']}
-        rows={levelStats}
-        emptyText="No tiles loaded yet"
-        renderRow={(stats) => (
-          <tr key={stats.level} className="stats-table-row" onClick={() => flyToLevel(stats)}>
-            <td>{stats.level}</td>
-            <td>{stats.loaded}</td>
-            <td className={stats.errors > 0 ? 'stats-table-error' : ''}>{stats.errors}</td>
-          </tr>
-        )}
-      />
+    <Panel {...panel}>
+      <Panel.Trigger id="analytics-btn" label="Analytics">
+        <AnalyticsIcon aria-hidden="true" />
+      </Panel.Trigger>
+      <Panel.Content title="Analytics">
+        <StatsTable
+          columns={['Level', 'Tiles loaded', 'Errors']}
+          rows={levelStats}
+          emptyText="No tiles loaded yet"
+          renderRow={(stats) => (
+            <tr key={stats.level} className="stats-table-row" onClick={() => flyToLevel(stats)}>
+              <td>{stats.level}</td>
+              <td>{stats.loaded}</td>
+              <td className={stats.errors > 0 ? 'stats-table-error' : ''}>{stats.errors}</td>
+            </tr>
+          )}
+        />
+      </Panel.Content>
     </Panel>
   );
 }

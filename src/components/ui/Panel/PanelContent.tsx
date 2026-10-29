@@ -1,14 +1,13 @@
 import type { ReactNode } from 'react';
+import { usePanelContext } from './PanelContext';
 
 interface PanelProps {
-  id: string;
   title: string;
-  open: boolean;
   children: ReactNode;
 }
 
-export function Panel({ id, title, open, children }: PanelProps) {
-  const titleId = `${id}-title`;
+export function PanelContent({ title, children }: PanelProps) {
+  const { id, titleId, open } = usePanelContext();
 
   return (
     <aside id={id} className={open ? 'panel open' : 'panel'} aria-labelledby={titleId} inert={!open}>
