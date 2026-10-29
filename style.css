@@ -512,6 +512,11 @@ body {
   list-style: none;
 }
 
+.settings-list--nested {
+  margin-top: 2px;
+  padding-left: 16px;
+}
+
 .settings-item {
   border-radius: 10px;
   transition: background 0.12s;

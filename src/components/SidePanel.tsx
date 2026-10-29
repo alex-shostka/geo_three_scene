@@ -11,8 +11,8 @@ import {
   setTileGridOnGlobe,
 } from '../store/settingsSlice';
 import { DoomStatusHint } from './DoomStatusHint';
-import { SettingsToggleItem } from './SettingsToggleItem';
 import { Panel } from './ui/Panel';
+import { Settings } from './ui/Settings';
 import { usePanel } from './usePanel';
 
 export function SidePanel() {
@@ -28,48 +28,50 @@ export function SidePanel() {
         <span></span>
       </Panel.Trigger>
       <Panel.Content title="Menu">
-        <ul className="settings-list">
-          <SettingsToggleItem
+        <Settings>
+          <Settings.Group
             label="Active tiles in scene"
             checked={settings.activeTilesOnScene}
-            onChange={(v) => dispatch(setActiveTilesOnScene(v))}
-          />
-          <SettingsToggleItem
-            label="Fly to tile on click"
-            checked={settings.flyToTile}
-            disabled={!settings.activeTilesOnScene}
-            onChange={(v) => dispatch(setFlyToTile(v))}
-            child
-          />
-          <SettingsToggleItem
+            onChange={(checked) => dispatch(setActiveTilesOnScene(checked))}
+          >
+            <Settings.Toggle
+              label="Fly to tile on click"
+              checked={settings.flyToTile}
+              onChange={(checked) => dispatch(setFlyToTile(checked))}
+            />
+          </Settings.Group>
+
+          <Settings.Toggle
             label="Tile grid on globe"
             checked={settings.tileGridOnGlobe}
-            onChange={(v) => dispatch(setTileGridOnGlobe(v))}
+            onChange={(checked) => dispatch(setTileGridOnGlobe(checked))}
           />
-          <SettingsToggleItem
+
+          <Settings.Group
             label="GLB tiles (3D)"
             checked={settings.glbTiles}
-            onChange={(v) => dispatch(setGlbTiles(v))}
-          />
-          <SettingsToggleItem
-            label="Enable GLB metadata"
-            checked={settings.glbMetadata}
-            disabled={!settings.glbTiles}
-            onChange={(v) => dispatch(setGlbMetadata(v))}
-            child
-          />
-          <SettingsToggleItem
+            onChange={(checked) => dispatch(setGlbTiles(checked))}
+          >
+            <Settings.Toggle
+              label="Enable GLB metadata"
+              checked={settings.glbMetadata}
+              onChange={(checked) => dispatch(setGlbMetadata(checked))}
+            />
+          </Settings.Group>
+
+          <Settings.Toggle
             label="Show tooltips"
             checked={settings.showTooltips}
-            onChange={(v) => dispatch(setShowTooltips(v))}
+            onChange={(checked) => dispatch(setShowTooltips(checked))}
           />
-          <SettingsToggleItem
+          <Settings.Toggle
             label="Play DOOM"
             checked={settings.playDoom}
-            onChange={(v) => dispatch(setPlayDoom(v))}
+            onChange={(checked) => dispatch(setPlayDoom(checked))}
           />
+
           <DoomStatusHint />
-        </ul>
+        </Settings>
       </Panel.Content>
     </Panel>
   );
