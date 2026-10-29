@@ -1,14 +1,6 @@
 import { EMPTY_VALUE } from '../constants';
+import type { CameraPose } from '../types';
 import { InfoTip } from './InfoTip';
-
-export interface CameraPose {
-  height: number;
-  lon: number;
-  lat: number;
-  heading: number;
-  pitch: number;
-  roll: number;
-}
 
 const HORIZON_RADIUS = 28;
 

@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import QuestionIcon from '../assets/icons/question.svg?react';
 import { useAppSelector } from '../store/hooks';

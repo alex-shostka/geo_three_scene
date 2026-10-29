@@ -61,3 +61,12 @@ export interface DoomStatus {
   phase: DoomPhase;
   progress: number | null;
 }
+
+export interface CameraPose {
+  height: number;
+  lon: number;
+  lat: number;
+  heading: number;
+  pitch: number;
+  roll: number;
+}

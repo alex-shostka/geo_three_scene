@@ -1,4 +1,3 @@
-import { type CSSProperties } from 'react';
 import { computeLevelFocusBounds, levelColor } from '../lib/tileGeometry';
 import { useAppDispatch, useAppSelector, useAppStore } from '../store/hooks';
 import { selectAllTiles, selectLevelCounts, setFocusBounds } from '../store/tilesSlice';

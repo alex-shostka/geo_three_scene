@@ -1,12 +1,10 @@
-import { Math as CesiumMath } from 'cesium';
-import { useEffect, useState } from 'react';
 import ChevronUpIcon from '../assets/icons/chevron-up.svg?react';
-import { useViewer } from '../cesium/viewerStore';
+import { useCameraPose } from '../cesium/useCameraPose';
 import { EMPTY_VALUE } from '../constants';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
 import { useAppSelector } from '../store/hooks';
 import { selectErrorCount, selectFocusBounds } from '../store/tilesSlice';
-import { CameraPoseGauges, type CameraPose } from './CameraPoseGauges';
+import { CameraPoseGauges } from './CameraPoseGauges';
 import { Footer } from './Footer';
 import { InfoTip } from './InfoTip';
 
@@ -14,51 +12,10 @@ const HEIGHT_TIP = 'Camera altitude above the ground.';
 const LOD_TIP = 'Tile detail level — higher means more zoomed in.';
 
 export function AppFooter() {
-  const viewer = useViewer();
+  const pose = useCameraPose();
   const errorCount = useAppSelector(selectErrorCount);
   const focusBounds = useAppSelector(selectFocusBounds);
-  const [pose, setPose] = useState<CameraPose | null>(null);
   const lod = focusBounds ? Math.round(-focusBounds.tileZ / LEVEL_DEPTH) : null;
-
-  useEffect(() => {
-    if (!viewer) {
-      return;
-    }
-
-    let lastUpdate = 0;
-    const update = () => {
-      const now = performance.now();
-
-      if (now - lastUpdate < 100) {
-        return;
-      }
-
-      const carto = viewer.camera.positionCartographic;
-      let rollDeg = CesiumMath.toDegrees(viewer.camera.roll);
-
-      lastUpdate = now;
-
-      if (rollDeg > 180) {
-        rollDeg -= 360;
-      }
-
-      setPose({
-        height: carto.height,
-        lon: CesiumMath.toDegrees(carto.longitude),
-        lat: CesiumMath.toDegrees(carto.latitude),
-        heading: CesiumMath.toDegrees(viewer.camera.heading),
-        pitch: CesiumMath.toDegrees(viewer.camera.pitch),
-        roll: rollDeg,
-      });
-    };
-
-    update();
-    viewer.scene.postRender.addEventListener(update);
-
-    return () => {
-      viewer.scene.postRender.removeEventListener(update);
-    };
-  }, [viewer]);
 
   return (
     <Footer>
