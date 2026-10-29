@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-interface StatsTableProps<T> {
+interface StatsTableRootProps<T> {
   columns: string[];
   rows: T[];
   emptyText: string;
   renderRow: (row: T) => ReactNode;
 }
 
-export function StatsTable<T>({ columns, rows, emptyText, renderRow }: StatsTableProps<T>) {
+export function StatsTableRoot<T>({ columns, rows, emptyText, renderRow }: StatsTableRootProps<T>) {
   return (
     <table className="stats-table">
       <thead>

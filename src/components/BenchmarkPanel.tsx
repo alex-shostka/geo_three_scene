@@ -102,14 +102,10 @@ export function BenchmarkPanel() {
             rows={pageOpenRows}
             emptyText="Waiting for the map to load…"
             renderRow={({ label, ms, element }) => (
-              <tr
-                key={label}
-                className={element ? 'stats-table-row' : ''}
-                onClick={element ? () => highlightElement(element) : undefined}
-              >
+              <StatsTable.Row key={label} onClick={element ? () => highlightElement(element) : undefined}>
                 <td>{label}</td>
                 <td>{formatSeconds(ms)}</td>
-              </tr>
+              </StatsTable.Row>
             )}
           />
           {initialLoad?.tabWasHidden && (
@@ -131,10 +127,10 @@ export function BenchmarkPanel() {
             rows={results}
             emptyText={running ? 'Measuring…' : 'Press Start to measure'}
             renderRow={(result) => (
-              <tr key={result.label}>
+              <StatsTable.Row key={result.label}>
                 <td>{result.label}</td>
                 <td>{formatSeconds(result.loadMs)}</td>
-              </tr>
+              </StatsTable.Row>
             )}
           />
         </Panel.Section>

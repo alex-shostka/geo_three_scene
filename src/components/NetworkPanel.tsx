@@ -40,15 +40,14 @@ export function NetworkPanel() {
                       : null;
 
               return (
-                <tr
+                <StatsTable.Row
                   key={metric.name}
-                  className={targetElement ? 'stats-table-row' : ''}
                   onClick={targetElement ? () => highlightElement(targetElement) : undefined}
                 >
                   <td>{metric.name}</td>
                   <td>{formatWebVitalValue(metric)}</td>
                   <td className={`vitals-rating-${metric.rating}`}>{metric.rating}</td>
-                </tr>
+                </StatsTable.Row>
               );
             }}
           />
