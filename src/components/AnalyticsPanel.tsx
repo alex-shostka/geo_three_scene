@@ -45,9 +45,10 @@ export function AnalyticsPanel() {
         <StatsTable
           columns={['Level', 'Tiles loaded', 'Errors']}
           rows={levelStats}
+          getRowKey={(stats) => stats.level}
           emptyText="No tiles loaded yet"
           renderRow={(stats) => (
-            <StatsTable.Row key={stats.level} onClick={() => flyToLevel(stats)}>
+            <StatsTable.Row onClick={() => flyToLevel(stats)}>
               <td>{stats.level}</td>
               <td>{stats.loaded}</td>
               <td className={stats.errors > 0 ? 'stats-table-error' : ''}>{stats.errors}</td>

@@ -100,9 +100,10 @@ export function BenchmarkPanel() {
           <StatsTable
             columns={['What', 'Time']}
             rows={pageOpenRows}
+            getRowKey={(row) => row.label}
             emptyText="Waiting for the map to load…"
             renderRow={({ label, ms, element }) => (
-              <StatsTable.Row key={label} onClick={element ? () => highlightElement(element) : undefined}>
+              <StatsTable.Row onClick={element ? () => highlightElement(element) : undefined}>
                 <td>{label}</td>
                 <td>{formatSeconds(ms)}</td>
               </StatsTable.Row>
@@ -125,9 +126,10 @@ export function BenchmarkPanel() {
           <StatsTable
             columns={['Height', 'Time']}
             rows={results}
+            getRowKey={(result) => result.label}
             emptyText={running ? 'Measuring…' : 'Press Start to measure'}
             renderRow={(result) => (
-              <StatsTable.Row key={result.label}>
+              <StatsTable.Row>
                 <td>{result.label}</td>
                 <td>{formatSeconds(result.loadMs)}</td>
               </StatsTable.Row>

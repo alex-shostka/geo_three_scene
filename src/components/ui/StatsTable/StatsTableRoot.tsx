@@ -1,13 +1,14 @@
-import type { ReactNode } from 'react';
+import { Fragment, type Key, type ReactNode } from 'react';
 
 interface StatsTableRootProps<T> {
   columns: string[];
   rows: T[];
+  getRowKey: (row: T) => Key;
   emptyText: string;
   renderRow: (row: T) => ReactNode;
 }
 
-export function StatsTableRoot<T>({ columns, rows, emptyText, renderRow }: StatsTableRootProps<T>) {
+export function StatsTableRoot<T>({ columns, rows, getRowKey, emptyText, renderRow }: StatsTableRootProps<T>) {
   return (
     <table className="stats-table">
       <thead>
@@ -25,7 +26,7 @@ export function StatsTableRoot<T>({ columns, rows, emptyText, renderRow }: Stats
             </td>
           </tr>
         ) : (
-          rows.map((row) => renderRow(row))
+          rows.map((row) => <Fragment key={getRowKey(row)}>{renderRow(row)}</Fragment>)
         )}
       </tbody>
     </table>

@@ -28,6 +28,7 @@ export function NetworkPanel() {
           <StatsTable
             columns={['Metric', 'Value', 'Rating']}
             rows={metrics}
+            getRowKey={(metric) => metric.name}
             emptyText="Collecting metrics..."
             renderRow={(metric) => {
               const targetElement =
@@ -40,10 +41,7 @@ export function NetworkPanel() {
                       : null;
 
               return (
-                <StatsTable.Row
-                  key={metric.name}
-                  onClick={targetElement ? () => highlightElement(targetElement) : undefined}
-                >
+                <StatsTable.Row onClick={targetElement ? () => highlightElement(targetElement) : undefined}>
                   <td>{metric.name}</td>
                   <td>{formatWebVitalValue(metric)}</td>
                   <td className={`vitals-rating-${metric.rating}`}>{metric.rating}</td>
