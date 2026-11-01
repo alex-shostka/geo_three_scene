@@ -1,13 +1,17 @@
 import { createContext, use } from 'react';
 
+interface StatClasses {
+  root: string;
+  label: string;
+  value: string;
+}
+
 export const STAT_VARIANTS = {
   footer: { root: 'footer-stat', label: 'fs-label', value: 'fs-value' },
   gauge: { root: 'gauge-block', label: 'gauge-label', value: 'gauge-value' },
-} as const;
+} satisfies Record<string, StatClasses>;
 
 export type StatVariant = keyof typeof STAT_VARIANTS;
-
-type StatClasses = (typeof STAT_VARIANTS)[StatVariant];
 
 export const StatContext = createContext<StatClasses | null>(null);
 

@@ -5,6 +5,8 @@ dist/
 
 .idea/
 .vscode/
+.stryker-tmp/
+reports/
 
 # public/tiles/
 # public/tiles_glb/

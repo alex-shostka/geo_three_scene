@@ -159,7 +159,7 @@ It shows a progress bar with counts of downloaded (`✓`), skipped (`↷`) and f
 
 2. **Break up `CesiumGlobe`.** Split the single large effect into focused hooks for the viewer, tile tracking, GLB hover and the tile card.
 3. **Add linting.** Add Oxlint with React hooks rules now. ESLint with typescript-eslint can follow once it supports TypeScript 7.
-4. **Extend test coverage.** Add unit tests for the pure helpers in `src/lib` and a Playwright smoke test that checks the globe loads tiles.
+4. **Extend test coverage.** Add unit tests for the pure helpers in `src/lib` and a Playwright smoke test that checks the globe loads tiles. Stryker mutation testing (`npm run mutate`) is configured but can't be trusted yet: `@stryker-mutator/vitest-runner` 10.x doesn't support Vitest 5, because the `beforeAll`/`beforeEach` hooks in its setup file never run, so runtime mutants are never activated and survive. Wait for a runner release that supports Vitest 5.
 5. **Add CI.** Run type-checking, tests, formatting, Stylelint, circular import checks and the build on every push with GitHub Actions.
 
 ### Features and infrastructure

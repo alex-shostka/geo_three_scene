@@ -41,6 +41,10 @@ export default defineConfig({
       },
     },
   },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+  },
   define: {
     CESIUM_BASE_URL: JSON.stringify('/cesium'),
   },
