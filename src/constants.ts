@@ -23,3 +23,5 @@ export const DOOM_PHASE = {
   RUNNING: 'running',
   ERROR: 'error',
 } as const;
+
+export const ACTIVE_TILES_SETTLE_MS = 250;

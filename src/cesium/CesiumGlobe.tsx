@@ -14,10 +14,11 @@ import {
   type TileProviderError,
 } from 'cesium';
 import { useEffect, useRef } from 'react';
-import { ACTIVE_TILE, ERROR_TILE } from '../constants';
+import { ACTIVE_TILE, ACTIVE_TILES_SETTLE_MS, ERROR_TILE } from '../constants';
 import { containsPoint } from '../lib/containsPoint';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
+import { onQueueSettled } from '../lib/onQueueSettled';
 import { computeFocusBounds, levelColor, rectRadiansToDegrees } from '../lib/tileGeometry';
 import { errorTileKey, tileKey } from '../lib/tileKey';
 import { buildTileUrl } from '../lib/tileUrl';
@@ -213,6 +214,38 @@ export function CesiumGlobe() {
       dispatch(openTileCard({ title, sections }));
     };
 
+    const refreshActiveTiles = () => {
+      const renderedTiles = getRenderedTiles(viewer);
+
+      if (!renderedTiles.length) {
+        return;
+      }
+
+      const records: ActiveTileRecord[] = renderedTiles.map((tile) => {
+        const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
+
+        return {
+          type: ACTIVE_TILE,
+          key: tileKey(tile.level, tile.x, tile.y),
+          level: tile.level,
+          x: tile.x,
+          y: tile.y,
+          west,
+          east,
+          south,
+          north,
+          baseColor: levelColor(tile.level),
+        };
+      });
+
+      dispatch(replaceActiveTiles(records));
+      dispatch(setFocusBounds(computeFocusBounds(renderedTiles)));
+
+      if (selectGlbTiles(store.getState())) {
+        loadGlbForViewport(viewer);
+      }
+    };
+
     glbHoverOutline.polyline = glbHoverPolyline;
     viewerRef.current = viewer;
     hoverEntityRef.current = hoverEntity;
@@ -254,47 +287,19 @@ export function CesiumGlobe() {
       );
     });
 
-    viewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength: number) => {
-      if (queueLength !== 0) {
-        return;
-      }
-
-      const renderedTiles = getRenderedTiles(viewer);
-
-      if (!renderedTiles.length) {
-        return;
-      }
-
-      const records: ActiveTileRecord[] = renderedTiles.map((tile) => {
-        const { west, east, south, north } = rectRadiansToDegrees(tile.rectangle);
-
-        return {
-          type: ACTIVE_TILE,
-          key: tileKey(tile.level, tile.x, tile.y),
-          level: tile.level,
-          x: tile.x,
-          y: tile.y,
-          west,
-          east,
-          south,
-          north,
-          baseColor: levelColor(tile.level),
-        };
-      });
-
-      dispatch(replaceActiveTiles(records));
-      dispatch(setFocusBounds(computeFocusBounds(renderedTiles)));
-
-      if (selectGlbTiles(store.getState())) {
-        loadGlbForViewport(viewer);
-      }
-    });
+    const activeTilesRefresh = onQueueSettled(refreshActiveTiles, ACTIVE_TILES_SETTLE_MS);
+    const removeTileLoadProgressListener = viewer.scene.globe.tileLoadProgressEvent.addEventListener(
+      activeTilesRefresh.listener,
+    );
 
     viewer.canvas.addEventListener('mousemove', handleGlbHoverMove);
     viewer.canvas.addEventListener('mouseleave', handleGlbHoverLeave);
     viewer.canvas.addEventListener('click', handleClick);
 
     return () => {
+      activeTilesRefresh.cancel();
+      removeTileLoadProgressListener();
+
       viewer.canvas.removeEventListener('mousemove', handleGlbHoverMove);
       viewer.canvas.removeEventListener('mouseleave', handleGlbHoverLeave);
       viewer.canvas.removeEventListener('click', handleClick);
