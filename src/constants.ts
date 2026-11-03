@@ -12,6 +12,7 @@ export const BENCHMARK_STATUS = {
   IDLE: 'idle',
   RUNNING: 'running',
   DONE: 'done',
+  CANCELLED: 'cancelled',
   ERROR: 'error',
 } as const;
 

@@ -81,4 +81,23 @@ describe('waitForQueueQuiet', () => {
     await assertion;
     expect(queue.listenerCount).toBe(0);
   });
+
+  it('stops waiting when the run is cancelled', async () => {
+    const queue = createQueue();
+    const controller = new AbortController();
+    const result = waitForQueueQuiet({
+      subscribe: queue.subscribe,
+      quietMs: 500,
+      timeoutMs: 10_000,
+      signal: controller.signal,
+      now: Date.now,
+    });
+    const assertion = expect(result).rejects.toThrow('Cancelled');
+
+    queue.emit(4);
+    controller.abort(new Error('Cancelled'));
+
+    await assertion;
+    expect(queue.listenerCount).toBe(0);
+  });
 });

@@ -8,7 +8,7 @@ export function createLocalTilesProvider(): UrlTemplateImageryProvider {
   return new UrlTemplateImageryProvider({
     url: LOCAL_TILES_URL_TEMPLATE,
     minimumLevel: 0,
-    maximumLevel: 15,
+    maximumLevel: 14,
     credit: 'OpenStreetMap contributors',
   });
 }

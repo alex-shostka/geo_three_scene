@@ -4,6 +4,7 @@ export interface WaitForQueueQuietOptions {
   subscribe: (listener: QueueListener) => () => void;
   quietMs: number;
   timeoutMs: number;
+  signal?: AbortSignal;
   now?: () => number;
 }
 
@@ -11,9 +12,16 @@ export function waitForQueueQuiet({
   subscribe,
   quietMs,
   timeoutMs,
+  signal,
   now = () => performance.now(),
 }: WaitForQueueQuietOptions): Promise<number> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(signal.reason);
+
+      return;
+    }
+
     let emptySince: number | null = now();
     let quietTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -21,6 +29,12 @@ export function waitForQueueQuiet({
       clearTimeout(quietTimer);
       clearTimeout(timeoutTimer);
       unsubscribe();
+      signal?.removeEventListener('abort', onAbort);
+    };
+
+    const onAbort = () => {
+      cleanup();
+      reject(signal?.reason);
     };
 
     const armQuietTimer = (since: number) => {
@@ -50,6 +64,7 @@ export function waitForQueueQuiet({
       reject(new Error(`Tiles did not finish loading within ${timeoutMs / 1000} s`));
     }, timeoutMs);
 
+    signal?.addEventListener('abort', onAbort);
     armQuietTimer(emptySince);
   });
 }
