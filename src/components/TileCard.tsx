@@ -19,8 +19,8 @@ export function TileCard() {
           <div className="tc-mesh" key={i}>
             <table className="tc-table">
               <tbody>
-                {section.rows.map(([k, v], j) => (
-                  <tr key={j}>
+                {section.rows.map(([k, v]) => (
+                  <tr key={k}>
                     <td className="tc-key">{k}</td>
                     <td className="tc-val">{v}</td>
                   </tr>
