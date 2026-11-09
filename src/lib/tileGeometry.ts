@@ -4,9 +4,10 @@ import type { FocusBounds, TileBounds } from '../types';
 export const LEVEL_DEPTH = 5;
 
 export const LEVEL_COLORS = [0xffffff, 0x4fc3f7, 0x81c784, 0xffb74d, 0xf06292, 0xba68c8, 0x4dd0e1, 0xdce775];
+const DEFAULT_LEVEL_COLOR = 0xffffff;
 
 export function levelColor(level: number): number {
-  return LEVEL_COLORS[level % LEVEL_COLORS.length];
+  return LEVEL_COLORS[level % LEVEL_COLORS.length] ?? DEFAULT_LEVEL_COLOR;
 }
 
 export function geoToScene(lon: number, lat: number, level: number): THREE.Vector3 {

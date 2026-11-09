@@ -21,6 +21,10 @@ describe('buildCameraRoute', () => {
   it('places the camera south of the target so a 45° view looks at it', () => {
     const [first] = route;
 
+    if (!first) {
+      throw new Error('Route is empty');
+    }
+
     expect(first.lon).toBe(TARGET.lon);
     expect((TARGET.lat - first.lat) * 111_320).toBeCloseTo(50_000);
   });

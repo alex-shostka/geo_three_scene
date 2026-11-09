@@ -30,15 +30,25 @@ const BUFFER_VIEW = 'bufferView';
 const STRING_TYPE = 'STRING';
 const FLOAT32_COMPONENT = 'FLOAT32';
 
+function singleOrList<T>(values: T[]): T | T[] {
+  const [first] = values;
+
+  if (values.length === 1 && first !== undefined) {
+    return first;
+  }
+
+  return values;
+}
+
 export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata | null> {
   const extensions: GltfExtensions | undefined = gltf.parser.json.extensions;
   const ext = extensions?.EXT_structural_metadata;
+  const table = ext?.propertyTables?.[0];
 
-  if (!ext?.propertyTables?.length) {
+  if (!table) {
     return null;
   }
 
-  const table = ext.propertyTables[0];
   const classProps = ext.schema?.classes?.[table.class]?.properties;
   const result: GlbMetadata = {};
   const decoder = new TextDecoder();
@@ -67,11 +77,11 @@ export async function parseStructuralMetadata(gltf: GLTF): Promise<GlbMetadata |
           strings.push(decoder.decode(bytes.slice(offsets[i], offsets[i + 1])));
         }
 
-        result[propName] = table.count === 1 ? strings[0] : strings;
+        result[propName] = singleOrList(strings);
       } else if (schemaProp.componentType === FLOAT32_COMPONENT) {
         const floats = new Float32Array(valuesBV);
 
-        result[propName] = table.count === 1 ? floats[0] : Array.from(floats);
+        result[propName] = singleOrList(Array.from(floats));
       }
     } catch {}
   }

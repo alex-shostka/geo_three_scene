@@ -175,9 +175,9 @@ export function useDoomTile() {
         const pixels = source.width * source.height;
 
         for (let i = 0; i < pixels; i++) {
-          rgba[i * 4] = rgb[i * 3];
-          rgba[i * 4 + 1] = rgb[i * 3 + 1];
-          rgba[i * 4 + 2] = rgb[i * 3 + 2];
+          rgba[i * 4] = rgb[i * 3] ?? 0;
+          rgba[i * 4 + 1] = rgb[i * 3 + 1] ?? 0;
+          rgba[i * 4 + 2] = rgb[i * 3 + 2] ?? 0;
           rgba[i * 4 + 3] = 255;
         }
         sourceCtx.putImageData(new ImageData(rgba, source.width, source.height), 0, 0);

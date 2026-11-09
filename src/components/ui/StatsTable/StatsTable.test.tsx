@@ -33,6 +33,10 @@ function renderTable(rows: Item[], onRowClick?: (item: Item) => void) {
 function bodyRows() {
   const [, body] = screen.getAllByRole('rowgroup');
 
+  if (!body) {
+    throw new Error('Table body not found');
+  }
+
   return within(body).getAllByRole('row');
 }
 
@@ -80,7 +84,7 @@ describe('StatsTable.Row', () => {
     const onRowClick = vi.fn<(item: Item) => void>();
 
     renderTable(ITEMS, onRowClick);
-    await user.click(bodyRows()[1]);
+    await user.click(screen.getByRole('row', { name: /Beta/ }));
 
     expect(onRowClick).toHaveBeenCalledWith(ITEMS[1]);
   });

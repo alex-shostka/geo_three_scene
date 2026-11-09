@@ -82,7 +82,7 @@ export const tilesSlice = createSlice({
     addErrorTile: tilesAdapter.addOne,
     replaceActiveTiles(state, action: PayloadAction<ActiveTileRecord[]>) {
       const nextKeys = new Set(action.payload.map((tile) => tile.key));
-      const staleKeys = state.ids.filter((key) => state.entities[key].type === ACTIVE_TILE && !nextKeys.has(key));
+      const staleKeys = state.ids.filter((key) => state.entities[key]?.type === ACTIVE_TILE && !nextKeys.has(key));
 
       tilesAdapter.removeMany(state, staleKeys);
       tilesAdapter.addMany(state, action.payload);

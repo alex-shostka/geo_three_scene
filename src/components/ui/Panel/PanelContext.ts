@@ -1,6 +1,6 @@
 import { createContext, use } from 'react';
 
-export interface PanelContextValue {
+interface PanelContextValue {
   id: string;
   titleId: string;
   open: boolean;

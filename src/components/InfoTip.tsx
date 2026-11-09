@@ -8,6 +8,12 @@ interface InfoTipProps {
   text: string;
 }
 
+interface TipPosition {
+  left: number;
+  top: number;
+  arrowLeft: number;
+}
+
 const BUBBLE_WIDTH = 150;
 const VIEWPORT_MARGIN = 8;
 const ARROW_MARGIN = 12;
@@ -15,7 +21,7 @@ const ARROW_MARGIN = 12;
 export function InfoTip({ text }: InfoTipProps) {
   const showTooltips = useAppSelector(selectShowTooltips);
   const triggerRef = useRef<HTMLSpanElement>(null);
-  const [pos, setPos] = useState<{ left: number; top: number; arrowLeft: number } | null>(null);
+  const [pos, setPos] = useState<TipPosition | null>(null);
 
   const show = () => {
     const rect = triggerRef.current?.getBoundingClientRect();

@@ -1,4 +1,4 @@
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface StatsTableRowProps {
   onClick?: () => void;
@@ -6,7 +6,7 @@ interface StatsTableRowProps {
 }
 
 export function StatsTableRow({ onClick, children }: StatsTableRowProps) {
-  const handleKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTableRowElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       onClick?.();
