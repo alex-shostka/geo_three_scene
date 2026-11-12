@@ -14,6 +14,7 @@ export interface RunConditions {
   height: number;
   devicePixelRatio: number;
   flightSeconds: number;
+  runs: number;
 }
 
 export interface InitialLoad {
@@ -27,7 +28,7 @@ interface BenchmarkState {
   status: BenchmarkStatus;
   initialLoad: InitialLoad | null;
   conditions: RunConditions | null;
-  results: LoadStepResult[];
+  runs: LoadStepResult[][];
   error: string | null;
 }
 
@@ -35,7 +36,7 @@ const initialState: BenchmarkState = {
   status: BENCHMARK_STATUS.IDLE,
   initialLoad: null,
   conditions: null,
-  results: [],
+  runs: [],
   error: null,
 };
 
@@ -49,11 +50,14 @@ export const benchmarkSlice = createSlice({
     benchmarkStarted(state, action: PayloadAction<RunConditions>) {
       state.status = BENCHMARK_STATUS.RUNNING;
       state.conditions = action.payload;
-      state.results = [];
+      state.runs = [];
       state.error = null;
     },
+    benchmarkRunStarted(state) {
+      state.runs.push([]);
+    },
     benchmarkStepFinished(state, action: PayloadAction<LoadStepResult>) {
-      state.results.push(action.payload);
+      state.runs[state.runs.length - 1]?.push(action.payload);
     },
     benchmarkFinished(state) {
       state.status = BENCHMARK_STATUS.DONE;
@@ -70,7 +74,7 @@ export const benchmarkSlice = createSlice({
     selectBenchmarkStatus: (state) => state.status,
     selectInitialLoad: (state) => state.initialLoad,
     selectBenchmarkConditions: (state) => state.conditions,
-    selectBenchmarkResults: (state) => state.results,
+    selectBenchmarkRuns: (state) => state.runs,
     selectBenchmarkError: (state) => state.error,
   },
 });
@@ -78,6 +82,7 @@ export const benchmarkSlice = createSlice({
 export const {
   initialLoadMeasured,
   benchmarkStarted,
+  benchmarkRunStarted,
   benchmarkStepFinished,
   benchmarkFinished,
   benchmarkCancelled,
@@ -87,6 +92,6 @@ export const {
   selectBenchmarkStatus,
   selectInitialLoad,
   selectBenchmarkConditions,
-  selectBenchmarkResults,
+  selectBenchmarkRuns,
   selectBenchmarkError,
 } = benchmarkSlice.selectors;

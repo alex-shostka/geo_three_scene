@@ -10,6 +10,8 @@ export const ROUTE_PITCH_DEG = -45;
 
 export const DEFAULT_FLIGHT_SECONDS = 3;
 
+export const BENCHMARK_RUN_OPTIONS = [1, 5, 10, 20] as const;
+
 export function readFlightSeconds(search: string): number {
   const value = Number(new URLSearchParams(search).get('flight'));
 

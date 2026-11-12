@@ -1,5 +1,5 @@
 import { Cartesian3, Math as CesiumMath, type Viewer } from 'cesium';
-import { AMSTERDAM } from '../../cesium/cesiumConfig';
+import { AMSTERDAM, HOME_HEIGHT } from '../../cesium/cesiumConfig';
 import type { LoadStepResult } from '../../store/benchmarkSlice';
 import {
   BENCHMARK_DEVTOOLS_TRACK,
@@ -14,9 +14,18 @@ import { buildCameraRoute, formatHeight, type CameraRoutePoint } from './cameraR
 import { waitForQueueQuiet } from './waitForQueueQuiet';
 
 export interface LoadBenchmarkOptions {
+  runs: number;
   flightSeconds: number;
   signal: AbortSignal;
+  onRunStart: (run: number) => void;
   onStep: (result: LoadStepResult) => void;
+}
+
+export class TabHiddenError extends Error {
+  constructor() {
+    super('The tab went to the background, so the benchmark stopped. Keep the tab open while it runs.');
+    this.name = 'TabHiddenError';
+  }
 }
 
 export const CAMERA_ROUTE = buildCameraRoute({
@@ -65,7 +74,36 @@ function flyTo(viewer: Viewer, point: CameraRoutePoint, flightSeconds: number, s
   });
 }
 
-export async function runLoadBenchmark(viewer: Viewer, { flightSeconds, signal, onStep }: LoadBenchmarkOptions) {
+function stopWhenTabHidden(signal: AbortSignal): { signal: AbortSignal; release: () => void } {
+  const controller = new AbortController();
+  const forwardAbort = () => controller.abort(signal.reason);
+  const onVisibilityChange = () => {
+    if (document.visibilityState === 'hidden') {
+      controller.abort(new TabHiddenError());
+    }
+  };
+
+  signal.addEventListener('abort', forwardAbort, { once: true });
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  onVisibilityChange();
+
+  return {
+    signal: controller.signal,
+    release: () => {
+      signal.removeEventListener('abort', forwardAbort);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    },
+  };
+}
+
+async function flyRoute(
+  viewer: Viewer,
+  run: number,
+  flightSeconds: number,
+  signal: AbortSignal,
+  onStep: LoadBenchmarkOptions['onStep'],
+) {
+  viewer.camera.setView({ destination: Cartesian3.fromDegrees(AMSTERDAM.lon, AMSTERDAM.lat, HOME_HEIGHT) });
   await waitForMapLoaded(viewer, signal);
 
   for (const [index, point] of CAMERA_ROUTE.entries()) {
@@ -77,7 +115,7 @@ export async function runLoadBenchmark(viewer: Viewer, { flightSeconds, signal, 
     const loadMs = Math.round(end - start);
     const afterArrivalMs = Math.round(end - arrival);
 
-    performance.measure(`Step ${step} · ${label}`, {
+    performance.measure(`Run ${run} · step ${step} · ${label}`, {
       start,
       end,
       detail: {
@@ -85,11 +123,30 @@ export async function runLoadBenchmark(viewer: Viewer, { flightSeconds, signal, 
           dataType: 'track-entry',
           track: BENCHMARK_DEVTOOLS_TRACK,
           color: 'primary',
-          tooltipText: `Step ${step}, ${label}: ${loadMs} ms (${afterArrivalMs} ms after the camera stopped)`,
+          tooltipText: `Run ${run}, step ${step}, ${label}: ${loadMs} ms (${afterArrivalMs} ms after the camera stopped)`,
         },
       },
     });
 
     onStep({ step, label, height: point.height, loadMs, afterArrivalMs });
+  }
+}
+
+export async function runLoadBenchmark(
+  viewer: Viewer,
+  { runs, flightSeconds, signal, onRunStart, onStep }: LoadBenchmarkOptions,
+) {
+  const guard = stopWhenTabHidden(signal);
+
+  try {
+    guard.signal.throwIfAborted();
+    await waitForMapLoaded(viewer, guard.signal);
+
+    for (let run = 1; run <= runs; run++) {
+      onRunStart(run);
+      await flyRoute(viewer, run, flightSeconds, guard.signal, onStep);
+    }
+  } finally {
+    guard.release();
   }
 }
