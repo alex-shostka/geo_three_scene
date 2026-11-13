@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
+import { ErrorBoundary } from '../../ErrorBoundary';
 import { usePanelContext } from './PanelContext';
+import { PanelError } from './PanelError';
 
 interface PanelProps {
   title: string;
@@ -16,7 +18,11 @@ export function PanelContent({ title, children }: PanelProps) {
           {title}
         </span>
       </div>
-      <div className="panel-content">{children}</div>
+      <div className="panel-content">
+        <ErrorBoundary fallback={(error, reset) => <PanelError error={error} onRetry={reset} />}>
+          {children}
+        </ErrorBoundary>
+      </div>
     </aside>
   );
 }

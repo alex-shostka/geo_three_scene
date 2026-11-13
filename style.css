@@ -548,6 +548,38 @@ body {
   overflow-y: auto;
 }
 
+.panel-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0 12px;
+  gap: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.panel-error-text {
+  margin: 0;
+  color: #f55;
+  font-size: 13px;
+}
+
+.panel-error-retry {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.panel-error-retry:hover {
+  background: #2563eb;
+}
+
 /* ── Settings list ── */
 .settings-list {
   display: flex;

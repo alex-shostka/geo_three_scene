@@ -1,7 +1,7 @@
 import { Component, type ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
-  fallback: (error: Error) => ReactNode;
+  fallback: (error: Error, reset: () => void) => ReactNode;
   children: ReactNode;
 }
 
@@ -16,9 +16,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return { error: error instanceof Error ? error : new Error(String(error)) };
   }
 
+  reset = () => {
+    this.setState({ error: null });
+  };
+
   override render() {
     if (this.state.error) {
-      return this.props.fallback(this.state.error);
+      return this.props.fallback(this.state.error, this.reset);
     }
 
     return this.props.children;

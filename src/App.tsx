@@ -19,10 +19,18 @@ export function App() {
       <ErrorBoundary fallback={() => null}>
         <ThreeOverlay />
       </ErrorBoundary>
-      <SidePanel />
-      <AnalyticsPanel />
-      <NetworkPanel />
-      <BenchmarkPanel />
+      <ErrorBoundary fallback={() => null}>
+        <SidePanel />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={() => null}>
+        <AnalyticsPanel />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={() => null}>
+        <NetworkPanel />
+      </ErrorBoundary>
+      <ErrorBoundary fallback={() => null}>
+        <BenchmarkPanel />
+      </ErrorBoundary>
       <TileTooltip />
       <TileCard />
       <MapControls />
