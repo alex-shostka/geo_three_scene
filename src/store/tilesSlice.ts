@@ -29,6 +29,10 @@ export interface LevelStats {
   north: number;
 }
 
+const findFirstActiveTile = createSelector([adapterSelectors.selectAll], (tiles) =>
+  tiles.find((tile) => tile.type === ACTIVE_TILE),
+);
+
 const countErrorTiles = createSelector(
   [adapterSelectors.selectAll],
   (tiles) => tiles.filter((tile) => tile.type === ERROR_TILE).length,
@@ -115,8 +119,7 @@ export const tilesSlice = createSlice({
       state.hoveredTile?.type === type && state.hoveredTile.key === key,
     selectHoveredRecord: (state: TilesState) =>
       state.hoveredTile ? adapterSelectors.selectById(state, state.hoveredTile.key) : undefined,
-    selectFirstActiveTile: (state: TilesState) =>
-      adapterSelectors.selectAll(state).find((tile) => tile.type === ACTIVE_TILE),
+    selectFirstActiveTile: findFirstActiveTile,
     selectErrorCount: countErrorTiles,
     selectLevelCounts: countTilesByLevel,
     selectLevelStats: computeLevelStats,
