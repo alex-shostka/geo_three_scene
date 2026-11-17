@@ -1,5 +1,5 @@
 import { useThree } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { LEVEL_DEPTH } from '../lib/tileGeometry';
@@ -48,7 +48,7 @@ export function CameraRig() {
     return () => controls.removeEventListener('start', onStart);
   }, [controls, store]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!focusBounds || !controls || !(camera instanceof THREE.PerspectiveCamera)) {
       return;
     }
