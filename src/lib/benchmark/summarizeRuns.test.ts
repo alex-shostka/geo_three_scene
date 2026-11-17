@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { LoadStepResult } from '../../store/benchmarkSlice';
-import { quantile, summarizeRoute, summarizeRuns, warmupRunsFor } from './summarizeRuns';
+import { quantile, summarizeRoute, summarizeRuns, warmupRunsFor, type LoadStepResult } from './summarizeRuns';
 
 function run(...times: number[]): LoadStepResult[] {
   return times.map((loadMs, index) => ({

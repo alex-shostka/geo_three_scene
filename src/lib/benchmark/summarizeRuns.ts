@@ -1,4 +1,10 @@
-import type { LoadStepResult } from '../../store/benchmarkSlice';
+export interface LoadStepResult {
+  step: number;
+  label: string;
+  height: number;
+  loadMs: number;
+  afterArrivalMs: number;
+}
 
 export interface StepSummary {
   step: number;

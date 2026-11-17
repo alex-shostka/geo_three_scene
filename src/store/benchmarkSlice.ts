@@ -1,13 +1,6 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { BENCHMARK_STATUS } from '../constants';
-
-export interface LoadStepResult {
-  step: number;
-  label: string;
-  height: number;
-  loadMs: number;
-  afterArrivalMs: number;
-}
+import { summarizeRoute, summarizeRuns, warmupRunsFor, type LoadStepResult } from '../lib/benchmark/summarizeRuns';
 
 export interface RunConditions {
   width: number;
@@ -39,6 +32,19 @@ const initialState: BenchmarkState = {
   runs: [],
   error: null,
 };
+
+const selectRuns = (state: BenchmarkState) => state.runs;
+const selectWarmupRuns = (state: BenchmarkState) => (state.conditions ? warmupRunsFor(state.conditions.runs) : 0);
+
+const computeStepSummaries = createSelector([selectRuns, selectWarmupRuns], (runs, warmupRuns) =>
+  summarizeRuns(runs, warmupRuns),
+);
+
+const computeRouteSummary = createSelector(
+  [selectRuns, selectWarmupRuns, computeStepSummaries],
+  (runs, warmupRuns, summaries) => summarizeRoute(runs, warmupRuns, summaries.length),
+);
+const countFinishedSteps = createSelector([selectRuns], (runs) => runs.reduce((total, run) => total + run.length, 0));
 
 export const benchmarkSlice = createSlice({
   name: 'benchmark',
@@ -76,6 +82,9 @@ export const benchmarkSlice = createSlice({
     selectBenchmarkConditions: (state) => state.conditions,
     selectBenchmarkRuns: (state) => state.runs,
     selectBenchmarkError: (state) => state.error,
+    selectStepSummaries: computeStepSummaries,
+    selectRouteSummary: computeRouteSummary,
+    selectFinishedStepsCount: countFinishedSteps,
   },
 });
 
@@ -94,4 +103,7 @@ export const {
   selectBenchmarkConditions,
   selectBenchmarkRuns,
   selectBenchmarkError,
+  selectStepSummaries,
+  selectRouteSummary,
+  selectFinishedStepsCount,
 } = benchmarkSlice.selectors;

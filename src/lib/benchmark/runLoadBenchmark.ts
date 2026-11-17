@@ -1,6 +1,5 @@
 import { Cartesian3, Math as CesiumMath, type Viewer } from 'cesium';
 import { AMSTERDAM, HOME_HEIGHT } from '../../cesium/cesiumConfig';
-import type { LoadStepResult } from '../../store/benchmarkSlice';
 import {
   BENCHMARK_DEVTOOLS_TRACK,
   MAP_LOADED_QUIET_MS,
@@ -11,6 +10,7 @@ import {
   ROUTE_START_HEIGHT,
 } from './benchmarkConfig';
 import { buildCameraRoute, formatHeight, type CameraRoutePoint } from './cameraRoute';
+import type { LoadStepResult } from './summarizeRuns';
 import { waitForQueueQuiet } from './waitForQueueQuiet';
 
 export interface LoadBenchmarkOptions {

@@ -12,7 +12,10 @@ import {
   selectBenchmarkError,
   selectBenchmarkRuns,
   selectBenchmarkStatus,
+  selectFinishedStepsCount,
   selectInitialLoad,
+  selectRouteSummary,
+  selectStepSummaries,
 } from './benchmarkSlice';
 import { makeStore } from './index';
 
@@ -101,5 +104,42 @@ describe('benchmark', () => {
     expect(selectBenchmarkStatus(store.getState())).toBe(BENCHMARK_STATUS.CANCELLED);
     expect(selectBenchmarkRuns(store.getState())).toEqual([[step]]);
     expect(selectBenchmarkError(store.getState())).toBeNull();
+  });
+
+  it('summarizes measured runs and memoizes the result', () => {
+    const store = makeStore();
+    const warmupStep = { ...step, loadMs: 5000 };
+    const measuredStep = { ...step, loadMs: 3000 };
+
+    store.dispatch(benchmarkStarted({ ...conditions, runs: 2 }));
+    store.dispatch(benchmarkRunStarted());
+    store.dispatch(benchmarkStepFinished(warmupStep));
+    store.dispatch(benchmarkRunStarted());
+    store.dispatch(benchmarkStepFinished(measuredStep));
+
+    const state = store.getState();
+
+    expect(selectFinishedStepsCount(state)).toBe(2);
+    expect(selectStepSummaries(state)).toEqual([
+      {
+        step: 1,
+        label: '50 km',
+        samples: 1,
+        medianMs: 3000,
+        p25Ms: 3000,
+        p75Ms: 3000,
+        minMs: 3000,
+        maxMs: 3000,
+        medianAfterArrivalMs: 400,
+      },
+    ]);
+    expect(selectRouteSummary(state)).toEqual({
+      samples: 1,
+      medianMs: 3000,
+      p25Ms: 3000,
+      p75Ms: 3000,
+    });
+    expect(selectStepSummaries(state)).toBe(selectStepSummaries(state));
+    expect(selectRouteSummary(state)).toBe(selectRouteSummary(state));
   });
 });

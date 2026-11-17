@@ -1,11 +1,11 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import StopwatchIcon from '../assets/icons/stopwatch.svg?react';
 import { useInitialMapLoad } from '../cesium/useInitialMapLoad';
 import { useViewer } from '../cesium/viewerStore';
 import { BENCHMARK_PANEL, BENCHMARK_STATUS, EMPTY_VALUE } from '../constants';
 import { useWebVitals } from '../hooks/useWebVitals';
 import { BENCHMARK_RUN_OPTIONS, readFlightSeconds } from '../lib/benchmark/benchmarkConfig';
-import { summarizeRoute, summarizeRuns, warmupRunsFor, type StepSummary } from '../lib/benchmark/summarizeRuns';
+import { warmupRunsFor, type StepSummary } from '../lib/benchmark/summarizeRuns';
 import { describeElement } from '../lib/describeElement';
 import { getLcpElement } from '../lib/getLcpElement';
 import { highlightElement } from '../lib/highlightElement';
@@ -20,7 +20,10 @@ import {
   selectBenchmarkError,
   selectBenchmarkRuns,
   selectBenchmarkStatus,
+  selectFinishedStepsCount,
   selectInitialLoad,
+  selectRouteSummary,
+  selectStepSummaries,
   type RunConditions,
 } from '../store/benchmarkSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -84,9 +87,11 @@ export function BenchmarkPanel() {
   const running = status === BENCHMARK_STATUS.RUNNING;
   const conditions = runConditions ?? currentConditions(runCount);
   const warmupRuns = warmupRunsFor(conditions.runs);
-  const summaries = useMemo(() => summarizeRuns(runs, warmupRuns), [runs, warmupRuns]);
-  const route = useMemo(() => summarizeRoute(runs, warmupRuns, summaries.length), [runs, warmupRuns, summaries.length]);
-  const finishedSteps = runs.reduce((total, run) => total + run.length, 0);
+
+  const summaries = useAppSelector(selectStepSummaries);
+  const route = useAppSelector(selectRouteSummary);
+  const finishedSteps = useAppSelector(selectFinishedStepsCount);
+
   const inWarmup = running && runs.length <= warmupRuns;
   const lcpElement = lcp ? getLcpElement(lcp) : null;
   const pageOpenRows: PageOpenRow[] = [];
