@@ -10,12 +10,7 @@ import { describeElement } from '../lib/describeElement';
 import { getLcpElement } from '../lib/getLcpElement';
 import { highlightElement } from '../lib/highlightElement';
 import {
-  benchmarkCancelled,
-  benchmarkFailed,
-  benchmarkFinished,
-  benchmarkRunStarted,
-  benchmarkStarted,
-  benchmarkStepFinished,
+  runBenchmark,
   selectBenchmarkConditions,
   selectBenchmarkError,
   selectBenchmarkRuns,
@@ -79,7 +74,7 @@ export function BenchmarkPanel() {
   const lcp = useWebVitals().LCP;
   const viewer = useViewer();
   const dispatch = useAppDispatch();
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const abortRef = useRef<(() => void) | null>(null);
   const [runCount, setRunCount] = useState<number>(BENCHMARK_RUN_OPTIONS[0]);
 
   useInitialMapLoad();
@@ -108,39 +103,10 @@ export function BenchmarkPanel() {
     pageOpenRows.push({ label: 'Map fully loaded', ms: initialLoad.ms, element: null });
   }
 
-  const start = async () => {
-    if (!viewer) {
-      return;
-    }
+  const start = () => {
+    const task = dispatch(runBenchmark(currentConditions(runCount)));
 
-    const startConditions = currentConditions(runCount);
-    const abortController = new AbortController();
-
-    abortControllerRef.current = abortController;
-    dispatch(benchmarkStarted(startConditions));
-
-    try {
-      const { runLoadBenchmark } = await import('../lib/benchmark/runLoadBenchmark');
-
-      await runLoadBenchmark(viewer, {
-        runs: startConditions.runs,
-        flightSeconds: startConditions.flightSeconds,
-        signal: abortController.signal,
-        onRunStart: () => dispatch(benchmarkRunStarted()),
-        onStep: (result) => dispatch(benchmarkStepFinished(result)),
-      });
-      dispatch(benchmarkFinished());
-    } catch (error) {
-      if (abortController.signal.aborted) {
-        dispatch(benchmarkCancelled());
-
-        return;
-      }
-
-      dispatch(benchmarkFailed(error instanceof Error ? error.message : String(error)));
-    } finally {
-      abortControllerRef.current = null;
-    }
+    abortRef.current = () => task.abort();
   };
 
   const exportResults = () => {
@@ -156,7 +122,7 @@ export function BenchmarkPanel() {
   };
 
   const cancel = () => {
-    abortControllerRef.current?.abort(new Error('The benchmark was cancelled'));
+    abortRef.current?.();
   };
 
   return (

@@ -1,4 +1,5 @@
-import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { getViewer } from '../cesium/viewerStore';
 import { BENCHMARK_STATUS } from '../constants';
 import { summarizeRoute, summarizeRuns, warmupRunsFor, type LoadStepResult } from '../lib/benchmark/summarizeRuns';
 
@@ -46,6 +47,26 @@ const computeRouteSummary = createSelector(
 );
 const countFinishedSteps = createSelector([selectRuns], (runs) => runs.reduce((total, run) => total + run.length, 0));
 
+export const runBenchmark = createAsyncThunk<void, RunConditions>(
+  'benchmark/run',
+  async (conditions, { dispatch, signal }) => {
+    const { runLoadBenchmark } = await import('../lib/benchmark/runLoadBenchmark');
+    const viewer = getViewer();
+
+    if (!viewer) {
+      throw new Error('Viewer is not ready');
+    }
+
+    await runLoadBenchmark(viewer, {
+      runs: conditions.runs,
+      flightSeconds: conditions.flightSeconds,
+      signal,
+      onRunStart: () => dispatch(benchmarkRunStarted()),
+      onStep: (result) => dispatch(benchmarkStepFinished(result)),
+    });
+  },
+);
+
 export const benchmarkSlice = createSlice({
   name: 'benchmark',
   initialState,
@@ -53,28 +74,34 @@ export const benchmarkSlice = createSlice({
     initialLoadMeasured(state, action: PayloadAction<InitialLoad>) {
       state.initialLoad = action.payload;
     },
-    benchmarkStarted(state, action: PayloadAction<RunConditions>) {
-      state.status = BENCHMARK_STATUS.RUNNING;
-      state.conditions = action.payload;
-      state.runs = [];
-      state.error = null;
-    },
     benchmarkRunStarted(state) {
       state.runs.push([]);
     },
     benchmarkStepFinished(state, action: PayloadAction<LoadStepResult>) {
       state.runs[state.runs.length - 1]?.push(action.payload);
     },
-    benchmarkFinished(state) {
-      state.status = BENCHMARK_STATUS.DONE;
-    },
-    benchmarkCancelled(state) {
-      state.status = BENCHMARK_STATUS.CANCELLED;
-    },
-    benchmarkFailed(state, action: PayloadAction<string>) {
-      state.status = BENCHMARK_STATUS.ERROR;
-      state.error = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(runBenchmark.pending, (state, action) => {
+        state.status = BENCHMARK_STATUS.RUNNING;
+        state.conditions = action.meta.arg;
+        state.runs = [];
+        state.error = null;
+      })
+      .addCase(runBenchmark.fulfilled, (state) => {
+        state.status = BENCHMARK_STATUS.DONE;
+      })
+      .addCase(runBenchmark.rejected, (state, action) => {
+        if (action.meta.aborted) {
+          state.status = BENCHMARK_STATUS.CANCELLED;
+
+          return;
+        }
+
+        state.status = BENCHMARK_STATUS.ERROR;
+        state.error = action.error.message ?? 'Benchmark failed';
+      });
   },
   selectors: {
     selectBenchmarkStatus: (state) => state.status,
@@ -88,15 +115,7 @@ export const benchmarkSlice = createSlice({
   },
 });
 
-export const {
-  initialLoadMeasured,
-  benchmarkStarted,
-  benchmarkRunStarted,
-  benchmarkStepFinished,
-  benchmarkFinished,
-  benchmarkCancelled,
-  benchmarkFailed,
-} = benchmarkSlice.actions;
+export const { initialLoadMeasured, benchmarkRunStarted, benchmarkStepFinished } = benchmarkSlice.actions;
 export const {
   selectBenchmarkStatus,
   selectInitialLoad,

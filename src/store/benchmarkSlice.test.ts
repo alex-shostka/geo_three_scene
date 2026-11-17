@@ -1,13 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { BENCHMARK_STATUS } from '../constants';
 import {
-  benchmarkCancelled,
-  benchmarkFailed,
-  benchmarkFinished,
   benchmarkRunStarted,
-  benchmarkStarted,
   benchmarkStepFinished,
   initialLoadMeasured,
+  runBenchmark,
   selectBenchmarkConditions,
   selectBenchmarkError,
   selectBenchmarkRuns,
@@ -21,18 +18,20 @@ import { makeStore } from './index';
 
 const step = { step: 1, label: '50 km', height: 50_000, loadMs: 3400, afterArrivalMs: 400 };
 const conditions = { width: 1600, height: 864, devicePixelRatio: 2, flightSeconds: 3, runs: 1 };
+const started = runBenchmark.pending('req-1', conditions);
+const failed = runBenchmark.rejected(new Error('Tiles did not finish loading within 60 s'), 'req-1', conditions);
 
 describe('benchmark', () => {
   it('collects step results until the run finishes', () => {
     const store = makeStore();
 
-    store.dispatch(benchmarkStarted(conditions));
+    store.dispatch(started);
     store.dispatch(benchmarkRunStarted());
     store.dispatch(benchmarkStepFinished(step));
 
     expect(selectBenchmarkStatus(store.getState())).toBe(BENCHMARK_STATUS.RUNNING);
 
-    store.dispatch(benchmarkFinished());
+    store.dispatch(runBenchmark.fulfilled(undefined, 'req-1', conditions));
 
     expect(selectBenchmarkStatus(store.getState())).toBe(BENCHMARK_STATUS.DONE);
     expect(selectBenchmarkRuns(store.getState())).toEqual([[step]]);
@@ -41,11 +40,11 @@ describe('benchmark', () => {
   it('a new run clears the previous results and error', () => {
     const store = makeStore();
 
-    store.dispatch(benchmarkStarted(conditions));
+    store.dispatch(started);
     store.dispatch(benchmarkRunStarted());
     store.dispatch(benchmarkStepFinished(step));
-    store.dispatch(benchmarkFailed('Tiles did not finish loading within 60 s'));
-    store.dispatch(benchmarkStarted(conditions));
+    store.dispatch(failed);
+    store.dispatch(started);
 
     expect(selectBenchmarkRuns(store.getState())).toEqual([]);
     expect(selectBenchmarkError(store.getState())).toBeNull();
@@ -54,10 +53,10 @@ describe('benchmark', () => {
   it('a failed run keeps the steps that finished', () => {
     const store = makeStore();
 
-    store.dispatch(benchmarkStarted(conditions));
+    store.dispatch(started);
     store.dispatch(benchmarkRunStarted());
     store.dispatch(benchmarkStepFinished(step));
-    store.dispatch(benchmarkFailed('Tiles did not finish loading within 60 s'));
+    store.dispatch(failed);
 
     expect(selectBenchmarkStatus(store.getState())).toBe(BENCHMARK_STATUS.ERROR);
     expect(selectBenchmarkRuns(store.getState())).toEqual([[step]]);
@@ -67,7 +66,7 @@ describe('benchmark', () => {
     const store = makeStore();
 
     store.dispatch(initialLoadMeasured({ ms: 2100, tabWasHidden: false }));
-    store.dispatch(benchmarkStarted(conditions));
+    store.dispatch(started);
 
     expect(selectInitialLoad(store.getState())).toEqual({ ms: 2100, tabWasHidden: false });
   });
@@ -75,7 +74,7 @@ describe('benchmark', () => {
   it('remembers the conditions the run started with', () => {
     const store = makeStore();
 
-    store.dispatch(benchmarkStarted(conditions));
+    store.dispatch(started);
 
     expect(selectBenchmarkConditions(store.getState())).toEqual(conditions);
   });
@@ -84,7 +83,7 @@ describe('benchmark', () => {
     const store = makeStore();
     const secondStep = { ...step, loadMs: 3100 };
 
-    store.dispatch(benchmarkStarted({ ...conditions, runs: 2 }));
+    store.dispatch(runBenchmark.pending('req-1', { ...conditions, runs: 2 }));
     store.dispatch(benchmarkRunStarted());
     store.dispatch(benchmarkStepFinished(step));
     store.dispatch(benchmarkRunStarted());
@@ -93,13 +92,14 @@ describe('benchmark', () => {
     expect(selectBenchmarkRuns(store.getState())).toEqual([[step], [secondStep]]);
   });
 
-  it('a cancelled run keeps the steps that finished', () => {
+  it('a cancelled run keeps the steps that finished', async () => {
     const store = makeStore();
+    const task = store.dispatch(runBenchmark(conditions));
 
-    store.dispatch(benchmarkStarted(conditions));
     store.dispatch(benchmarkRunStarted());
     store.dispatch(benchmarkStepFinished(step));
-    store.dispatch(benchmarkCancelled());
+    task.abort();
+    await task;
 
     expect(selectBenchmarkStatus(store.getState())).toBe(BENCHMARK_STATUS.CANCELLED);
     expect(selectBenchmarkRuns(store.getState())).toEqual([[step]]);
@@ -111,7 +111,7 @@ describe('benchmark', () => {
     const warmupStep = { ...step, loadMs: 5000 };
     const measuredStep = { ...step, loadMs: 3000 };
 
-    store.dispatch(benchmarkStarted({ ...conditions, runs: 2 }));
+    store.dispatch(runBenchmark.pending('req-1', { ...conditions, runs: 2 }));
     store.dispatch(benchmarkRunStarted());
     store.dispatch(benchmarkStepFinished(warmupStep));
     store.dispatch(benchmarkRunStarted());
