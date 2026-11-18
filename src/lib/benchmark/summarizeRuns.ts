@@ -1,9 +1,17 @@
+import type { DrawCallCount, RecordedDrawCalls } from './countDrawCalls';
+
+export interface FrameGeometry {
+  map: RecordedDrawCalls;
+  overlay: DrawCallCount | null;
+}
+
 export interface LoadStepResult {
   step: number;
   label: string;
   height: number;
   loadMs: number;
   afterArrivalMs: number;
+  frame: FrameGeometry;
 }
 
 export interface StepSummary {
@@ -16,6 +24,9 @@ export interface StepSummary {
   minMs: number;
   maxMs: number;
   medianAfterArrivalMs: number;
+  medianTriangles: number;
+  medianDrawCalls: number;
+  medianLargestCall: number;
 }
 
 export function quantile(values: number[], q: number): number {
@@ -62,6 +73,18 @@ export function summarizeRuns(runs: LoadStepResult[][], warmupRuns: number): Ste
       maxMs: Math.max(...times),
       medianAfterArrivalMs: quantile(
         steps.map((result) => result.afterArrivalMs),
+        0.5,
+      ),
+      medianTriangles: quantile(
+        steps.map((result) => result.frame.map.triangles),
+        0.5,
+      ),
+      medianDrawCalls: quantile(
+        steps.map((result) => result.frame.map.drawCalls),
+        0.5,
+      ),
+      medianLargestCall: quantile(
+        steps.map((result) => result.frame.map.largestCall),
         0.5,
       ),
     });

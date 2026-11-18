@@ -112,6 +112,11 @@ export const benchmarkSlice = createSlice({
     selectStepSummaries: computeStepSummaries,
     selectRouteSummary: computeRouteSummary,
     selectFinishedStepsCount: countFinishedSteps,
+    selectLastOverlay: (state) => {
+      const lastRun = state.runs[state.runs.length - 1];
+
+      return lastRun?.[lastRun.length - 1]?.frame.overlay ?? null;
+    },
   },
 });
 
@@ -125,4 +130,5 @@ export const {
   selectStepSummaries,
   selectRouteSummary,
   selectFinishedStepsCount,
+  selectLastOverlay,
 } = benchmarkSlice.selectors;

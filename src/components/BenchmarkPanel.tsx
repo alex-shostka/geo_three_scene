@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import StopwatchIcon from '../assets/icons/stopwatch.svg?react';
+import { showTileTriangleGrid } from '../cesium/tileWireframe';
 import { useInitialMapLoad } from '../cesium/useInitialMapLoad';
 import { useViewer } from '../cesium/viewerStore';
 import { BENCHMARK_PANEL, BENCHMARK_STATUS, EMPTY_VALUE } from '../constants';
@@ -17,6 +18,7 @@ import {
   selectBenchmarkStatus,
   selectFinishedStepsCount,
   selectInitialLoad,
+  selectLastOverlay,
   selectRouteSummary,
   selectStepSummaries,
   type RunConditions,
@@ -42,6 +44,12 @@ function formatSpread({ samples, p25Ms, p75Ms }: Pick<StepSummary, 'samples' | '
   }
 
   return `${(p25Ms / 1000).toFixed(2)}–${formatSeconds(p75Ms)}`;
+}
+
+const compactNumber = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
+function formatCount(value: number): string {
+  return compactNumber.format(Math.round(value));
 }
 
 function currentConditions(runs: number): RunConditions {
@@ -76,16 +84,28 @@ export function BenchmarkPanel() {
   const dispatch = useAppDispatch();
   const abortRef = useRef<(() => void) | null>(null);
   const [runCount, setRunCount] = useState<number>(BENCHMARK_RUN_OPTIONS[0]);
+  const [showTileTriangles, setShowTileTriangles] = useState(false);
 
   useInitialMapLoad();
 
   const running = status === BENCHMARK_STATUS.RUNNING;
+  const tileWireframe = showTileTriangles && !running;
+
+  useEffect(() => {
+    if (!viewer || !tileWireframe) {
+      return;
+    }
+
+    return showTileTriangleGrid(viewer);
+  }, [viewer, tileWireframe]);
+
   const conditions = runConditions ?? currentConditions(runCount);
   const warmupRuns = warmupRunsFor(conditions.runs);
 
   const summaries = useAppSelector(selectStepSummaries);
   const route = useAppSelector(selectRouteSummary);
   const finishedSteps = useAppSelector(selectFinishedStepsCount);
+  const lastOverlay = useAppSelector(selectLastOverlay);
 
   const inWarmup = running && runs.length <= warmupRuns;
   const lcpElement = lcp ? getLcpElement(lcp) : null;
@@ -104,6 +124,8 @@ export function BenchmarkPanel() {
   }
 
   const start = () => {
+    setShowTileTriangles(false);
+
     const task = dispatch(runBenchmark(currentConditions(runCount)));
 
     abortRef.current = () => task.abort();
@@ -236,6 +258,43 @@ export function BenchmarkPanel() {
           {status === BENCHMARK_STATUS.CANCELLED && (
             <p className="benchmark-note benchmark-warning">
               Cancelled in run {runs.length} of {conditions.runs}, after {finishedSteps} steps in total.
+            </p>
+          )}
+        </Panel.Section>
+
+        <Panel.Section title="Map frame">
+          <p className="benchmark-note benchmark-route-note">
+            What the GPU is asked to draw in one map frame after each step has fully loaded. Largest call is the biggest
+            single draw call in that frame.
+          </p>
+          <label className="benchmark-wireframe">
+            <input
+              type="checkbox"
+              checked={showTileTriangles}
+              disabled={running || !viewer}
+              onChange={(event) => setShowTileTriangles(event.target.checked)}
+            />
+            Show tile triangles
+          </label>
+          <StatsTable
+            columns={['#', 'Height', 'Triangles', 'Draw calls', 'Largest call']}
+            rows={summaries}
+            getRowKey={(summary) => summary.step}
+            emptyText={running ? 'Measuring…' : 'Press Start to measure'}
+            renderRow={({ step, label, medianTriangles, medianDrawCalls, medianLargestCall }) => (
+              <StatsTable.Row>
+                <td>{step}</td>
+                <td>{label}</td>
+                <td>{formatCount(medianTriangles)}</td>
+                <td>{formatCount(medianDrawCalls)}</td>
+                <td>{formatCount(medianLargestCall)}</td>
+              </StatsTable.Row>
+            )}
+          />
+          {lastOverlay && (
+            <p className="benchmark-note">
+              The Three.js overlay is a separate canvas and adds {formatCount(lastOverlay.triangles)} triangles in{' '}
+              {lastOverlay.drawCalls} draw calls.
             </p>
           )}
         </Panel.Section>

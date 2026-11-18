@@ -1,11 +1,12 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { LevelList } from '../components/LevelList';
 import { CameraRig } from './CameraRig';
 import { CanvasResizeBridge } from './CanvasResizeBridge';
 import { HoverCursor } from './HoverCursor';
 import { LevelAxis } from './LevelAxis';
+import { setOverlayRenderer } from './overlayRendererStore';
 import { TileGroup } from './TileGroup';
 import { useCornerResize, type SetCanvasSize } from './useCornerResize';
 import { useDragMove } from './useDragMove';
@@ -16,9 +17,15 @@ export function ThreeOverlay() {
   const startResize = useCornerResize(containerRef, setSizeRef);
   const startDrag = useDragMove(containerRef);
 
+  useEffect(() => () => setOverlayRenderer(null), []);
+
   return (
     <div id="three-canvas" ref={containerRef}>
-      <Canvas camera={{ fov: 60, near: 0.0002, far: 10000 }} gl={{ antialias: true }}>
+      <Canvas
+        camera={{ fov: 60, near: 0.0002, far: 10000 }}
+        gl={{ antialias: true }}
+        onCreated={({ gl }) => setOverlayRenderer(gl)}
+      >
         <CanvasResizeBridge setSizeRef={setSizeRef} />
         <color attach="background" args={[0x1a1a2e]} />
         <TileGroup />

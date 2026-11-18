@@ -1,5 +1,6 @@
 import { Cartesian3, Math as CesiumMath, type Viewer } from 'cesium';
 import { AMSTERDAM, HOME_HEIGHT } from '../../cesium/cesiumConfig';
+import { getOverlayRenderer } from '../../three/overlayRendererStore';
 import {
   BENCHMARK_DEVTOOLS_TRACK,
   MAP_LOADED_QUIET_MS,
@@ -10,7 +11,8 @@ import {
   ROUTE_START_HEIGHT,
 } from './benchmarkConfig';
 import { buildCameraRoute, formatHeight, type CameraRoutePoint } from './cameraRoute';
-import type { LoadStepResult } from './summarizeRuns';
+import { recordDrawCalls, type DrawCallCount } from './countDrawCalls';
+import type { FrameGeometry, LoadStepResult } from './summarizeRuns';
 import { waitForQueueQuiet } from './waitForQueueQuiet';
 
 export interface LoadBenchmarkOptions {
@@ -74,6 +76,57 @@ function flyTo(viewer: Viewer, point: CameraRoutePoint, flightSeconds: number, s
   });
 }
 
+function overlayDrawCalls(): DrawCallCount | null {
+  const renderer = getOverlayRenderer();
+
+  if (!renderer) {
+    return null;
+  }
+
+  return { drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
+}
+
+function measureNextFrame(viewer: Viewer, signal: AbortSignal): Promise<FrameGeometry> {
+  const gl = viewer.canvas.getContext('webgl2') ?? viewer.canvas.getContext('webgl');
+
+  if (!gl) {
+    return Promise.reject(new Error('The map has no WebGL context'));
+  }
+
+  const { scene } = viewer;
+
+  return new Promise((resolve, reject) => {
+    let recording: ReturnType<typeof recordDrawCalls> | null = null;
+
+    const cleanUp = () => {
+      recording?.stop();
+      removePreRender();
+      removePostRender();
+      signal.removeEventListener('abort', onAbort);
+    };
+    const onAbort = () => {
+      cleanUp();
+      reject(signal.reason);
+    };
+    const removePreRender = scene.preRender.addEventListener(() => {
+      recording ??= recordDrawCalls(gl);
+    });
+    const removePostRender = scene.postRender.addEventListener(() => {
+      if (!recording) {
+        return;
+      }
+
+      const map = { ...recording.count };
+
+      cleanUp();
+      resolve({ map, overlay: overlayDrawCalls() });
+    });
+
+    signal.addEventListener('abort', onAbort, { once: true });
+    scene.requestRender();
+  });
+}
+
 function stopWhenTabHidden(signal: AbortSignal): { signal: AbortSignal; release: () => void } {
   const controller = new AbortController();
   const forwardAbort = () => controller.abort(signal.reason);
@@ -114,6 +167,7 @@ async function flyRoute(
     const end = await waitForMapLoaded(viewer, signal);
     const loadMs = Math.round(end - start);
     const afterArrivalMs = Math.round(end - arrival);
+    const frame = await measureNextFrame(viewer, signal);
 
     performance.measure(`Run ${run} · step ${step} · ${label}`, {
       start,
@@ -123,12 +177,12 @@ async function flyRoute(
           dataType: 'track-entry',
           track: BENCHMARK_DEVTOOLS_TRACK,
           color: 'primary',
-          tooltipText: `Run ${run}, step ${step}, ${label}: ${loadMs} ms (${afterArrivalMs} ms after the camera stopped)`,
+          tooltipText: `Run ${run}, step ${step}, ${label}: ${loadMs} ms (${afterArrivalMs} ms after the camera stopped), ${frame.map.triangles} triangles in ${frame.map.drawCalls} draw calls`,
         },
       },
     });
 
-    onStep({ step, label, height: point.height, loadMs, afterArrivalMs });
+    onStep({ step, label, height: point.height, loadMs, afterArrivalMs, frame });
   }
 }
 

@@ -11,12 +11,20 @@ import {
   selectBenchmarkStatus,
   selectFinishedStepsCount,
   selectInitialLoad,
+  selectLastOverlay,
   selectRouteSummary,
   selectStepSummaries,
 } from './benchmarkSlice';
 import { makeStore } from './index';
 
-const step = { step: 1, label: '50 km', height: 50_000, loadMs: 3400, afterArrivalMs: 400 };
+const step = {
+  step: 1,
+  label: '50 km',
+  height: 50_000,
+  loadMs: 3400,
+  afterArrivalMs: 400,
+  frame: { map: { drawCalls: 120, triangles: 250_000, largestCall: 131_072 }, overlay: null },
+};
 const conditions = { width: 1600, height: 864, devicePixelRatio: 2, flightSeconds: 3, runs: 1 };
 const started = runBenchmark.pending('req-1', conditions);
 const failed = runBenchmark.rejected(new Error('Tiles did not finish loading within 60 s'), 'req-1', conditions);
@@ -109,7 +117,8 @@ describe('benchmark', () => {
   it('summarizes measured runs and memoizes the result', () => {
     const store = makeStore();
     const warmupStep = { ...step, loadMs: 5000 };
-    const measuredStep = { ...step, loadMs: 3000 };
+    const overlay = { drawCalls: 8, triangles: 16 };
+    const measuredStep = { ...step, loadMs: 3000, frame: { ...step.frame, overlay } };
 
     store.dispatch(runBenchmark.pending('req-1', { ...conditions, runs: 2 }));
     store.dispatch(benchmarkRunStarted());
@@ -120,6 +129,7 @@ describe('benchmark', () => {
     const state = store.getState();
 
     expect(selectFinishedStepsCount(state)).toBe(2);
+    expect(selectLastOverlay(state)).toEqual(overlay);
     expect(selectStepSummaries(state)).toEqual([
       {
         step: 1,
@@ -131,6 +141,9 @@ describe('benchmark', () => {
         minMs: 3000,
         maxMs: 3000,
         medianAfterArrivalMs: 400,
+        medianTriangles: 250_000,
+        medianDrawCalls: 120,
+        medianLargestCall: 131_072,
       },
     ]);
     expect(selectRouteSummary(state)).toEqual({

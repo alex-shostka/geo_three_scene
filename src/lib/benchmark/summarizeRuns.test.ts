@@ -8,6 +8,7 @@ function run(...times: number[]): LoadStepResult[] {
     height: 1000,
     loadMs,
     afterArrivalMs: loadMs / 10,
+    frame: { map: { drawCalls: loadMs / 100, triangles: loadMs * 10, largestCall: loadMs }, overlay: null },
   }));
 }
 
@@ -40,7 +41,15 @@ describe('summarizeRuns', () => {
     const summaries = summarizeRuns([run(9000, 900), run(100, 10), run(300, 30), run(200, 20)], 1);
 
     expect(summaries.map((summary) => summary.medianMs)).toEqual([200, 20]);
-    expect(summaries[0]).toMatchObject({ samples: 3, minMs: 100, maxMs: 300, medianAfterArrivalMs: 20 });
+    expect(summaries[0]).toMatchObject({
+      samples: 3,
+      minMs: 100,
+      maxMs: 300,
+      medianAfterArrivalMs: 20,
+      medianTriangles: 2000,
+      medianDrawCalls: 2,
+      medianLargestCall: 200,
+    });
   });
 
   it('counts each step over the runs that reached it', () => {
