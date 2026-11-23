@@ -10,7 +10,6 @@ import {
   Rectangle,
   TileCoordinatesImageryProvider,
   Viewer,
-  type Entity,
   type TileProviderError,
 } from 'cesium';
 import { useEffect, useRef } from 'react';
@@ -38,7 +37,6 @@ const NO_GLB_MESSAGE = 'No GLB loaded for this point';
 export function CesiumGlobe() {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
-  const hoverEntityRef = useRef<Entity | null>(null);
   const tileGridLayerRef = useRef<ImageryLayer | null>(null);
 
   const store = useAppStore();
@@ -73,17 +71,6 @@ export function CesiumGlobe() {
       baseLayer: new ImageryLayer(localTiles),
     });
 
-    const hoverEntity = viewer.entities.add({
-      show: false,
-      rectangle: {
-        coordinates: Rectangle.fromDegrees(0, 0, 1, 1),
-        material: Color.YELLOW.withAlpha(0.3),
-        outline: true,
-        outlineColor: Color.YELLOW,
-        outlineWidth: 2,
-        height: 0,
-      },
-    });
     const glbHoverPolyline = new PolylineGraphics({
       positions: [],
       width: 4,
@@ -248,7 +235,6 @@ export function CesiumGlobe() {
 
     glbHoverOutline.polyline = glbHoverPolyline;
     viewerRef.current = viewer;
-    hoverEntityRef.current = hoverEntity;
     window.geoThreeScene = { cesiumViewer: viewer };
 
     viewer.camera.setView({
@@ -338,22 +324,33 @@ export function CesiumGlobe() {
   }, [glbTiles, loadGlbForViewport]);
 
   useEffect(() => {
-    const hoverEntity = hoverEntityRef.current;
+    const viewer = viewerRef.current;
 
-    if (!hoverEntity || !hoverEntity.rectangle) {
+    if (!viewer || !hoveredRecord) {
       return;
     }
 
-    if (!hoveredRecord) {
-      hoverEntity.show = false;
+    const hoverEntity = viewer.entities.add({
+      rectangle: {
+        coordinates: Rectangle.fromDegrees(
+          hoveredRecord.west,
+          hoveredRecord.south,
+          hoveredRecord.east,
+          hoveredRecord.north,
+        ),
+        material: Color.YELLOW.withAlpha(0.3),
+        outline: true,
+        outlineColor: Color.YELLOW,
+        outlineWidth: 2,
+        height: 0,
+      },
+    });
 
-      return;
-    }
-
-    hoverEntity.rectangle.coordinates = new ConstantProperty(
-      Rectangle.fromDegrees(hoveredRecord.west, hoveredRecord.south, hoveredRecord.east, hoveredRecord.north),
-    );
-    hoverEntity.show = true;
+    return () => {
+      if (!viewer.isDestroyed()) {
+        viewer.entities.remove(hoverEntity);
+      }
+    };
   }, [hoveredRecord]);
 
   useDoomTile();
