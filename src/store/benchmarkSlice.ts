@@ -8,6 +8,7 @@ export interface RunConditions {
   height: number;
   devicePixelRatio: number;
   flightSeconds: number;
+  maximumScreenSpaceError: number;
   runs: number;
 }
 

@@ -1,5 +1,6 @@
 import { Cartesian3, Math as CesiumMath, type Viewer } from 'cesium';
 import { AMSTERDAM, HOME_HEIGHT } from '../../cesium/cesiumConfig';
+import { readRenderedTiles, type TileTriangles } from '../../cesium/tileWireframe';
 import { getOverlayRenderer } from '../../three/overlayRendererStore';
 import {
   BENCHMARK_DEVTOOLS_TRACK,
@@ -9,10 +10,12 @@ import {
   ROUTE_MIN_HEIGHT,
   ROUTE_PITCH_DEG,
   ROUTE_START_HEIGHT,
+  TILE_PATH_PREFIX,
 } from './benchmarkConfig';
 import { buildCameraRoute, formatHeight, type CameraRoutePoint } from './cameraRoute';
 import { recordDrawCalls, type DrawCallCount } from './countDrawCalls';
 import type { FrameGeometry, LoadStepResult } from './summarizeRuns';
+import { countTilesByLevel, sumTileTraffic, type TileTraffic } from './tileStats';
 import { waitForQueueQuiet } from './waitForQueueQuiet';
 
 export interface LoadBenchmarkOptions {
@@ -86,7 +89,31 @@ function overlayDrawCalls(): DrawCallCount | null {
   return { drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
 }
 
-function measureNextFrame(viewer: Viewer, signal: AbortSignal): Promise<FrameGeometry> {
+interface MeasuredFrame {
+  frame: FrameGeometry;
+  renderedTiles: TileTriangles[];
+}
+
+async function withTileTraffic<T extends object>(task: () => Promise<T>): Promise<T & { traffic: TileTraffic }> {
+  const entries: PerformanceEntry[] = [];
+  const observer = new PerformanceObserver((list) => {
+    entries.push(...list.getEntries());
+  });
+
+  observer.observe({ type: 'resource' });
+
+  try {
+    const result = await task();
+
+    entries.push(...observer.takeRecords());
+
+    return { ...result, traffic: sumTileTraffic(entries as PerformanceResourceTiming[], TILE_PATH_PREFIX) };
+  } finally {
+    observer.disconnect();
+  }
+}
+
+function measureNextFrame(viewer: Viewer, signal: AbortSignal): Promise<MeasuredFrame> {
   const gl = viewer.canvas.getContext('webgl2') ?? viewer.canvas.getContext('webgl');
 
   if (!gl) {
@@ -119,7 +146,7 @@ function measureNextFrame(viewer: Viewer, signal: AbortSignal): Promise<FrameGeo
       const map = { ...recording.count };
 
       cleanUp();
-      resolve({ map, overlay: overlayDrawCalls() });
+      resolve({ frame: { map, overlay: overlayDrawCalls() }, renderedTiles: readRenderedTiles(viewer) });
     });
 
     signal.addEventListener('abort', onAbort, { once: true });
@@ -162,12 +189,22 @@ async function flyRoute(
   for (const [index, point] of CAMERA_ROUTE.entries()) {
     const step = index + 1;
     const label = formatHeight(point.height);
-    const start = performance.now();
-    const arrival = await flyTo(viewer, point, flightSeconds, signal);
-    const end = await waitForMapLoaded(viewer, signal);
+    const { start, arrival, end, traffic } = await withTileTraffic(async () => {
+      const start = performance.now();
+      const arrival = await flyTo(viewer, point, flightSeconds, signal);
+      const end = await waitForMapLoaded(viewer, signal);
+
+      return { start, arrival, end };
+    });
     const loadMs = Math.round(end - start);
     const afterArrivalMs = Math.round(end - arrival);
-    const frame = await measureNextFrame(viewer, signal);
+    const { frame, renderedTiles } = await measureNextFrame(viewer, signal);
+    const tiles = {
+      ...traffic,
+      count: renderedTiles.length,
+      triangles: renderedTiles.reduce((total, tile) => total + tile.triangles, 0),
+      levels: countTilesByLevel(renderedTiles.map((tile) => tile.level)),
+    };
 
     performance.measure(`Run ${run} · step ${step} · ${label}`, {
       start,
@@ -177,12 +214,12 @@ async function flyRoute(
           dataType: 'track-entry',
           track: BENCHMARK_DEVTOOLS_TRACK,
           color: 'primary',
-          tooltipText: `Run ${run}, step ${step}, ${label}: ${loadMs} ms (${afterArrivalMs} ms after the camera stopped), ${frame.map.triangles} triangles in ${frame.map.drawCalls} draw calls`,
+          tooltipText: `Run ${run}, step ${step}, ${label}: ${loadMs} ms (${afterArrivalMs} ms after the camera stopped), ${frame.map.triangles} triangles in ${frame.map.drawCalls} draw calls, ${tiles.count} tiles, ${tiles.requests} tile requests`,
         },
       },
     });
 
-    onStep({ step, label, height: point.height, loadMs, afterArrivalMs, frame });
+    onStep({ step, label, height: point.height, loadMs, afterArrivalMs, frame, tiles });
   }
 }
 

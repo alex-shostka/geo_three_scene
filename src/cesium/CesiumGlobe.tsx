@@ -14,6 +14,7 @@ import {
 } from 'cesium';
 import { useEffect, useRef } from 'react';
 import { ACTIVE_TILE, ACTIVE_TILES_SETTLE_MS, ERROR_TILE } from '../constants';
+import { readMaximumScreenSpaceError } from '../lib/benchmark/benchmarkConfig';
 import { containsPoint } from '../lib/containsPoint';
 import { formatMetadataValue } from '../lib/formatMetadataValue';
 import { formatTileError } from '../lib/formatTileError';
@@ -70,6 +71,8 @@ export function CesiumGlobe() {
       creditContainer: document.createElement('div'),
       baseLayer: new ImageryLayer(localTiles),
     });
+
+    viewer.scene.globe.maximumScreenSpaceError = readMaximumScreenSpaceError(window.location.search);
 
     const glbHoverPolyline = new PolylineGraphics({
       positions: [],

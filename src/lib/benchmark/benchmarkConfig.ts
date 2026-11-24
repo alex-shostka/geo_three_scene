@@ -10,10 +10,20 @@ export const ROUTE_PITCH_DEG = -45;
 
 export const DEFAULT_FLIGHT_SECONDS = 3;
 
+export const DEFAULT_MAXIMUM_SCREEN_SPACE_ERROR = 2;
+
+export const TILE_PATH_PREFIX = '/tiles/';
+
 export const BENCHMARK_RUN_OPTIONS = [1, 5, 10, 20] as const;
 
 export function readFlightSeconds(search: string): number {
   const value = Number(new URLSearchParams(search).get('flight'));
 
   return value > 0 ? value : DEFAULT_FLIGHT_SECONDS;
+}
+
+export function readMaximumScreenSpaceError(search: string): number {
+  const value = Number(new URLSearchParams(search).get('msse'));
+
+  return value > 0 ? value : DEFAULT_MAXIMUM_SCREEN_SPACE_ERROR;
 }

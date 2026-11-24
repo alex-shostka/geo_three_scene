@@ -5,8 +5,13 @@ import { useInitialMapLoad } from '../cesium/useInitialMapLoad';
 import { useViewer } from '../cesium/viewerStore';
 import { BENCHMARK_PANEL, BENCHMARK_STATUS, EMPTY_VALUE } from '../constants';
 import { useWebVitals } from '../hooks/useWebVitals';
-import { BENCHMARK_RUN_OPTIONS, readFlightSeconds } from '../lib/benchmark/benchmarkConfig';
+import {
+  BENCHMARK_RUN_OPTIONS,
+  readFlightSeconds,
+  readMaximumScreenSpaceError,
+} from '../lib/benchmark/benchmarkConfig';
 import { warmupRunsFor, type StepSummary } from '../lib/benchmark/summarizeRuns';
+import { formatTileLevels } from '../lib/benchmark/tileStats';
 import { describeElement } from '../lib/describeElement';
 import { getLcpElement } from '../lib/getLcpElement';
 import { highlightElement } from '../lib/highlightElement';
@@ -52,12 +57,21 @@ function formatCount(value: number): string {
   return compactNumber.format(Math.round(value));
 }
 
+function formatBytes(bytes: number): string {
+  if (bytes >= 1_000_000) {
+    return `${(bytes / 1_000_000).toFixed(1)} MB`;
+  }
+
+  return `${Math.round(bytes / 1000)} KB`;
+}
+
 function currentConditions(runs: number): RunConditions {
   return {
     width: window.innerWidth,
     height: window.innerHeight,
     devicePixelRatio: Number(window.devicePixelRatio.toFixed(2)),
     flightSeconds: readFlightSeconds(window.location.search),
+    maximumScreenSpaceError: readMaximumScreenSpaceError(window.location.search),
     runs,
   };
 }
@@ -180,7 +194,7 @@ export function BenchmarkPanel() {
           </label>
           <span className="benchmark-conditions">
             {conditions.width}×{conditions.height} · DPR {conditions.devicePixelRatio} · flight{' '}
-            {conditions.flightSeconds} s
+            {conditions.flightSeconds} s · SSE {conditions.maximumScreenSpaceError}
           </span>
         </div>
         {error && <p className="benchmark-error">{error}</p>}
@@ -297,6 +311,29 @@ export function BenchmarkPanel() {
               {lastOverlay.drawCalls} draw calls.
             </p>
           )}
+        </Panel.Section>
+
+        <Panel.Section title="Map tiles">
+          <p className="benchmark-note benchmark-route-note">
+            The map tiles in that frame by level, and the tile images downloaded during the step. Cached images are not
+            counted as traffic. A higher SSE limit (?msse=8) loads less detailed tiles.
+          </p>
+          <StatsTable
+            columns={['#', 'Height', 'Tiles', 'Levels', 'Requests', 'Traffic']}
+            rows={summaries}
+            getRowKey={(summary) => summary.step}
+            emptyText={running ? 'Measuring…' : 'Press Start to measure'}
+            renderRow={({ step, label, medianTiles, levels, medianTileRequests, medianTileBytes }) => (
+              <StatsTable.Row>
+                <td>{step}</td>
+                <td>{label}</td>
+                <td>{formatCount(medianTiles)}</td>
+                <td>{formatTileLevels(levels)}</td>
+                <td>{formatCount(medianTileRequests)}</td>
+                <td>{formatBytes(medianTileBytes)}</td>
+              </StatsTable.Row>
+            )}
+          />
         </Panel.Section>
       </Panel.Content>
     </Panel>

@@ -24,8 +24,16 @@ const step = {
   loadMs: 3400,
   afterArrivalMs: 400,
   frame: { map: { drawCalls: 120, triangles: 250_000, largestCall: 131_072 }, overlay: null },
+  tiles: { count: 40, triangles: 22_800, requests: 25, bytes: 310_000, levels: [{ level: 10, tiles: 40 }] },
 };
-const conditions = { width: 1600, height: 864, devicePixelRatio: 2, flightSeconds: 3, runs: 1 };
+const conditions = {
+  width: 1600,
+  height: 864,
+  devicePixelRatio: 2,
+  flightSeconds: 3,
+  maximumScreenSpaceError: 2,
+  runs: 1,
+};
 const started = runBenchmark.pending('req-1', conditions);
 const failed = runBenchmark.rejected(new Error('Tiles did not finish loading within 60 s'), 'req-1', conditions);
 
@@ -144,6 +152,11 @@ describe('benchmark', () => {
         medianTriangles: 250_000,
         medianDrawCalls: 120,
         medianLargestCall: 131_072,
+        medianTiles: 40,
+        medianTileTriangles: 22_800,
+        medianTileRequests: 25,
+        medianTileBytes: 310_000,
+        levels: [{ level: 10, tiles: 40 }],
       },
     ]);
     expect(selectRouteSummary(state)).toEqual({

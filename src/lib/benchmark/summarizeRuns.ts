@@ -1,4 +1,5 @@
 import type { DrawCallCount, RecordedDrawCalls } from './countDrawCalls';
+import type { StepTiles, TileLevelCount } from './tileStats';
 
 export interface FrameGeometry {
   map: RecordedDrawCalls;
@@ -12,6 +13,7 @@ export interface LoadStepResult {
   loadMs: number;
   afterArrivalMs: number;
   frame: FrameGeometry;
+  tiles: StepTiles;
 }
 
 export interface StepSummary {
@@ -27,6 +29,11 @@ export interface StepSummary {
   medianTriangles: number;
   medianDrawCalls: number;
   medianLargestCall: number;
+  medianTiles: number;
+  medianTileTriangles: number;
+  medianTileRequests: number;
+  medianTileBytes: number;
+  levels: TileLevelCount[];
 }
 
 export function quantile(values: number[], q: number): number {
@@ -55,8 +62,9 @@ export function summarizeRuns(runs: LoadStepResult[][], warmupRuns: number): Ste
   for (let index = 0; index < stepCount; index++) {
     const steps = measuredRuns.flatMap((run) => run[index] ?? []);
     const [first] = steps;
+    const last = steps[steps.length - 1];
 
-    if (!first) {
+    if (!first || !last) {
       continue;
     }
 
@@ -87,6 +95,23 @@ export function summarizeRuns(runs: LoadStepResult[][], warmupRuns: number): Ste
         steps.map((result) => result.frame.map.largestCall),
         0.5,
       ),
+      medianTiles: quantile(
+        steps.map((result) => result.tiles.count),
+        0.5,
+      ),
+      medianTileTriangles: quantile(
+        steps.map((result) => result.tiles.triangles),
+        0.5,
+      ),
+      medianTileRequests: quantile(
+        steps.map((result) => result.tiles.requests),
+        0.5,
+      ),
+      medianTileBytes: quantile(
+        steps.map((result) => result.tiles.bytes),
+        0.5,
+      ),
+      levels: last.tiles.levels,
     });
   }
 

@@ -9,6 +9,13 @@ function run(...times: number[]): LoadStepResult[] {
     loadMs,
     afterArrivalMs: loadMs / 10,
     frame: { map: { drawCalls: loadMs / 100, triangles: loadMs * 10, largestCall: loadMs }, overlay: null },
+    tiles: {
+      count: loadMs / 10,
+      triangles: loadMs * 5,
+      requests: loadMs / 20,
+      bytes: loadMs * 100,
+      levels: [{ level: 14, tiles: loadMs / 10 }],
+    },
   }));
 }
 
@@ -49,6 +56,11 @@ describe('summarizeRuns', () => {
       medianTriangles: 2000,
       medianDrawCalls: 2,
       medianLargestCall: 200,
+      medianTiles: 20,
+      medianTileTriangles: 1000,
+      medianTileRequests: 10,
+      medianTileBytes: 20_000,
+      levels: [{ level: 14, tiles: 20 }],
     });
   });
 
